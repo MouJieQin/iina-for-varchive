@@ -242,7 +242,16 @@ class PlayerWindowController: NSWindowController, NSWindowDelegate {
         abLoop()
         returnValue = 0
       default:
-        returnValue = player.mpv.command(rawString: keyBinding.rawAction)
+        print("Keybinding Run command: \(keyBinding.rawAction)")
+        let arraysplited = keyBinding.rawAction.components(separatedBy:";")
+        var tmpReturnValue: Int32=0
+        for cmd in arraysplited{
+          tmpReturnValue = player.mpv.command(rawString: cmd)
+          if tmpReturnValue != 0{
+            break
+          }
+        }
+        returnValue=tmpReturnValue
       }
       if returnValue == 0 {
         return true
