@@ -600,7 +600,7 @@ not applying FFmpeg 9599 workaround
   }
 
   func commandForkeybinding(rawString: String) -> Int32 {
-    // sub-text
+    // show sub-text/secondary-text
     guard rawString != MPVProperty.subText, rawString != MPVProperty.secondarySubText  else{
       let currSub: String = self.getString(rawString) ?? "No subtitles found !"
       let originalState: Bool = player.info.isPlaying
@@ -611,6 +611,17 @@ not applying FFmpeg 9599 workaround
       if originalState{
         player.resume()
       }
+      return 0
+    }
+
+    // seek to sub-start/secondary-sub-start
+    guard rawString != MPVProperty.subStart, rawString != MPVProperty.secondarySubStart  else{
+      let subStart: Double = self.getDouble(rawString)
+      guard Int32(subStart) != 0 else{
+        self.command("sub-seek -1")
+        return 0
+      }
+      player.seek(absoluteSecond:subStart)
       return 0
     }
     return self.command(rawString)
