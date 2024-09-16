@@ -594,9 +594,26 @@ not applying FFmpeg 9599 workaround
     }
   }
 
-  func command(rawString: String) -> Int32 {
+  func command(_ rawString: String) -> Int32 {
     log("Run command: \(rawString)")
     return mpv_command_string(mpv, rawString)
+  }
+
+  func commandForkeybinding(rawString: String) -> Int32 {
+    // sub-text
+    guard rawString != MPVProperty.subText, rawString != MPVProperty.secondarySubText  else{
+      let currSub: String = self.getString(rawString) ?? "No subtitles found !"
+      let originalState: Bool = player.info.isPlaying
+      if originalState {
+        player.pause()
+      }
+      Utility.showAlert(message: currSub,alertStyle:.informational)
+      if originalState{
+        player.resume()
+      }
+      return 0
+    }
+    return self.command(rawString)
   }
 
   func asyncCommand(_ command: MPVCommand, args: [String?] = [], checkError: Bool = true, replyUserdata: UInt64) {

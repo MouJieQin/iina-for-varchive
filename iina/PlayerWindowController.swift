@@ -246,7 +246,7 @@ class PlayerWindowController: NSWindowController, NSWindowDelegate {
         let arraysplited = keyBinding.rawAction.components(separatedBy:";")
         var tmpReturnValue: Int32=0
         for cmd in arraysplited{
-          tmpReturnValue = player.mpv.command(rawString: cmd)
+          tmpReturnValue = player.mpv.commandForkeybinding(rawString: cmd)
           if tmpReturnValue != 0{
             break
           }
