@@ -242,7 +242,7 @@ class PlayerWindowController: NSWindowController, NSWindowDelegate {
         abLoop()
         returnValue = 0
       default:
-        print("Keybinding Run command: \(keyBinding.rawAction)")
+        Logger.log("Run Keybinding commands: \(keyBinding.rawAction)", level: .debug)
         let arraysplited = keyBinding.rawAction.components(separatedBy:";")
         var tmpReturnValue: Int32=0
         for cmd in arraysplited{

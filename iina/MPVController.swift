@@ -598,33 +598,67 @@ not applying FFmpeg 9599 workaround
     log("Run command: \(rawString)")
     return mpv_command_string(mpv, rawString)
   }
+    
+  func custom_abLoop(a: Double, b: Double) {
+    if player.info.abLoopStatus == .aSet {
+      // clear existing a point
+      player.abLoop()
+      player.abLoop()
+    }
+    guard player.info.abLoopStatus != .bSet else {
+      player.abLoop()
+      return
+    }
+
+    player.seek(absoluteSecond: a)
+    player.abLoop()
+
+    player.seek(absoluteSecond: b)
+    player.abLoop()
+    // workaround to successfully set b point
+    player.abLoopB = b
+    player.syncAbLoop()
+    player.sendOSD(.abLoop(player.info.abLoopStatus))
+  }
 
   func commandForkeybinding(rawString: String) -> Int32 {
+    switch rawString {
     // show sub-text/secondary-text
-    guard rawString != MPVProperty.subText, rawString != MPVProperty.secondarySubText  else{
+    case MPVProperty.subText, MPVProperty.secondarySubText:
       let currSub: String = self.getString(rawString) ?? "No subtitles found !"
       let originalState: Bool = player.info.isPlaying
       if originalState {
         player.pause()
       }
-      Utility.showAlert(message: currSub,alertStyle:.informational)
-      if originalState{
+      Utility.showAlert(message: currSub, alertStyle: .informational)
+      if originalState {
         player.resume()
       }
       return 0
-    }
-
     // seek to sub-start/secondary-sub-start
-    guard rawString != MPVProperty.subStart, rawString != MPVProperty.secondarySubStart  else{
+    case MPVProperty.subStart, MPVProperty.secondarySubStart:
       let subStart: Double = self.getDouble(rawString)
-      guard Int32(subStart) != 0 else{
-        self.command("sub-seek -1")
+      guard Int32(subStart) != 0 else {
+        let seekCommand: String = rawString == MPVProperty.subStart ? "sub-seek -1" : "sub-seek -1 secondary"
+        let returnValue = self.command(seekCommand)
+        guard returnValue == 0 else {
+          return returnValue
+        }
         return 0
       }
-      player.seek(absoluteSecond:subStart)
+      player.seek(absoluteSecond: subStart)
       return 0
+    case "sub-ab-loop", "secondarySub-ab-loop":
+      let subStart: Double = rawString == "sub-ab-loop" ? self.getDouble(MPVProperty.subStart) : self.getDouble(MPVProperty.secondarySubStart)
+      let subEnd: Double = rawString == "sub-ab-loop" ? self.getDouble(MPVProperty.subEnd) : self.getDouble(MPVProperty.secondarySubEnd)
+      guard Int32(subStart) != 0 else {
+        return 0
+      }
+      custom_abLoop(a: subStart, b: subEnd)
+      return 0
+    default:
+      return self.command(rawString)
     }
-    return self.command(rawString)
   }
 
   func asyncCommand(_ command: MPVCommand, args: [String?] = [], checkError: Bool = true, replyUserdata: UInt64) {
