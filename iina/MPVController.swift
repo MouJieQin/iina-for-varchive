@@ -609,7 +609,7 @@ not applying FFmpeg 9599 workaround
       player.abLoop()
       return
     }
-
+    
     player.seek(absoluteSecond: a)
     player.abLoop()
 
@@ -619,10 +619,13 @@ not applying FFmpeg 9599 workaround
     player.abLoopB = b
     player.syncAbLoop()
     player.sendOSD(.abLoop(player.info.abLoopStatus))
+    
+    player.seek(absoluteSecond: a)
   }
 
   func commandForkeybinding(rawString: String) -> Int32 {
-    switch rawString {
+    let rawStringSplited = rawString.components(separatedBy:" ")
+    switch rawStringSplited[0] {
     // show sub-text/secondary-text
     case MPVProperty.subText, MPVProperty.secondarySubText:
       let currSub: String = self.getString(rawString) ?? "No subtitles found !"
@@ -655,6 +658,22 @@ not applying FFmpeg 9599 workaround
         return 0
       }
       custom_abLoop(a: subStart, b: subEnd)
+      return 0
+    case "cur-ab-loop":
+      let pos = getDouble(MPVProperty.timePos)
+      var leftDuration = 1.0
+      if rawStringSplited.count >= 2, let first = Double(rawStringSplited[1]) {
+        leftDuration = first
+      }
+      var RightDuration = 1.0
+      if rawStringSplited.count >= 3, let second = Double(rawStringSplited[2]) {
+        RightDuration = second
+      }
+      custom_abLoop(a: pos - leftDuration, b: pos + RightDuration)
+      guard player.info.isPlaying else {
+        player.resume()
+        return 0
+      }
       return 0
     default:
       return self.command(rawString)
