@@ -24,6 +24,9 @@ final class PlaySlider: NSSlider {
   /// Knob representing the B loop point for the mpv A-B loop feature.
   var abLoopB: PlaySliderLoopKnob { abLoopBKnob }
 
+  /// Knobs representing the timestamp point for the custom-mpv mark-timestamps feature
+  var timestampsKnobs: [PlaySliderLoopKnob] { timestampMarkKnobs }
+
   /// The slider's cell correctly typed for convenience.
   var customCell: PlaySliderCell { cell as! PlaySliderCell }
 
@@ -38,6 +41,8 @@ final class PlaySlider: NSSlider {
   private var abLoopAKnob: PlaySliderLoopKnob!
 
   private var abLoopBKnob: PlaySliderLoopKnob!
+
+  private var timestampMarkKnobs: [PlaySliderLoopKnob] = []
 
   // MARK:- Initialization
 
@@ -91,5 +96,25 @@ final class PlaySlider: NSSlider {
     // thought the NSView method would do this. The current Apple documentation does not say what
     // the NSView method does or even if it needs to be called by subclasses.
     needsDisplay = true
+  }
+
+  func insertTimestamp(pos: Double, index: Int, toolTip: String) {
+    timestampMarkKnobs.insert(PlaySliderLoopKnob(slider: self, toolTip: toolTip, knobHeightAdjustment: CGFloat(0.25)), at: index)
+    timestampMarkKnobs[index].doubleValue = pos
+    timestampMarkKnobs[index].isHidden = false
+  }
+
+  func removeTimestamp(at: Int) {
+    timestampMarkKnobs[at].isHidden = true
+    timestampMarkKnobs[at].needsDisplay = false
+    timestampMarkKnobs.remove(at: at)
+  }
+
+  func removeAllTimestamps() {
+    for knob in timestampMarkKnobs {
+      knob.isHidden = true
+      knob.needsDisplay = false
+    }
+    timestampMarkKnobs.removeAll()
   }
 }

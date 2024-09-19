@@ -91,11 +91,11 @@ final class PlaySliderLoopKnob: NSView {
   /// - Parameters:
   ///   - slider: The slider this thumb belongs to.
   ///   - toolTip: The help tag to display for this thumb.
-  init(slider: PlaySlider, toolTip: String) {
+  init(slider: PlaySlider, toolTip: String, knobHeightAdjustment: CGFloat = knobHeightAdjustment) {
     self.slider = slider
     self.cell = slider.customCell
     // We want loop knobs to be shorter than the primary knob.
-    knobHeight = round(cell.knobHeight * PlaySliderLoopKnob.knobHeightAdjustment)
+    knobHeight = round(cell.knobHeight * knobHeightAdjustment)
     // The frame is calculated and set once the superclass is initialized.
     super.init(frame: NSZeroRect)
     self.toolTip = toolTip

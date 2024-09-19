@@ -388,6 +388,12 @@ class Utility {
     return url
   }()
 
+  static let timestampDirURL: URL = {
+    let url = Utility.appSupportDirUrl.appendingPathComponent(AppData.timestampFolder, isDirectory: true)
+    createDirIfNotExist(url: url)
+    return url
+  }()
+
   static let pluginsURL: URL = {
     let url = Utility.appSupportDirUrl.appendingPathComponent(AppData.pluginsFolder, isDirectory: true)
     createDirIfNotExist(url: url)

@@ -223,6 +223,42 @@ class PlayerCore: NSObject {
     }
   }
 
+  var timestamps: [Double] = []
+  var timestampTips: [String] = []
+  var playingFilePath = ""
+  var timestampFile = ""
+
+  func loadTimestampsFromFile() {
+    guard let dicFromPList = NSDictionary(contentsOfFile: timestampFile) else {
+      return
+    }
+    timestamps = dicFromPList["Timestamps"] as! [Double]
+    timestampTips = dicFromPList["Tips"] as! [String]
+    self.mainWindow.loadTimestaps()
+  }
+
+  func loadTimestamps() {
+    // clear all timestamps in the previous file without syncing to the timestamp file.
+    self.mainWindow.clearAllTimestamp(isSyncFile: false)
+    let absolutePath = info.currentURL?.absoluteString ?? ""
+    guard !absolutePath.isEmpty else {
+      return
+    }
+    playingFilePath = absolutePath
+    let timestampFileName = absolutePath.md5 + ".plist"
+    timestampFile = Utility.timestampDirURL.appendingPathComponent(timestampFileName).path
+    // check exist
+    guard FileManager.default.fileExists(atPath: timestampFile) else {
+      return
+    }
+    loadTimestampsFromFile()
+  }
+
+  func syncTimestampFile() {
+    let timestampDict: NSDictionary = ["File Path": playingFilePath, "Timestamps": timestamps, "Tips": timestampTips]
+    NSDictionary(dictionary: timestampDict).write(toFile: timestampFile, atomically: true)
+  }
+
   var isABLoopActive: Bool {
     abLoopA != 0 && abLoopB != 0 && mpv.getString(MPVOption.PlaybackControl.abLoopCount) != "0"
   }
@@ -875,7 +911,7 @@ class PlayerCore: NSObject {
       info.abLoopStatus = b == 0 ? .aSet : .bSet
     }
     // The play slider has knobs representing the loop points, make insure the slider is in sync.
-    mainWindow?.syncSlider()
+    mainWindow?.syncAbLoopOnSlider()
     Logger.log("Synchronized info.abLoopStatus \(info.abLoopStatus)")
   }
 

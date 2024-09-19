@@ -598,46 +598,23 @@ not applying FFmpeg 9599 workaround
     log("Run command: \(rawString)")
     return mpv_command_string(mpv, rawString)
   }
-    
-  func custom_abLoop(a: Double, b: Double) {
-    if player.info.abLoopStatus == .aSet {
-      // clear existing a point
-      player.abLoop()
-      player.abLoop()
-    }
-    guard player.info.abLoopStatus != .bSet else {
-      player.abLoop()
-      return
-    }
-    
-    player.seek(absoluteSecond: a)
-    player.abLoop()
-
-    player.seek(absoluteSecond: b)
-    player.abLoop()
-    // workaround to successfully set b point
-    player.abLoopB = b
-    player.syncAbLoop()
-    player.sendOSD(.abLoop(player.info.abLoopStatus))
-    
-    player.seek(absoluteSecond: a)
-  }
 
   func commandForkeybinding(rawString: String) -> Int32 {
-    let rawStringSplited = rawString.components(separatedBy:" ")
+    let rawStringSplited = rawString.components(separatedBy: " ")
     switch rawStringSplited[0] {
     // show sub-text/secondary-text
     case MPVProperty.subText, MPVProperty.secondarySubText:
       let currSub: String = self.getString(rawString) ?? "No subtitles found !"
-      let originalState: Bool = player.info.isPlaying
-      if originalState {
+      let isPlaying: Bool = player.info.isPlaying
+      if isPlaying {
         player.pause()
       }
       Utility.showAlert(message: currSub, alertStyle: .informational)
-      if originalState {
+      if isPlaying {
         player.resume()
       }
       return 0
+
     // seek to sub-start/secondary-sub-start
     case MPVProperty.subStart, MPVProperty.secondarySubStart:
       let subStart: Double = self.getDouble(rawString)
@@ -651,14 +628,16 @@ not applying FFmpeg 9599 workaround
       }
       player.seek(absoluteSecond: subStart)
       return 0
+
     case "sub-ab-loop", "secondarySub-ab-loop":
       let subStart: Double = rawString == "sub-ab-loop" ? self.getDouble(MPVProperty.subStart) : self.getDouble(MPVProperty.secondarySubStart)
       let subEnd: Double = rawString == "sub-ab-loop" ? self.getDouble(MPVProperty.subEnd) : self.getDouble(MPVProperty.secondarySubEnd)
       guard Int32(subStart) != 0 else {
         return 0
       }
-      custom_abLoop(a: subStart, b: subEnd)
+      player.mainWindow.custom_abLoop(a: subStart, b: subEnd)
       return 0
+
     case "cur-ab-loop":
       let pos = getDouble(MPVProperty.timePos)
       var leftDuration = 1.0
@@ -669,12 +648,38 @@ not applying FFmpeg 9599 workaround
       if rawStringSplited.count >= 3, let second = Double(rawStringSplited[2]) {
         RightDuration = second
       }
-      custom_abLoop(a: pos - leftDuration, b: pos + RightDuration)
+      player.mainWindow.custom_abLoop(a: pos - leftDuration, b: pos + RightDuration)
       guard player.info.isPlaying else {
         player.resume()
         return 0
       }
       return 0
+
+    case "mark-timestamp":
+      player.loadTimestamps()
+      let pos = getDouble(MPVProperty.timePos)
+      guard rawStringSplited.count == 2 else {
+        log("The mark-timestamp must have and only have one parameter.")
+        return -4
+      }
+      switch rawStringSplited[1] {
+      case "set":
+        player.mainWindow.markTimeStamps(pos)
+        return 0
+      case "right-seek", "left-seek":
+        return player.mainWindow.markTimeStampSeek(pos, rightWardFlag: rawStringSplited[1] == "right-seek")
+      case "remove":
+        return player.mainWindow.markTimeStampRemove(pos)
+      case "clear":
+        player.mainWindow.clearAllTimestamp()
+        return 0
+      case "show":
+        return 0
+      default:
+        log("\(rawStringSplited[1]) is an illegal parameter.")
+        return -4
+      }
+
     default:
       return self.command(rawString)
     }
@@ -699,6 +704,10 @@ not applying FFmpeg 9599 workaround
 
   func observe(property: String, format: mpv_format = MPV_FORMAT_DOUBLE) {
     mpv_observe_property(mpv, 0, property, format)
+  }
+
+  func roundToTwoPlaces(decimal: Double) -> Double {
+    return (decimal * Double(100)).rounded() / Double(100)
   }
 
   // Set property
@@ -1031,6 +1040,7 @@ not applying FFmpeg 9599 workaround
 
     case MPV_EVENT_FILE_LOADED:
       onFileLoaded()
+      player.mainWindow.clearAllTimestamp(isSyncFile: false)
 
     case MPV_EVENT_SEEK:
       player.info.isSeeking = true

@@ -264,10 +264,10 @@ class PlayerWindowController: NSWindowController, NSWindowDelegate {
 
   func abLoop() {
     player.abLoop()
-    syncSlider()
+    syncAbLoopOnSlider()
   }
 
-  func syncSlider() {
+  func syncAbLoopOnSlider() {
     let a = player.abLoopA
     playSlider.abLoopA.isHidden = a == 0
     playSlider.abLoopA.doubleValue = secondsToPercent(a)
@@ -275,6 +275,132 @@ class PlayerWindowController: NSWindowController, NSWindowDelegate {
     playSlider.abLoopB.isHidden = b == 0
     playSlider.abLoopB.doubleValue = secondsToPercent(b)
     playSlider.needsDisplay = true
+  }
+
+  func custom_abLoop(a: Double, b: Double) {
+    if player.info.abLoopStatus == .aSet {
+      // Clear the existing a point
+      abLoop()
+      abLoop()
+    }
+    guard player.info.abLoopStatus != .bSet else {
+      abLoop()
+      return
+    }
+    player.seek(absoluteSecond: a)
+    abLoop()
+    player.seek(absoluteSecond: b)
+    abLoop()
+    // Workaround to successfully set b point
+    player.abLoopB = b
+    player.syncAbLoop()
+    player.sendOSD(.abLoop(player.info.abLoopStatus))
+
+    player.seek(absoluteSecond: a)
+  }
+
+  func findIndexInTimestamps(_ pos: Double, startIndex: Int, endIndex: Int) -> Int {
+    guard startIndex != endIndex else {
+      return startIndex
+    }
+    guard endIndex != startIndex + 1 else {
+      return pos < player.timestamps[startIndex] ? startIndex : endIndex
+    }
+    let midIndex = (startIndex + endIndex) / 2
+    if pos < player.timestamps[midIndex] {
+      return findIndexInTimestamps(pos, startIndex: startIndex, endIndex: midIndex)
+    } else {
+      return findIndexInTimestamps(pos, startIndex: midIndex, endIndex: endIndex)
+    }
+  }
+
+  func findIndexInTimeStamps(_ pos: Double) -> Int {
+    return findIndexInTimestamps(pos, startIndex: 0, endIndex: player.timestamps.count)
+  }
+
+  @discardableResult
+  func insertTimestap(_ pos: Double, _ tip: String) -> Int {
+    let roundedPos = player.mpv.roundToTwoPlaces(decimal: pos)
+    let index = findIndexInTimeStamps(roundedPos)
+    player.timestamps.insert(roundedPos, at: index)
+    player.timestampTips.insert(tip, at: index)
+    playSlider.insertTimestamp(pos: secondsToPercent(roundedPos), index: index, toolTip: tip)
+    return index
+  }
+
+  func loadTimestaps() {
+    guard player.timestamps.count != 0 else {
+      return
+    }
+    for index in 0 ..< player.timestamps.count {
+      playSlider.insertTimestamp(pos: secondsToPercent(player.timestamps[index]), index: index, toolTip: player.timestampTips[index])
+    }
+    syncMarkTimestampsOnSlider()
+  }
+
+  func markTimeStamps(_ pos: Double, _ tip: String = "The marked timestamp") {
+    insertTimestap(pos, tip)
+    player.syncTimestampFile()
+    syncMarkTimestampsOnSlider()
+    Logger.log("player.timestamps:\(player.timestamps)")
+  }
+
+  func syncMarkTimestampsOnSlider() {
+    playSlider.needsDisplay = true
+  }
+
+  func seekForTimeStampSeek(absoluteSecond: Double) {
+    player.seek(absoluteSecond: absoluteSecond)
+    guard player.info.isPaused else {
+      player.pause()
+      return
+    }
+  }
+
+  func markTimeStampSeek(_ pos: Double, rightWardFlag: Bool) -> Int32 {
+    let roundedPos = player.mpv.roundToTwoPlaces(decimal: pos)
+    let index = findIndexInTimeStamps(roundedPos)
+    guard rightWardFlag else {
+      guard index != 0 else { return -4 }
+      guard player.timestamps[index - 1] != roundedPos else {
+        guard index - 1 != 0 else { return -4 }
+        seekForTimeStampSeek(absoluteSecond: player.timestamps[index - 2])
+        return 0
+      }
+      seekForTimeStampSeek(absoluteSecond: player.timestamps[index - 1])
+      return 0
+    }
+
+    guard player.timestamps.count != 0, index != player.timestamps.count else { return -4 }
+    seekForTimeStampSeek(absoluteSecond: player.timestamps[index])
+    return 0
+  }
+
+  func markTimeStampRemove(_ pos: Double) -> Int32 {
+    let roundedPos = player.mpv.roundToTwoPlaces(decimal: pos)
+    guard player.timestamps.count != 0 else { return -3 }
+    let index = findIndexInTimeStamps(roundedPos)
+
+    guard index <= player.timestamps.count, index - 1 >= 0, player.timestamps[index - 1] == roundedPos else {
+      return -2
+    }
+    player.timestamps.remove(at: index - 1)
+    player.timestampTips.remove(at: index - 1)
+    playSlider.removeTimestamp(at: index - 1)
+
+    player.syncTimestampFile()
+    syncMarkTimestampsOnSlider()
+    return 0
+  }
+
+  func clearAllTimestamp(isSyncFile: Bool = true) {
+    player.timestamps.removeAll()
+    player.timestampTips.removeAll()
+    playSlider.removeAllTimestamps()
+    if isSyncFile {
+      player.syncTimestampFile()
+    }
+    syncMarkTimestampsOnSlider()
   }
 
   /// Returns the percent of the total duration of the video the given position in seconds represents.
