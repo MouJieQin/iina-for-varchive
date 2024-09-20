@@ -628,40 +628,49 @@ not applying FFmpeg 9599 workaround
       }
       player.seek(absoluteSecond: subStart)
       return 0
-
-    case "sub-ab-loop", "secondarySub-ab-loop":
-      let subStart: Double = rawString == "sub-ab-loop" ? self.getDouble(MPVProperty.subStart) : self.getDouble(MPVProperty.secondarySubStart)
-      let subEnd: Double = rawString == "sub-ab-loop" ? self.getDouble(MPVProperty.subEnd) : self.getDouble(MPVProperty.secondarySubEnd)
-      guard Int32(subStart) != 0 else {
+    case "custom-ab-loop":
+      guard rawStringSplited.count >= 2 else {
+        log("The mark-timestamp must have at least one parameter.")
+        return -4
+      }
+      switch rawStringSplited[1]{
+      case "sub", "secondarySub":
+        let subStart: Double = rawStringSplited[1] == "sub" ? self.getDouble(MPVProperty.subStart) : self.getDouble(MPVProperty.secondarySubStart)
+        let subEnd: Double = rawStringSplited[1] == "sub" ? self.getDouble(MPVProperty.subEnd) : self.getDouble(MPVProperty.secondarySubEnd)
+        guard Int32(subStart) != 0 else {
+          return 0
+        }
+        player.mainWindow.custom_abLoop(a: subStart, b: subEnd)
         return 0
+      case "current":
+        let pos = getDouble(MPVProperty.timePos)
+        var leftDuration = 1.0
+        if rawStringSplited.count >= 3, let first = Double(rawStringSplited[2]) {
+          leftDuration = first
+        }
+        var RightDuration = 1.0
+        if rawStringSplited.count >= 4, let second = Double(rawStringSplited[3]) {
+          RightDuration = second
+        }
+        player.mainWindow.custom_abLoop(a: pos - leftDuration, b: pos + RightDuration)
+        guard player.info.isPlaying else {
+          player.resume()
+          return 0
+        }
+      case "timestamps":
+        let pos = getDouble(MPVProperty.timePos)
+        player.mainWindow.abLoopTimestamps(pos)
+      default:
+        return -4
       }
-      player.mainWindow.custom_abLoop(a: subStart, b: subEnd)
-      return 0
-
-    case "cur-ab-loop":
-      let pos = getDouble(MPVProperty.timePos)
-      var leftDuration = 1.0
-      if rawStringSplited.count >= 2, let first = Double(rawStringSplited[1]) {
-        leftDuration = first
-      }
-      var RightDuration = 1.0
-      if rawStringSplited.count >= 3, let second = Double(rawStringSplited[2]) {
-        RightDuration = second
-      }
-      player.mainWindow.custom_abLoop(a: pos - leftDuration, b: pos + RightDuration)
-      guard player.info.isPlaying else {
-        player.resume()
-        return 0
-      }
-      return 0
 
     case "mark-timestamp":
       player.loadTimestamps()
-      let pos = getDouble(MPVProperty.timePos)
       guard rawStringSplited.count == 2 else {
         log("The mark-timestamp must have and only have one parameter.")
         return -4
       }
+      let pos = getDouble(MPVProperty.timePos)
       switch rawStringSplited[1] {
       case "set":
         player.mainWindow.markTimeStamps(pos)
@@ -683,6 +692,7 @@ not applying FFmpeg 9599 workaround
     default:
       return self.command(rawString)
     }
+    return 0
   }
 
   func asyncCommand(_ command: MPVCommand, args: [String?] = [], checkError: Bool = true, replyUserdata: UInt64) {

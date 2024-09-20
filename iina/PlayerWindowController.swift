@@ -318,6 +318,16 @@ class PlayerWindowController: NSWindowController, NSWindowDelegate {
     return findIndexInTimestamps(pos, startIndex: 0, endIndex: player.timestamps.count)
   }
 
+  func abLoopTimestamps(_ pos: Double) {
+    let roundedPos = player.mpv.roundToTwoPlaces(decimal: pos)
+    let index = findIndexInTimeStamps(roundedPos)
+    // make sure there are at least two timestamps, the roundedPos >= the minimmum and roundedPos < the maximum
+    guard index != 0, index != player.timestamps.count else {
+      return
+    }
+    custom_abLoop(a: player.timestamps[index - 1], b: player.timestamps[index])
+  }
+
   @discardableResult
   func insertTimestap(_ pos: Double, _ tip: String) -> Int {
     let roundedPos = player.mpv.roundToTwoPlaces(decimal: pos)
@@ -342,7 +352,6 @@ class PlayerWindowController: NSWindowController, NSWindowDelegate {
     insertTimestap(pos, tip)
     player.syncTimestampFile()
     syncMarkTimestampsOnSlider()
-    Logger.log("player.timestamps:\(player.timestamps)")
   }
 
   func syncMarkTimestampsOnSlider() {
