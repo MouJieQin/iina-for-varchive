@@ -630,7 +630,7 @@ not applying FFmpeg 9599 workaround
       return 0
     case "custom-ab-loop":
       guard rawStringSplited.count >= 2 else {
-        log("The mark-timestamp must have at least one parameter.")
+        log("The custom-ab-loop must have at least one parameter.")
         return -4
       }
       switch rawStringSplited[1]{
@@ -661,11 +661,11 @@ not applying FFmpeg 9599 workaround
         let pos = getDouble(MPVProperty.timePos)
         player.mainWindow.abLoopTimestamps(pos)
       default:
+        log("\(rawStringSplited[1]) is an illegal parameter for custom-ab-loop.")
         return -4
       }
 
     case "mark-timestamp":
-      player.loadTimestamps()
       guard rawStringSplited.count == 2 else {
         log("The mark-timestamp must have and only have one parameter.")
         return -4
@@ -682,10 +682,8 @@ not applying FFmpeg 9599 workaround
       case "clear":
         player.mainWindow.clearAllTimestamp()
         return 0
-      case "show":
-        return 0
       default:
-        log("\(rawStringSplited[1]) is an illegal parameter.")
+        log("\(rawStringSplited[1]) is an illegal parameter for mark-timestamp.")
         return -4
       }
 
@@ -1050,7 +1048,6 @@ not applying FFmpeg 9599 workaround
 
     case MPV_EVENT_FILE_LOADED:
       onFileLoaded()
-      player.mainWindow.clearAllTimestamp(isSyncFile: false)
 
     case MPV_EVENT_SEEK:
       player.info.isSeeking = true

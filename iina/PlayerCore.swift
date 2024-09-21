@@ -237,7 +237,7 @@ class PlayerCore: NSObject {
     self.mainWindow.loadTimestaps()
   }
 
-  func loadTimestamps() {
+  func syncTimestamps() {
     // clear all timestamps in the previous file without syncing to the timestamp file.
     self.mainWindow.clearAllTimestamp(isSyncFile: false)
     let absolutePath = info.currentURL?.absoluteString ?? ""
@@ -1677,6 +1677,7 @@ class PlayerCore: NSObject {
       getPlaylist()
       getChapters()
       syncAbLoop()
+      syncTimestamps()
       createSyncUITimer()
       if #available(macOS 10.12.2, *) {
         touchBarSupport.setupTouchBarUI()
