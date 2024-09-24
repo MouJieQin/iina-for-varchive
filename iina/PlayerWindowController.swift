@@ -325,7 +325,7 @@ class PlayerWindowController: NSWindowController, NSWindowDelegate {
     let roundedPos = player.mpv.roundToTwoPlaces(decimal: pos)
     let index = findIndexInTimeStamps(roundedPos)
     if index != 0 {
-      guard player.timestamps[index - 1] != roundedPos else {
+      guard !identifyTimestaps(player.timestamps[index - 1], roundedPos) else {
         return -4
       }
     }
@@ -365,7 +365,7 @@ class PlayerWindowController: NSWindowController, NSWindowDelegate {
     let index = findIndexInTimeStamps(roundedPos)
     guard rightWardFlag else {
       guard index != 0 else { return -4 }
-      guard player.timestamps[index - 1] != roundedPos else {
+      guard !identifyTimestaps(player.timestamps[index - 1], roundedPos) else {
         guard index - 1 != 0 else { return -4 }
         seekForTimeStampSeek(absoluteSecond: player.timestamps[index - 2])
         return 0
@@ -379,21 +379,37 @@ class PlayerWindowController: NSWindowController, NSWindowDelegate {
     return 0
   }
 
+  func identifyTimestaps(_ firstTimestamp: Double, _ secondaryTimestamp: Double) -> Bool {
+    let offset = firstTimestamp - secondaryTimestamp
+    return offset > -0.1 && offset < 0.1
+  }
+
+  func removeTimestamp(_ index: Int) {
+    player.timestamps.remove(at: index)
+    player.timestampTips.remove(at: index)
+    playSlider.removeTimestamp(at: index)
+
+    player.syncTimestampFile()
+    syncMarkTimestampsOnSlider()
+  }
+
   func markTimeStampRemove(_ pos: Double) -> Int32 {
     let roundedPos = player.mpv.roundToTwoPlaces(decimal: pos)
     guard player.timestamps.count != 0 else { return -3 }
     let index = findIndexInTimeStamps(roundedPos)
-
-    guard index <= player.timestamps.count, index - 1 >= 0, player.timestamps[index - 1] == roundedPos else {
-      return -2
+    if index - 1 >= 0, identifyTimestaps(player.timestamps[index - 1], pos) {
+      removeTimestamp(index - 1)
+      return 0
     }
-    player.timestamps.remove(at: index - 1)
-    player.timestampTips.remove(at: index - 1)
-    playSlider.removeTimestamp(at: index - 1)
-
-    player.syncTimestampFile()
-    syncMarkTimestampsOnSlider()
-    return 0
+    if index < player.timestamps.count, identifyTimestaps(player.timestamps[index], pos) {
+      removeTimestamp(index)
+      return 0
+    }
+    if index + 1 < player.timestamps.count, identifyTimestaps(player.timestamps[index + 1], pos) {
+      removeTimestamp(index + 1)
+      return 0
+    }
+    return -4
   }
 
   func clearAllTimestamp(isSyncFile: Bool = true) {
