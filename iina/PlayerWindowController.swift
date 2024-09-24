@@ -324,6 +324,11 @@ class PlayerWindowController: NSWindowController, NSWindowDelegate {
   func insertTimestap(_ pos: Double, _ tip: String) -> Int {
     let roundedPos = player.mpv.roundToTwoPlaces(decimal: pos)
     let index = findIndexInTimeStamps(roundedPos)
+    if index != 0 {
+      guard player.timestamps[index - 1] != roundedPos else {
+        return -4
+      }
+    }
     player.timestamps.insert(roundedPos, at: index)
     player.timestampTips.insert(tip, at: index)
     playSlider.insertTimestamp(pos: secondsToPercent(roundedPos), index: index, toolTip: tip)
