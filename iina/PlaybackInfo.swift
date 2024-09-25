@@ -75,6 +75,8 @@ class PlaybackInfo {
   }
 
   var isSeeking: Bool = false
+  var isSeekingTimestamp: Bool = false
+  var isPausedDueToSeekingTimestamp: Bool = false
 
   var isPaused: Bool = false {
     didSet {

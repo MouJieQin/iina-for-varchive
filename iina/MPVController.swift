@@ -1062,10 +1062,15 @@ not applying FFmpeg 9599 workaround
         recordedSeekStartTime = CACurrentMediaTime()
       }
       player.syncUI(.time)
-      let osdText = (player.info.videoPosition?.stringRepresentation ?? Constants.String.videoTimePlaceholder) + " / " +
-        (player.info.videoDuration?.stringRepresentation ?? Constants.String.videoTimePlaceholder)
-      let percentage = (player.info.videoPosition / player.info.videoDuration) ?? 1
-      player.sendOSD(.seek(osdText, percentage))
+      // Avoide covering timestamp OSD when seeking timestamp needs seek
+      if player.info.isSeekingTimestamp {
+        player.info.isSeekingTimestamp = false
+      } else {
+        let osdText = (player.info.videoPosition?.stringRepresentation ?? Constants.String.videoTimePlaceholder) + " / " +
+          (player.info.videoDuration?.stringRepresentation ?? Constants.String.videoTimePlaceholder)
+        let percentage = (player.info.videoPosition / player.info.videoDuration) ?? 1
+        player.sendOSD(.seek(osdText, percentage))
+      }
 
     case MPV_EVENT_PLAYBACK_RESTART:
       player.info.isIdle = false
@@ -1205,7 +1210,12 @@ not applying FFmpeg 9599 workaround
     case MPVOption.PlaybackControl.pause:
       if let paused = UnsafePointer<Bool>(OpaquePointer(property.data))?.pointee {
         if player.info.isPaused != paused {
-          player.sendOSD(paused ? .pause : .resume)
+          // Avoide covering timestamp OSD when seeking timestamp need pause
+          if player.info.isPausedDueToSeekingTimestamp {
+            player.info.isPausedDueToSeekingTimestamp = false
+          } else {
+            player.sendOSD(paused ? .pause : .resume)
+          }
           DispatchQueue.main.sync {
             player.info.isPaused = paused
             // Follow energy efficiency best practices and ensure IINA is absolutely idle when the
