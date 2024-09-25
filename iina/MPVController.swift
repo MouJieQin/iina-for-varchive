@@ -604,7 +604,8 @@ not applying FFmpeg 9599 workaround
     switch rawStringSplited[0] {
     // show sub-text/secondary-text
     case MPVProperty.subText, MPVProperty.secondarySubText:
-      let currSub: String = self.getString(rawString) ?? "No subtitles found !"
+      let notFoundInfo = (rawStringSplited[0] == MPVProperty.subText ? "No subtitles found !" : "No secondary subtitles found !")
+      let currSub: String = self.getString(rawString) ?? notFoundInfo
       let isPlaying: Bool = player.info.isPlaying
       if isPlaying {
         player.pause()
@@ -623,6 +624,7 @@ not applying FFmpeg 9599 workaround
       }
       player.seek(absoluteSecond: subStart)
       return 0
+
     case "custom-ab-loop":
       guard rawStringSplited.count >= 2 else {
         log("The custom-ab-loop must have at least one parameter.")
