@@ -50,6 +50,7 @@ enum OSDMessage {
   case screenshot
   case abLoop(PlaybackInfo.LoopStatus)
   case abLoopUpdate(PlaybackInfo.LoopStatus, String)
+  case timestamp(PlaybackInfo.TimestampStatus, Int, Int, String)
   case stop
   case chapter(String)
   case track(MPVTrack)
@@ -202,6 +203,19 @@ enum OSDMessage {
         return (NSLocalizedString("osd.abloop.a", comment: "AB-Loop: A"), .withText("\(position) / {{duration}}"))
       case .bSet:
         return (NSLocalizedString("osd.abloop.b", comment: "AB-Loop: B"), .withText("\(position) / {{duration}}"))
+      }
+
+    case .timestamp(let value, let index, let count, let tip):
+      // The mark-timestamp command was invoked.
+      switch value {
+      case .set:
+        return (NSLocalizedString("osd.marktimestamp.set", comment: "Mark-Timestamp: Marked"), .withText("\(index) / \(count) {{position}} / {{duration}}\n\(tip)"))
+      case .seek:
+        return (NSLocalizedString("osd.marktimestamp.seek", comment: "Mark-Timestamp: Seek"), .withText("\(index) / \(count) {{position}} / {{duration}}\n\(tip)"))
+      case .remove:
+        return (NSLocalizedString("osd.marktimestamp.remove", comment: "Mark-Timestamp: Removed"), .withText("\(index) / \(count) {{position}} / {{duration}}\n\(tip)"))
+      case .clear:
+        return (NSLocalizedString("osd.marktimestamp.clear", comment: "Mark-Timestamp: Cleared"), .withText("\(count) timestamps are cleared."))
       }
 
     case .stop:

@@ -22,6 +22,13 @@ class PlaybackInfo {
     case bSet
   }
 
+  enum TimestampStatus {
+    case set
+    case remove
+    case clear
+    case seek
+  }
+
   unowned let player: PlayerCore
 
   init(_ pc: PlayerCore) {

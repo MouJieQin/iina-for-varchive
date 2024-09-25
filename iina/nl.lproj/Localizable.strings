@@ -67,6 +67,10 @@
 "osd.abloop.a" = "Beginpunt herhaalgedeelte ingesteld";
 "osd.abloop.b" = "Eindpunt herhaalgedeelte ingesteld";
 "osd.abloop.clear" = "Herhaalgedeelte opgeheven";
+"osd.marktimestamp.set" = "Mark-Timestamp: Marked";
+"osd.marktimestamp.seek" = "Mark-Timestamp: Seek";
+"osd.marktimestamp.remove" = "Mark-Timestamp: Removed";
+"osd.marktimestamp.clear" = "Mark-Timestamp: Cleared";
 "osd.stop" = "Stop";
 "osd.chapter" = "Hoofdstuk: %@";
 "osd.subtitle_scale" = "Ondertitelingsschaal: %.2fx";

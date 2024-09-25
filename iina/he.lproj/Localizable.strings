@@ -67,6 +67,10 @@
 "osd.abloop.a" = "לולאת א-ב: א";
 "osd.abloop.b" = "לולאת א-ב: ב";
 "osd.abloop.clear" = "לולאת א-ב: בוטלה";
+"osd.marktimestamp.set" = "Mark-Timestamp: Marked";
+"osd.marktimestamp.seek" = "Mark-Timestamp: Seek";
+"osd.marktimestamp.remove" = "Mark-Timestamp: Removed";
+"osd.marktimestamp.clear" = "Mark-Timestamp: Cleared";
 "osd.stop" = "עצור";
 "osd.chapter" = "פרק: %@";
 "osd.subtitle_scale" = "קנה מידה כתוביות: %.2fx";

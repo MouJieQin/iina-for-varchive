@@ -67,6 +67,10 @@
 "osd.abloop.a" = "AB-リピート: A";
 "osd.abloop.b" = "AB-リピート: B";
 "osd.abloop.clear" = "AB-リピート: リセット";
+"osd.marktimestamp.set" = "Mark-Timestamp: Marked";
+"osd.marktimestamp.seek" = "Mark-Timestamp: Seek";
+"osd.marktimestamp.remove" = "Mark-Timestamp: Removed";
+"osd.marktimestamp.clear" = "Mark-Timestamp: Cleared";
 "osd.stop" = "一時停止";
 "osd.chapter" = "チャプター: %@";
 "osd.subtitle_scale" = "字幕の大きさ: %.2fx";

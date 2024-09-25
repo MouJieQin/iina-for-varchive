@@ -67,6 +67,10 @@
 "osd.abloop.a" = "AB-slučka: A";
 "osd.abloop.b" = "AB-slučka: B";
 "osd.abloop.clear" = "AB-slučka: Vymazaná";
+"osd.marktimestamp.set" = "Mark-Timestamp: Marked";
+"osd.marktimestamp.seek" = "Mark-Timestamp: Seek";
+"osd.marktimestamp.remove" = "Mark-Timestamp: Removed";
+"osd.marktimestamp.clear" = "Mark-Timestamp: Cleared";
 "osd.stop" = "Zastaviť";
 "osd.chapter" = "Kapitola: %@";
 "osd.subtitle_scale" = "Veľkosť titulkov: %.2fx";

@@ -67,6 +67,10 @@
 "osd.abloop.a" = "AB-silmukka: A";
 "osd.abloop.b" = "AB-silmukka: B";
 "osd.abloop.clear" = "AB-silmukka: Tyhjennetty";
+"osd.marktimestamp.set" = "Mark-Timestamp: Marked";
+"osd.marktimestamp.seek" = "Mark-Timestamp: Seek";
+"osd.marktimestamp.remove" = "Mark-Timestamp: Removed";
+"osd.marktimestamp.clear" = "Mark-Timestamp: Cleared";
 "osd.stop" = "Pysäytä";
 "osd.chapter" = "Kappale: %@";
 "osd.subtitle_scale" = "Tekstityksen skaalaus: %.2fx";

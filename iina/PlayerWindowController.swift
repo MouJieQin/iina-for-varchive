@@ -343,9 +343,13 @@ class PlayerWindowController: NSWindowController, NSWindowDelegate {
   }
 
   func markTimeStamps(_ pos: Double, _ tip: String = "The marked timestamp") {
-    insertTimestap(pos, tip)
+    let index = insertTimestap(pos, tip)
+    guard index >= 0 else {
+      return
+    }
     player.syncTimestampFile()
     syncMarkTimestampsOnSlider()
+    player.sendOSD(.timestamp(.set, index + 1, player.timestamps.count, tip))
   }
 
   func syncMarkTimestampsOnSlider() {
@@ -368,14 +372,17 @@ class PlayerWindowController: NSWindowController, NSWindowDelegate {
       guard !identifyTimestaps(player.timestamps[index - 1], roundedPos) else {
         guard index - 1 != 0 else { return -4 }
         seekForTimeStampSeek(absoluteSecond: player.timestamps[index - 2])
+        player.sendOSD(.timestamp(.seek, index - 1 , player.timestamps.count, player.timestampTips[index - 2 ]))
         return 0
       }
       seekForTimeStampSeek(absoluteSecond: player.timestamps[index - 1])
+      player.sendOSD(.timestamp(.seek, index, player.timestamps.count, player.timestampTips[index - 1 ]))
       return 0
     }
 
     guard player.timestamps.count != 0, index != player.timestamps.count else { return -4 }
     seekForTimeStampSeek(absoluteSecond: player.timestamps[index])
+    player.sendOSD(.timestamp(.seek, index + 1, player.timestamps.count, player.timestampTips[index]))
     return 0
   }
 
@@ -385,6 +392,7 @@ class PlayerWindowController: NSWindowController, NSWindowDelegate {
   }
 
   func removeTimestamp(_ index: Int) {
+    player.sendOSD(.timestamp(.remove, index + 1, player.timestamps.count, player.timestampTips[index]))
     player.timestamps.remove(at: index)
     player.timestampTips.remove(at: index)
     playSlider.removeTimestamp(at: index)
@@ -413,6 +421,7 @@ class PlayerWindowController: NSWindowController, NSWindowDelegate {
   }
 
   func clearAllTimestamp(isSyncFile: Bool = true) {
+    player.sendOSD(.timestamp(.clear, 0, player.timestamps.count, ""))
     player.timestamps.removeAll()
     player.timestampTips.removeAll()
     playSlider.removeAllTimestamps()

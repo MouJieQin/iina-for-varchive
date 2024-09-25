@@ -67,6 +67,10 @@
 "osd.abloop.a" = "Boucle AB : A";
 "osd.abloop.b" = "Boucle AB : B";
 "osd.abloop.clear" = "Boucle AB: vidé";
+"osd.marktimestamp.set" = "Mark-Timestamp: Marked";
+"osd.marktimestamp.seek" = "Mark-Timestamp: Seek";
+"osd.marktimestamp.remove" = "Mark-Timestamp: Removed";
+"osd.marktimestamp.clear" = "Mark-Timestamp: Cleared";
 "osd.stop" = "Arrêté";
 "osd.chapter" = "Chapitre : %@";
 "osd.subtitle_scale" = "Échelle des sous-titres : %.2fx";

@@ -67,6 +67,10 @@
 "osd.abloop.a" = "Buclă-AB: A";
 "osd.abloop.b" = "Buclă-AB: B";
 "osd.abloop.clear" = "AB-Loop: Șters";
+"osd.marktimestamp.set" = "Mark-Timestamp: Marked";
+"osd.marktimestamp.seek" = "Mark-Timestamp: Seek";
+"osd.marktimestamp.remove" = "Mark-Timestamp: Removed";
+"osd.marktimestamp.clear" = "Mark-Timestamp: Cleared";
 "osd.stop" = "Oprire";
 "osd.chapter" = "Capitol: %@";
 "osd.subtitle_scale" = "Scală subtitrare: %.2fx";
