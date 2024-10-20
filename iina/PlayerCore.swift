@@ -225,39 +225,7 @@ class PlayerCore: NSObject {
 
   var timestamps: [Double] = []
   var timestampTips: [String] = []
-  var playingFilePath = ""
-  var timestampFile = ""
-
-  func loadTimestampsFromFile() {
-    guard let dicFromPList = NSDictionary(contentsOfFile: timestampFile) else {
-      return
-    }
-    timestamps = dicFromPList["Timestamps"] as! [Double]
-    timestampTips = dicFromPList["Tips"] as! [String]
-    self.mainWindow.loadTimestaps()
-  }
-
-  func syncTimestamps() {
-    // clear all timestamps in the previous file without syncing to the timestamp file.
-    self.mainWindow.clearAllTimestamp(isSyncFile: false)
-    let absolutePath = info.currentURL?.absoluteString ?? ""
-    guard !absolutePath.isEmpty else {
-      return
-    }
-    playingFilePath = absolutePath
-    let timestampFileName = absolutePath.md5 + ".plist"
-    timestampFile = Utility.timestampDirURL.appendingPathComponent(timestampFileName).path
-    // check exist
-    guard FileManager.default.fileExists(atPath: timestampFile) else {
-      return
-    }
-    loadTimestampsFromFile()
-  }
-
-  func syncTimestampFile() {
-    let timestampDict: NSDictionary = ["File Path": playingFilePath, "Timestamps": timestamps, "Tips": timestampTips]
-    NSDictionary(dictionary: timestampDict).write(toFile: timestampFile, atomically: true)
-  }
+  var wbSocket: WebSocketManager!
 
   var isABLoopActive: Bool {
     abLoopA != 0 && abLoopB != 0 && mpv.getString(MPVOption.PlaybackControl.abLoopCount) != "0"
@@ -267,6 +235,7 @@ class PlayerCore: NSObject {
 
   override init() {
     super.init()
+    self.wbSocket = WebSocketManager(player: self)
     self.mpv = MPVController(playerCore: self, playerNumber: PlayerCore.playerCoreCounter)
     self.mainWindow = MainWindowController(playerCore: self)
     self.miniPlayer = MiniPlayerWindowController(playerCore: self)
@@ -451,6 +420,7 @@ class PlayerCore: NSObject {
     info.justOpenedFile = true
     isStopping = false
     isStopped = false
+    self.wbSocket.connect()
     mpv.command(.loadfile, args: [path])
   }
 
@@ -575,6 +545,7 @@ class PlayerCore: NSObject {
     let suffix = isMPVInitiated ? " (initiated by mpv)" : ""
     Logger.log("Player has shutdown\(suffix)", subsystem: subsystem)
     isStopped = true
+    self.wbSocket.disconnect()
     isShutdown = true
     // If mpv shutdown was initiated by mpv then the player state has not been saved.
     if isMPVInitiated {
@@ -760,6 +731,7 @@ class PlayerCore: NSObject {
   func playbackStopped() {
     Logger.log("Playback has stopped", subsystem: subsystem)
     isStopped = true
+    self.wbSocket.disconnect()
     isStopping = false
     postNotification(.iinaPlayerStopped)
   }
@@ -1123,6 +1095,10 @@ class PlayerCore: NSObject {
           DispatchQueue.main.async {
             Utility.showAlert("unsupported_sub")
           }
+        }
+      } else {
+        if !self.info.loadedSubFiles.contains(url.path) {
+          self.info.loadedSubFiles.append(url.path)
         }
       }
     }
@@ -1604,6 +1580,7 @@ class PlayerCore: NSObject {
       URL(string: path.addingPercentEncoding(withAllowedCharacters: .urlAllowed) ?? path) :
       URL(fileURLWithPath: path)
     info.isNetworkResource = !info.currentURL!.isFileURL
+    info.loadedSubFiles = []
 
     // set "date last opened" attribute
     if let url = info.currentURL, url.isFileURL {
@@ -1664,6 +1641,7 @@ class PlayerCore: NSObject {
     // the playlist.
     isStopping = false
     isStopped = false
+    self.wbSocket.connect()
     info.haveDownloadedSub = false
     checkUnsyncedWindowOptions()
     // generate thumbnails if window has loaded video
@@ -1677,7 +1655,7 @@ class PlayerCore: NSObject {
       getPlaylist()
       getChapters()
       syncAbLoop()
-      syncTimestamps()
+      wbSocket.sendFetchBookmark()
       createSyncUITimer()
       if #available(macOS 10.12.2, *) {
         touchBarSupport.setupTouchBarUI()
@@ -2073,6 +2051,7 @@ class PlayerCore: NSObject {
     DispatchQueue.main.async {
       Utility.showAlert("error_open")
       self.isStopped = true
+      self.wbSocket.disconnect()
       self.mainWindow.close()
     }
   }
@@ -2080,6 +2059,7 @@ class PlayerCore: NSObject {
   func closeWindow() {
     DispatchQueue.main.async {
       self.isStopped = true
+      self.wbSocket.disconnect()
       if self.isInMiniPlayer {
         self.miniPlayer.close()
       } else {

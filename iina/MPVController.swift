@@ -670,20 +670,20 @@ not applying FFmpeg 9599 workaround
       let pos = getDouble(MPVProperty.timePos)
       switch rawStringSplited[1] {
       case "set":
-        player.mainWindow.markTimeStamps(pos)
+        player.wbSocket.sendInsertTimestamp(pos)
         return 0
       case "sub-start", "secondary-sub-start":
         let subStart: Double = self.getDouble(rawStringSplited[1])
         if Int32(subStart) != 0 {
-          player.mainWindow.markTimeStamps(subStart)
+          player.wbSocket.sendInsertTimestamp(subStart)
         }
         return 0
       case "right-seek", "left-seek":
         return player.mainWindow.markTimeStampSeek(pos, rightWardFlag: rawStringSplited[1] == "right-seek")
       case "remove":
-        return player.mainWindow.markTimeStampRemove(pos)
+        return player.wbSocket.sendRemoveTimestamp(pos)
       case "clear":
-        player.mainWindow.clearAllTimestamp()
+        player.wbSocket.sendClearTimestamp()
         return 0
       default:
         log("\(rawStringSplited[1]) is an illegal parameter for mark-timestamp.")

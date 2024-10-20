@@ -291,69 +291,14 @@ class PlayerWindowController: NSWindowController, NSWindowDelegate {
     player.seek(absoluteSecond: a)
   }
 
-  func findIndexInTimestamps(_ pos: Double, startIndex: Int, endIndex: Int) -> Int {
-    guard startIndex != endIndex else {
-      return startIndex
-    }
-    guard endIndex != startIndex + 1 else {
-      return pos < player.timestamps[startIndex] ? startIndex : endIndex
-    }
-    let midIndex = (startIndex + endIndex) / 2
-    if pos < player.timestamps[midIndex] {
-      return findIndexInTimestamps(pos, startIndex: startIndex, endIndex: midIndex)
-    } else {
-      return findIndexInTimestamps(pos, startIndex: midIndex, endIndex: endIndex)
-    }
-  }
-
-  func findIndexInTimeStamps(_ pos: Double) -> Int {
-    return findIndexInTimestamps(pos, startIndex: 0, endIndex: player.timestamps.count)
-  }
-
   func abLoopTimestamps(_ pos: Double) {
     let roundedPos = player.mpv.roundToTwoPlaces(decimal: pos)
-    let index = findIndexInTimeStamps(roundedPos)
+    let index = player.wbSocket.findIndexInTimeStamps(roundedPos)
     // make sure there are at least two timestamps, the roundedPos >= the minimmum and roundedPos < the maximum
     guard index != 0, index != player.timestamps.count else {
       return
     }
     custom_abLoop(a: player.timestamps[index - 1], b: player.timestamps[index])
-  }
-
-  @discardableResult
-  func insertTimestap(_ pos: Double, _ tip: String) -> Int {
-    let roundedPos = player.mpv.roundToTwoPlaces(decimal: pos)
-    let index = findIndexInTimeStamps(roundedPos)
-    if index != 0 {
-      guard !identifyTimestaps(player.timestamps[index - 1], roundedPos) else {
-        return -4
-      }
-    }
-    player.timestamps.insert(roundedPos, at: index)
-    player.timestampTips.insert(tip, at: index)
-    playSlider.insertTimestamp(pos: secondsToPercent(roundedPos), index: index, toolTip: tip)
-    return index
-  }
-
-  func loadTimestaps() {
-    for index in 0 ..< player.timestamps.count {
-      playSlider.insertTimestamp(pos: secondsToPercent(player.timestamps[index]), index: index, toolTip: player.timestampTips[index])
-    }
-    syncMarkTimestampsOnSlider()
-  }
-
-  func markTimeStamps(_ pos: Double, _ tip: String = "The marked timestamp") {
-    let index = insertTimestap(pos, tip)
-    guard index >= 0 else {
-      return
-    }
-    player.syncTimestampFile()
-    syncMarkTimestampsOnSlider()
-    player.sendOSD(.timestamp(.set, index + 1, player.timestamps.count, tip))
-  }
-
-  func syncMarkTimestampsOnSlider() {
-    playSlider.needsDisplay = true
   }
 
   func seekForTimeStampSeek(absoluteSecond: Double) {
@@ -368,17 +313,17 @@ class PlayerWindowController: NSWindowController, NSWindowDelegate {
 
   func markTimeStampSeek(_ pos: Double, rightWardFlag: Bool) -> Int32 {
     let roundedPos = player.mpv.roundToTwoPlaces(decimal: pos)
-    let index = findIndexInTimeStamps(roundedPos)
+    let index = player.wbSocket.findIndexInTimeStamps(roundedPos)
     guard rightWardFlag else {
       guard index != 0 else { return -4 }
-      guard !identifyTimestaps(player.timestamps[index - 1], roundedPos) else {
+      guard !player.wbSocket.identifyTimestaps(player.timestamps[index - 1], roundedPos) else {
         guard index - 1 != 0 else { return -4 }
         seekForTimeStampSeek(absoluteSecond: player.timestamps[index - 2])
-        player.sendOSD(.timestamp(.seek, index - 1 , player.timestamps.count, player.timestampTips[index - 2 ]))
+        player.sendOSD(.timestamp(.seek, index - 1, player.timestamps.count, player.timestampTips[index - 2]))
         return 0
       }
       seekForTimeStampSeek(absoluteSecond: player.timestamps[index - 1])
-      player.sendOSD(.timestamp(.seek, index, player.timestamps.count, player.timestampTips[index - 1 ]))
+      player.sendOSD(.timestamp(.seek, index, player.timestamps.count, player.timestampTips[index - 1]))
       return 0
     }
 
@@ -388,49 +333,8 @@ class PlayerWindowController: NSWindowController, NSWindowDelegate {
     return 0
   }
 
-  func identifyTimestaps(_ firstTimestamp: Double, _ secondaryTimestamp: Double) -> Bool {
-    let offset = firstTimestamp - secondaryTimestamp
-    return offset > -0.1 && offset < 0.1
-  }
-
-  func removeTimestamp(_ index: Int) {
-    player.sendOSD(.timestamp(.remove, index + 1, player.timestamps.count, player.timestampTips[index]))
-    player.timestamps.remove(at: index)
-    player.timestampTips.remove(at: index)
-    playSlider.removeTimestamp(at: index)
-
-    player.syncTimestampFile()
-    syncMarkTimestampsOnSlider()
-  }
-
-  func markTimeStampRemove(_ pos: Double) -> Int32 {
-    let roundedPos = player.mpv.roundToTwoPlaces(decimal: pos)
-    guard player.timestamps.count != 0 else { return -3 }
-    let index = findIndexInTimeStamps(roundedPos)
-    if index - 1 >= 0, identifyTimestaps(player.timestamps[index - 1], pos) {
-      removeTimestamp(index - 1)
-      return 0
-    }
-    if index < player.timestamps.count, identifyTimestaps(player.timestamps[index], pos) {
-      removeTimestamp(index)
-      return 0
-    }
-    if index + 1 < player.timestamps.count, identifyTimestaps(player.timestamps[index + 1], pos) {
-      removeTimestamp(index + 1)
-      return 0
-    }
-    return -4
-  }
-
-  func clearAllTimestamp(isSyncFile: Bool = true) {
-    player.sendOSD(.timestamp(.clear, 0, player.timestamps.count, ""))
-    player.timestamps.removeAll()
-    player.timestampTips.removeAll()
-    playSlider.removeAllTimestamps()
-    if isSyncFile {
-      player.syncTimestampFile()
-    }
-    syncMarkTimestampsOnSlider()
+  func secondsToPercentForBookmark(_ seconds: Double) -> Double {
+    return secondsToPercent(seconds)
   }
 
   /// Returns the percent of the total duration of the video the given position in seconds represents.
