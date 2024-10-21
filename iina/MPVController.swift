@@ -669,13 +669,13 @@ not applying FFmpeg 9599 workaround
       }
       let pos = getDouble(MPVProperty.timePos)
       switch rawStringSplited[1] {
-      case "set":
-        player.wbSocket.sendInsertTimestamp(pos)
+      case "mark", "mark-preview":
+        player.wbSocket.sendInsertTimestamp(pos, preview: rawStringSplited[1])
         return 0
       case "sub-start", "secondary-sub-start":
         let subStart: Double = self.getDouble(rawStringSplited[1])
         if Int32(subStart) != 0 {
-          player.wbSocket.sendInsertTimestamp(subStart)
+          player.wbSocket.sendInsertTimestamp(subStart, preview: "mark")
         }
         return 0
       case "right-seek", "left-seek":

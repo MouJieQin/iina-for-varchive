@@ -184,7 +184,7 @@ class WebSocketManager: WebSocketDelegate {
     self.writeText(text: self.convertInfoToJson(type, message: fetchBookmark))
   }
   
-  func sendInsertTimestamp(_ pos: Double) {
+  func sendInsertTimestamp(_ pos: Double, preview: String) {
     let roundedPos = player.mpv.roundToTwoPlaces(decimal: pos)
     let index = findIndexInTimeStamps(roundedPos)
     if index != 0 {
@@ -196,7 +196,7 @@ class WebSocketManager: WebSocketDelegate {
     insertTimestampInfo.currentURL = self.player.info.currentURL?.absoluteString.removingPercentEncoding ?? ""
     insertTimestampInfo.index = index
     insertTimestampInfo.timestamp = roundedPos
-    let type = ["server", "bookmarks", "insert"]
+    let type = ["server", "bookmarks", "insert", preview]
     self.writeText(text: self.convertInfoToJson(type, message: insertTimestampInfo))
   }
   
@@ -229,6 +229,9 @@ class WebSocketManager: WebSocketDelegate {
   }
   
   func sendClearTimestamp() {
+    guard !player.timestamps.isEmpty else {
+      return
+    }
     let type = ["server", "bookmarks", "clear"]
     let clearTimestampInfo = ClearTimestampInfo()
     clearTimestampInfo.currentURL = self.player.info.currentURL?.absoluteString.removingPercentEncoding ?? ""
