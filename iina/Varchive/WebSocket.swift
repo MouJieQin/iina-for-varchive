@@ -13,7 +13,7 @@ class WebsocketMessage: Codable {
   var message: String?
 }
 
-class BookmarkURL: Codable {
+class URLinfo: Codable {
   var currentURL: String?
 }
 
@@ -23,12 +23,13 @@ class TimestampInfo: Codable {
   var timestamp: Double?
 }
 
-typealias FetchBookmark = BookmarkURL
-typealias ClearTimestampInfo = BookmarkURL
-typealias ClearBookmarkInfo = BookmarkURL
+typealias FetchBookmark = URLinfo
+typealias ClearTimestampInfo = URLinfo
+typealias ClearBookmarkInfo = URLinfo
 typealias InsertTimestampInfo = TimestampInfo
 typealias RemoveTimestampInfo = TimestampInfo
 typealias RemoveBookmarkInfo = TimestampInfo
+typealias InformationInfo = URLinfo
 
 class BookmarkInfo: Codable {
   var currentURL: String?
@@ -184,6 +185,13 @@ class WebSocketManager: WebSocketDelegate {
     self.writeText(text: self.convertInfoToJson(type, message: fetchBookmark))
   }
   
+  func sendGenInfo(infoOption: String) {
+    let genInfoInfo = InformationInfo()
+    genInfoInfo.currentURL = self.player.info.currentURL?.absoluteString.removingPercentEncoding ?? ""
+    let type = ["server", infoOption]
+    self.writeText(text: self.convertInfoToJson(type, message: genInfoInfo))
+  }
+
   func sendInsertTimestamp(_ pos: Double, preview: String) {
     let roundedPos = player.mpv.roundToTwoPlaces(decimal: pos)
     let index = findIndexInTimeStamps(roundedPos)

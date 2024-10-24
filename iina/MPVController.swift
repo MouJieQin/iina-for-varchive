@@ -690,6 +690,20 @@ not applying FFmpeg 9599 workaround
         return -4
       }
 
+    case "varchive":
+      guard rawStringSplited.count == 2 else {
+        log("The varchive must have and only have one parameter.")
+        return -4
+      }
+      switch rawStringSplited[1] {
+      case "info", "info-preview":
+        player.wbSocket.sendGenInfo(infoOption: rawStringSplited[1])
+        return 0
+      default:
+        log("\(rawStringSplited[1]) is an illegal parameter for mark-timestamp.")
+        return -4
+      }
+
     default:
       return self.command(rawString)
     }
