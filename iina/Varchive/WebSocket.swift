@@ -23,6 +23,7 @@ class TimestampInfo: Codable {
   var timestamp: Double?
 }
 
+typealias ConnectionInfo = URLinfo
 typealias FetchBookmark = URLinfo
 typealias ClearTimestampInfo = URLinfo
 typealias ClearBookmarkInfo = URLinfo
@@ -58,6 +59,7 @@ class WebSocketManager: WebSocketDelegate {
   static var idCounter: UInt32 = 0
   var socket: WebSocket!
   var isConnected = false
+  let timeoutInterval = 5.0
   let id: UInt32
   let player: PlayerCore
   var websocketMessage: WebsocketMessage
@@ -74,10 +76,15 @@ class WebSocketManager: WebSocketDelegate {
     self.player = player
     self.websocketMessage = WebsocketMessage()
     self.playerInfo = PlayerInfoJson()
+    self.socket = self.createSocket()
+  }
+  
+  private func createSocket() -> WebSocket {
     var request = URLRequest(url: URL(string: "wss://127.0.0.1:8999/ws/iina/\(self.id)")!)
-    request.timeoutInterval = 5
-    socket = WebSocket(request: request)
-    socket.delegate = self
+    request.timeoutInterval = self.timeoutInterval
+    let _socket = WebSocket(request: request)
+    _socket.delegate = self
+    return _socket
   }
     
   func writeText(text: String = "hello there!") {
@@ -96,21 +103,18 @@ class WebSocketManager: WebSocketDelegate {
   func connect() {
     socket.connect()
     Logger.log("WebSocketManager: Connecting to websocket ...", subsystem: self.player.subsystem)
-//    Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { timer in
-//      self.heartbeat(timer)
-//    }
-    let timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { timer in
-      self.sendPlyerInfo(timer)
+    let timer = Timer.scheduledTimer(withTimeInterval: self.timeoutInterval + 0.5, repeats: true) { _ in
+      self.retryConnecting()
     }
     self.timers.append(timer)
   }
   
-  private func heartbeat(_ timer: Timer) {
-    if !isConnected {
-      timer.invalidate()
-    } else {
-      self.sendPing()
+  func retryConnecting() {
+    guard !isConnected else {
+      return
     }
+    socket = self.createSocket()
+    socket.connect()
   }
   
   private func convertMessageToJson(_ type: [String], message: String) -> String {
@@ -172,6 +176,13 @@ class WebSocketManager: WebSocketDelegate {
     } else {
       return findIndexInTimestamps(pos, startIndex: midIndex, endIndex: endIndex)
     }
+  }
+  
+  private func sendConnectionInfo() {
+    let connectionInfo = ConnectionInfo()
+    connectionInfo.currentURL = self.player.info.currentURL?.absoluteString.removingPercentEncoding ?? ""
+    let type = ["server", "connection"]
+    self.writeText(text: self.convertInfoToJson(type, message: connectionInfo))
   }
 
   func findIndexInTimeStamps(_ pos: Double) -> Int {
@@ -319,12 +330,11 @@ class WebSocketManager: WebSocketDelegate {
     self.player.mainWindow.playSlider.needsDisplay = true
   }
 
-  private func sendPlyerInfo(_ timer: Timer) {
-    if !isConnected {
-      timer.invalidate()
-    } else {
-      self.writeText(text: self.getPlayerInfo())
+  private func sendPlyerInfo() {
+    guard isConnected else {
+      return
     }
+    self.writeText(text: self.getPlayerInfo())
   }
   
   private func sendPing() {
@@ -352,6 +362,14 @@ class WebSocketManager: WebSocketDelegate {
   private func handleSeek(_ message: String) {
     let pos = Double(message) ?? 0.0
     self.player.seek(absoluteSecond: pos)
+  }
+  
+  private func doTasksRightAfterConnected() {
+    self.sendConnectionInfo()
+    let timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
+      self.sendPlyerInfo()
+    }
+    self.timers.append(timer)
   }
   
   private func handleMessage(_ websocketMessage: WebsocketMessage) {
@@ -393,6 +411,7 @@ class WebSocketManager: WebSocketDelegate {
     case .connected(let headers):
       isConnected = true
       Logger.log("WebSocketManager: websocket is connected: \(headers)", subsystem: self.player.subsystem)
+      self.doTasksRightAfterConnected()
     case .disconnected(let reason, let code):
       isConnected = false
       Logger.log("WebSocketManager: websocket is disconnected: \(reason) with code: \(code)", subsystem: self.player.subsystem)
