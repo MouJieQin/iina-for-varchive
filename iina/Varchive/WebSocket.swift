@@ -359,9 +359,24 @@ class WebSocketManager: WebSocketDelegate {
     }
   }
   
+  private func isfileLoaded() -> Bool {
+    return self.player.mpv.fileLoaded
+  }
+  
   private func handleSeek(_ message: String) {
     let pos = Double(message) ?? 0.0
-    self.player.seek(absoluteSecond: pos)
+    if self.isfileLoaded() {
+      // Mpv will throw an exception when the file is not loaded, especially while loading network resource.
+      self.player.seek(absoluteSecond: pos)
+    } else {
+      let timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { timer in
+        if self.isfileLoaded() {
+          self.player.seek(absoluteSecond: pos)
+          timer.invalidate()
+        }
+      }
+      self.timers.append(timer)
+    }
   }
   
   private func doTasksRightAfterConnected() {
