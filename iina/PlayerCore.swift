@@ -1218,11 +1218,13 @@ class PlayerCore: NSObject {
   }
 
   func playFileInPlaylist(_ pos: Int) {
+    savePlaybackPosition()
     mpv.setInt(MPVProperty.playlistPos, pos)
     getPlaylist()
   }
 
   func navigateInPlaylist(nextMedia: Bool) {
+    savePlaybackPosition()
     mpv.command(nextMedia ? .playlistNext : .playlistPrev, checkError: false)
   }
 
