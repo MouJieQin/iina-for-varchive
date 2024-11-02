@@ -1,3 +1,106 @@
+## What I have done
+
+I add some mpv-like commands in keyboard shortcuts.
+
+note: You should set these commands you need in your Key Bindings in your IINA preferences.
+
+##### sub-text
+
+```
+Show the current subtitle text regardless of sub visibility.
+```
+
+##### **secondary-sub-text**
+
+```
+Same as sub-text, but for the secondary subtitle.
+```
+
+##### sub-start
+
+``` 
+Seek to the current subtitle start time.
+```
+
+##### secondary-sub-start
+
+```
+Same as sub-start, but for the secondary subtitle.
+```
+
+##### custom-ab-loop \<flag\>
+
+1. It does what the abloop of mpv do, but provide a conevience.
+
+	the flag argument:
+	
+	###### sub
+	
+	```
+	Cycle through A-B loop states, in which the current subtitle start time will be set as A point, and the current subtitle end time will be set as B point.
+	```
+	
+	###### secondarySub
+	
+	```
+	Same as sub above, but for the secondary subtitle.
+	```
+	
+	###### current [\<value1\>] [\<value2\>]
+	
+	```
+	The value1 and value2 should be positive decimals. The default value of the value1 and the valu2 is 1.0.  The point that is 'value1' seconds leftward away from the current position will be set as A point and the point that is 'value2' seconds rightward away from the current position will be set as B point. It might be used to listen to a word hard to understand.
+	```
+	
+	###### timestamps
+	
+	```
+	Cycle the adjacent pairs of timestamps in which the current position is (see mark-timestamp following).
+	```
+
+##### mark-timestamp \<flag\>
+
+1. It marks some timestamps as bookmarks and shows knobs on progress bar, enabling to seek between timestamps marked.
+
+   the flag argument:
+
+   ###### Set 
+
+   ``` 
+   Mark the current position as a bookmark.
+   ```
+   
+   ###### left-seek
+   
+   ```
+   Leftward seek to the timestamp most closest to the current position.
+   ```
+   
+   ###### right-seek
+   
+   ```
+   Same as left-seek, but for rightward seeking.
+   ```
+   
+   ###### remove
+   
+   ```
+   Remove the timestamp marked at the current position.
+   ```
+   
+   ###### clear
+   
+   ```
+   Clear all timestamps marked.
+   ```
+   
+   
+   
+   
+
+
+
+
 <p align="center">
 <img height="256" src="https://github.com/iina/iina/raw/master/iina/Assets.xcassets/AppIcon.appiconset/iina-icon-256.png">
 </p>
