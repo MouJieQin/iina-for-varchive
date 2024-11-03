@@ -366,6 +366,7 @@
 		E3FEC1332A30400F00CFD845 /* PluginInputManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3FEC1322A30400F00CFD845 /* PluginInputManager.swift */; };
 		E3FF5AC02938582F0019CE45 /* JavascriptDevTool.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3FF5ABF2938582F0019CE45 /* JavascriptDevTool.swift */; };
 		ED5DC3592CBCC5070087EBD3 /* Starscream in Frameworks */ = {isa = PBXBuildFile; productRef = ED5DC3582CBCC5070087EBD3 /* Starscream */; };
+		ED8BB1CA2CD7C9F600D77CB0 /* SkipManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED8BB1C92CD7C9E100D77CB0 /* SkipManager.swift */; };
 		EDCC94DE2CBF609000713E6C /* WebSocket.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDCC94DD2CBF607600713E6C /* WebSocket.swift */; };
 /* End PBXBuildFile section */
 
@@ -1802,6 +1803,7 @@
 		E5EF3D0A20FFBB6200FEBE4C /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/SubChooseViewController.strings; sourceTree = "<group>"; };
 		E5EF3D0C20FFBB9700FEBE4C /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/PreferenceWindowController.strings; sourceTree = "<group>"; };
 		E5EF3D0D2100878F00FEBE4C /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/PrefUtilsViewController.strings; sourceTree = "<group>"; };
+		ED8BB1C92CD7C9E100D77CB0 /* SkipManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkipManager.swift; sourceTree = "<group>"; };
 		EDCC94DD2CBF607600713E6C /* WebSocket.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSocket.swift; sourceTree = "<group>"; };
 		F4C61DFA1E20423A00A43BCC /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/PrefUIViewController.strings; sourceTree = "<group>"; };
 		FB0119E821F8C03D00477551 /* hi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hi; path = hi.lproj/MainMenu.strings; sourceTree = "<group>"; };
@@ -2559,6 +2561,7 @@
 		ED5194C72CB3C16600484221 /* Varchive */ = {
 			isa = PBXGroup;
 			children = (
+				ED8BB1C92CD7C9E100D77CB0 /* SkipManager.swift */,
 				EDCC94DD2CBF607600713E6C /* WebSocket.swift */,
 			);
 			path = Varchive;
@@ -3019,6 +3022,7 @@
 				847C62CA1DC13CDA00E1EF16 /* PrefGeneralViewController.swift in Sources */,
 				E3530700214908DD008FE492 /* JavascriptAPIHttp.swift in Sources */,
 				84FBF23E1EF06A90003EA491 /* ThumbnailCache.swift in Sources */,
+				ED8BB1CA2CD7C9F600D77CB0 /* SkipManager.swift in Sources */,
 				51DE55C92A6646710050AD06 /* Sysctl.swift in Sources */,
 				845FB0C71D39462E00C011E0 /* ControlBarView.swift in Sources */,
 				E3513AFB20F120F600F8C347 /* PreferenceViewController.swift in Sources */,

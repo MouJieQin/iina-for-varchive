@@ -65,6 +65,7 @@ class WebSocketManager: WebSocketDelegate {
   var websocketMessage: WebsocketMessage
   var playerInfo: PlayerInfoJson
   var timers: [Timer] = []
+  var skipManager: SkipManager!
   
   static func getID() -> UInt32 {
     idCounter += 1
@@ -77,6 +78,7 @@ class WebSocketManager: WebSocketDelegate {
     self.websocketMessage = WebsocketMessage()
     self.playerInfo = PlayerInfoJson()
     self.socket = self.createSocket()
+    self.skipManager = self.createSkipManager()
   }
   
   private func createSocket() -> WebSocket {
@@ -85,6 +87,10 @@ class WebSocketManager: WebSocketDelegate {
     let _socket = WebSocket(request: request)
     _socket.delegate = self
     return _socket
+  }
+  
+  private func createSkipManager() -> SkipManager {
+    return SkipManager(player: self.player)
   }
     
   func writeText(text: String = "hello there!") {
@@ -141,7 +147,9 @@ class WebSocketManager: WebSocketDelegate {
   private func getPlayerInfo() -> String {
     self.playerInfo.currentURL = self.player.info.currentURL?.absoluteString.removingPercentEncoding ?? ""
     self.playerInfo.isNetworkResource = self.player.info.isNetworkResource
-    self.playerInfo.pos = self.player.info.videoPosition?.second ?? -1
+    let pos = self.player.info.videoPosition?.second ?? -1
+    self.playerInfo.pos = pos
+    self.skipManager.record(pos)
     self.playerInfo.subDelay = self.player.info.subDelay
     self.playerInfo.loadedSubtitles = self.player.info.loadedSubFiles
     if let jsonData = try? JSONEncoder().encode(self.playerInfo) {
@@ -158,6 +166,14 @@ class WebSocketManager: WebSocketDelegate {
     return ""
   }
   
+  func skipBackward() {
+    return self.skipManager.skipBackward()
+  }
+  
+  func skipForward() {
+    return self.skipManager.skipForward()
+  }
+
   func identifyTimestaps(_ firstTimestamp: Double, _ secondaryTimestamp: Double) -> Bool {
     let offset = firstTimestamp - secondaryTimestamp
     return offset > -0.1 && offset < 0.1
@@ -385,6 +401,7 @@ class WebSocketManager: WebSocketDelegate {
       self.sendPlyerInfo()
     }
     self.timers.append(timer)
+    self.skipManager = self.createSkipManager()
   }
   
   private func handleMessage(_ websocketMessage: WebsocketMessage) {

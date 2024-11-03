@@ -696,13 +696,20 @@ not applying FFmpeg 9599 workaround
         return -4
       }
       switch rawStringSplited[1] {
-      case "info", "info-preview":
+      case "info":
         player.wbSocket.sendGenInfo(infoOption: rawStringSplited[1])
         return 0
       default:
         log("\(rawStringSplited[1]) is an illegal parameter for mark-timestamp.")
         return -4
       }
+
+    case "skip-manager-backward":
+      player.wbSocket.skipBackward()
+      return 0
+    case "skip-manager-forward":
+      player.wbSocket.skipForward()
+      return 0
 
     default:
       return self.command(rawString)
