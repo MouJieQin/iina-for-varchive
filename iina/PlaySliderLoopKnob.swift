@@ -108,6 +108,10 @@ final class PlaySliderLoopKnob: NSView {
     slider.addSubview(self)
   }
 
+  func resetToolTip(_ toolTip: String) {
+    self.toolTip = toolTip
+  }
+
   required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
   /// Constrain the x coordinate to insure the knob stays within the bar.

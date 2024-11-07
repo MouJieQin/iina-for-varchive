@@ -109,6 +109,10 @@ final class PlaySlider: NSSlider {
     timestampMarkKnobs[index].doubleValue = pos
     timestampMarkKnobs[index].isHidden = false
   }
+  
+  func resetToolTip(index: Int, toolTip: String){
+    timestampMarkKnobs[index].resetToolTip(toolTip)
+  }
 
   func removeTimestamp(at: Int) {
     timestampMarkKnobs[at].isHidden = true

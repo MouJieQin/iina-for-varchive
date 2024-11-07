@@ -31,6 +31,7 @@ typealias InsertTimestampInfo = TimestampInfo
 typealias RemoveTimestampInfo = TimestampInfo
 typealias RemoveBookmarkInfo = TimestampInfo
 typealias InformationInfo = URLinfo
+typealias EditedBookmarkInfo = InsertBookmarkInfo
 
 class BookmarkInfo: Codable {
   var currentURL: String?
@@ -220,7 +221,7 @@ class WebSocketManager: WebSocketDelegate {
     self.writeText(text: self.convertInfoToJson(type, message: fetchBookmark))
   }
   
-  func sendArchiveInfo(infoOption: String, pos:Double) {
+  func sendArchiveInfo(infoOption: String, pos: Double) {
     let genInfoInfo = InformationInfo()
     genInfoInfo.currentURL = self.player.info.currentURL?.absoluteString.removingPercentEncoding ?? ""
     let type = ["server", infoOption, String(pos)]
@@ -313,6 +314,19 @@ class WebSocketManager: WebSocketDelegate {
         )
         syncMarkTimestampsOnSlider()
         player.sendOSD(.timestamp(.set, index + 1, player.timestamps.count, tip))
+      }
+    }
+  }
+  
+  private func handleEditBookmark(_ message: String) {
+    if let jsonData = message.data(using: String.Encoding.utf8) {
+      if let editedBookmarkInfo = try? JSONDecoder().decode(EditedBookmarkInfo.self, from: jsonData) {
+        guard self.player.info.currentURL?.absoluteString.removingPercentEncoding == editedBookmarkInfo.currentURL else {
+          return
+        }
+        let index = editedBookmarkInfo.index!
+        let tip = editedBookmarkInfo.title! + "\n" + editedBookmarkInfo.description!
+        self.player.mainWindow.playSlider.resetToolTip(index: index, toolTip: tip)
       }
     }
   }
@@ -453,6 +467,8 @@ class WebSocketManager: WebSocketDelegate {
         self.handleRemoveBookmark(message)
       case "clear":
         self.handleClearAllBookmarks(message)
+      case "edited":
+        self.handleEditBookmark(message)
       default:
         break
       }
