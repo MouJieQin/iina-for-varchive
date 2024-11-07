@@ -51,6 +51,7 @@ enum OSDMessage {
   case abLoop(PlaybackInfo.LoopStatus)
   case abLoopUpdate(PlaybackInfo.LoopStatus, String)
   case timestamp(PlaybackInfo.TimestampStatus, Int, Int, String)
+  case varchive(PlaybackInfo.VarchiveInfoStatus, String, String)
   case stop
   case chapter(String)
   case track(MPVTrack)
@@ -216,6 +217,19 @@ enum OSDMessage {
         return (NSLocalizedString("osd.marktimestamp.remove", comment: "Mark-Timestamp: Removed"), .withText("\(index) / \(count) {{position}} / {{duration}}\n\(tip)"))
       case .clear:
         return (NSLocalizedString("osd.marktimestamp.clear", comment: "Mark-Timestamp: Cleared"), .withText("\(count) timestamps are cleared."))
+      }
+      
+    case .varchive(let value, let title, let description):
+      // Message from varchive through websocket is received.
+      switch value{
+      case .success:
+        return (NSLocalizedString("osd.varchive.success",value: "Varchive-Success: \(title)", comment: "Varchive-Success: \(title)"), .withText(description))
+      case .warning:
+        return (NSLocalizedString("osd.varchive.warning",value: "Varchive-Warning: \(title)", comment: "Varchive-Warning: \(title)"), .withText(description))
+      case .error:
+        return (NSLocalizedString("osd.varchive.error", value: "Varchive-Error: \(title)", comment: "Varchive-Error: \(title)"), .withText(description))
+      case .notification:
+        return (NSLocalizedString("osd.varchive.notification", value: "Varchive-Notification: \(title)", comment: "Varchive-Notification: \(title)"), .withText(description))
       }
 
     case .stop:

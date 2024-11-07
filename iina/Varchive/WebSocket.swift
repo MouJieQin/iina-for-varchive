@@ -47,6 +47,14 @@ class InsertBookmarkInfo: Codable {
   var description: String?
 }
 
+class VarchiveNotificationInfo: Codable {
+  var currentURL: String?
+  var type: String?
+  var title: String?
+  var description: String?
+  var timeout: Float?
+}
+
 class PlayerInfoJson: Codable {
   var currentURL: String?
   var isNetworkResource: Bool?
@@ -212,10 +220,10 @@ class WebSocketManager: WebSocketDelegate {
     self.writeText(text: self.convertInfoToJson(type, message: fetchBookmark))
   }
   
-  func sendGenInfo(infoOption: String) {
+  func sendArchiveInfo(infoOption: String, pos:Double) {
     let genInfoInfo = InformationInfo()
     genInfoInfo.currentURL = self.player.info.currentURL?.absoluteString.removingPercentEncoding ?? ""
-    let type = ["server", infoOption]
+    let type = ["server", infoOption, String(pos)]
     self.writeText(text: self.convertInfoToJson(type, message: genInfoInfo))
   }
 
@@ -404,6 +412,31 @@ class WebSocketManager: WebSocketDelegate {
     self.skipManager = self.createSkipManager()
   }
   
+  private func handleVarchiveNotification(_ message: String) {
+    if let jsonData = message.data(using: String.Encoding.utf8) {
+      if let varchiveNotificationInfo = try? JSONDecoder().decode(VarchiveNotificationInfo.self, from: jsonData) {
+        guard self.player.info.currentURL?.absoluteString.removingPercentEncoding == varchiveNotificationInfo.currentURL else {
+          return
+        }
+        let title = varchiveNotificationInfo.title
+        let description = varchiveNotificationInfo.description
+        let timeout = varchiveNotificationInfo.timeout
+        switch varchiveNotificationInfo.type {
+        case "success":
+          player.sendOSD(.varchive(PlaybackInfo.VarchiveInfoStatus.success, title!, description!), forcedTimeout: timeout)
+        case "warning":
+          player.sendOSD(.varchive(PlaybackInfo.VarchiveInfoStatus.warning, title!, description!), forcedTimeout: timeout)
+        case "error":
+          player.sendOSD(.varchive(PlaybackInfo.VarchiveInfoStatus.error, title!, description!), forcedTimeout: timeout)
+        case "notification":
+          player.sendOSD(.varchive(PlaybackInfo.VarchiveInfoStatus.notification, title!, description!), forcedTimeout: timeout)
+        default:
+          break
+        }
+      }
+    }
+  }
+  
   private func handleMessage(_ websocketMessage: WebsocketMessage) {
     let type = websocketMessage.type!
     let message = websocketMessage.message!
@@ -423,6 +456,8 @@ class WebSocketManager: WebSocketDelegate {
       default:
         break
       }
+    case "notification":
+      self.handleVarchiveNotification(message)
     default:
       Logger.log("WebSocketManager: websocketMessage being not handled:\(type)", subsystem: self.player.subsystem)
     }

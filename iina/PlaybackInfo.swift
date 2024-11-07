@@ -28,6 +28,14 @@ class PlaybackInfo {
     case clear
     case seek
   }
+  
+  enum VarchiveInfoStatus {
+    case success
+    case warning
+    case error
+    case notification
+  }
+
 
   unowned let player: PlayerCore
 

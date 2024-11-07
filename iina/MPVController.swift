@@ -696,11 +696,12 @@ not applying FFmpeg 9599 workaround
         return -4
       }
       switch rawStringSplited[1] {
-      case "info":
-        player.wbSocket.sendGenInfo(infoOption: rawStringSplited[1])
+      case "archive":
+        let pos = getDouble(MPVProperty.timePos)
+        player.wbSocket.sendArchiveInfo(infoOption: rawStringSplited[1], pos: pos)
         return 0
       default:
-        log("\(rawStringSplited[1]) is an illegal parameter for mark-timestamp.")
+        log("\(rawStringSplited[1]) is an illegal parameter for varchive.")
         return -4
       }
 
