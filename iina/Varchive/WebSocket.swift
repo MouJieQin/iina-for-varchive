@@ -32,6 +32,7 @@ typealias RemoveTimestampInfo = TimestampInfo
 typealias RemoveBookmarkInfo = TimestampInfo
 typealias InformationInfo = URLinfo
 typealias EditedBookmarkInfo = InsertBookmarkInfo
+typealias OpenInVarchiveInfo = URLinfo
 
 class BookmarkInfo: Codable {
   var currentURL: String?
@@ -226,6 +227,13 @@ class WebSocketManager: WebSocketDelegate {
     genInfoInfo.currentURL = self.player.info.currentURL?.absoluteString.removingPercentEncoding ?? ""
     let type = ["server", infoOption, String(pos)]
     self.writeText(text: self.convertInfoToJson(type, message: genInfoInfo))
+  }
+  
+  func sendOpenInVarchiveInfo() {
+    let openInVarchiveInfo = OpenInVarchiveInfo()
+    openInVarchiveInfo.currentURL = self.player.info.currentURL?.absoluteString.removingPercentEncoding ?? ""
+    let type = ["server", "openInVarchive"]
+    self.writeText(text: self.convertInfoToJson(type, message: openInVarchiveInfo))
   }
 
   func sendInsertTimestamp(_ pos: Double, preview: String) {

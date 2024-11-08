@@ -700,6 +700,9 @@ not applying FFmpeg 9599 workaround
         let pos = getDouble(MPVProperty.timePos)
         player.wbSocket.sendArchiveInfo(infoOption: rawStringSplited[1], pos: pos)
         return 0
+      case "open-in-varchive":
+        player.wbSocket.sendOpenInVarchiveInfo()
+        return 0
       default:
         log("\(rawStringSplited[1]) is an illegal parameter for varchive.")
         return -4
