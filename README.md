@@ -1,102 +1,128 @@
-## What I have done
+# IINA for Varchive
 
-I add some mpv-like commands in keyboard shortcuts.
+> Based on the original [iina](https://github.com/iina/iina) porject, this project add websocket module to implement IPC(Internet Process Connection) with Varchive server. Besides that, there are additional custom features, such as mpv-like commands in keyboard shortcuts. You could check more information on [varchive](https://github.com/MouJieQin/varchive).
 
-note: You should set these commands you need in your Key Bindings in your IINA preferences.
+> [!TIP]
+> The following chart shows the key and its actions. The key binding is already included in the IINA default key bindings config when its key is not empty. Otherwise you will have to add key bindings you need in the config you are using in your IINA preferences.
+
+| Key      | Action                             |
+| -------- | ---------------------------------- |
+| a        | varchive archive                   |
+| o        | varchive open-in-varchive          |
+| 1        | sub-text                           |
+|          | secondary-sub-text                 |
+| 2        | sub-start                          |
+|          | secondary-sub-start                |
+| 3        | custom-ab-loop current 1.0 1.0     |
+| 4        | custom-ab-loop sub                 |
+|          | custom-ab-loop secondary-sub       |
+| 5        | custom-ab-loop timestamps          |
+|          | mark-timestamp sub-start           |
+|          | mark-timestamp secondary-sub-start |
+| 6        | mark-timestamp mark-preview        |
+| 7        | mark-timestamp mark                |
+| 8        | mark-timestamp left-seek           |
+| 9        | mark-timestamp right-seek          |
+| 0        | mark-timestamp remove              |
+| Shift+BS | mark-timestamp clear               |
+| B        | skip-manager-backward              |
+| F        | skip-manager-forward               |
+
+##### varchive \<flag\>
+
+> [!TIP]
+>
+> The more information about varchive, you could check [varchive](https://github.com/MouJieQin/varchive).
+
+ - archive
+
+> Send current video url to varchive server to archive the video, even if it's a network resource.
+
+- open-in-varchive
+
+  > Open the varchive page of this video in browser, but only when the video is archived.
 
 ##### sub-text
 
-```
-Show the current subtitle text regardless of sub visibility.
-```
+> Show the current subtitle text regardless of sub visibility.
+
 
 ##### **secondary-sub-text**
 
-```
-Same as sub-text, but for the secondary subtitle.
-```
+> Same as sub-text, but for the secondary subtitle.
+
 
 ##### sub-start
 
-``` 
-Seek to the current subtitle start time.
-```
+> Seek to the current subtitle start time.
+
 
 ##### secondary-sub-start
 
-```
-Same as sub-start, but for the secondary subtitle.
-```
+> Same as sub-start, but for the secondary subtitle.
+
 
 ##### custom-ab-loop \<flag\>
 
-1. It does what the abloop of mpv do, but provide a conevience.
+> It does what the abloop of mpv do, but provide a conevience.
 
-	the flag argument:
-	
-	###### sub
-	
-	```
-	Cycle through A-B loop states, in which the current subtitle start time will be set as A point, and the current subtitle end time will be set as B point.
-	```
-	
-	###### secondarySub
-	
-	```
-	Same as sub above, but for the secondary subtitle.
-	```
-	
-	###### current [\<value1\>] [\<value2\>]
-	
-	```
-	The value1 and value2 should be positive decimals. The default value of the value1 and the valu2 is 1.0.  The point that is 'value1' seconds leftward away from the current position will be set as A point and the point that is 'value2' seconds rightward away from the current position will be set as B point. It might be used to listen to a word hard to understand.
-	```
-	
-	###### timestamps
-	
-	```
-	Cycle the adjacent pairs of timestamps in which the current position is (see mark-timestamp following).
-	```
+the flag argument:
+
+- sub
+
+> Cycle through A-B loop states, in which the current subtitle start time will be set as A point, and the current subtitle end time will be set as B point.
+
+- secondarySub
+
+> Same as sub above, but for the secondary subtitle.
+
+- current [\<value1\>] [\<value2\>]
+
+> The value1 and value2 should be positive decimals. The default value of the value1 and the valu2 is 1.0.  The point that is 'value1' seconds leftward away from the current position will be set as A point and the point that is 'value2' seconds rightward away from the current position will be set as B point. It might be used to listen to a word hard to understand.
+
+- timestamps
+
+> Cycle the adjacent pairs of timestamps in which the current position is (see mark-timestamp following).
 
 ##### mark-timestamp \<flag\>
 
-1. It marks some timestamps as bookmarks and shows knobs on progress bar, enabling to seek between timestamps marked.
+> It marks some timestamps as bookmarks and shows knobs on progress bar, enabling to seek between timestamps marked.
 
-   the flag argument:
+the flag argument:
 
-   ###### Set 
+- mark
 
-   ``` 
-   Mark the current position as a bookmark.
-   ```
-   
-   ###### left-seek
-   
-   ```
-   Leftward seek to the timestamp most closest to the current position.
-   ```
-   
-   ###### right-seek
-   
-   ```
-   Same as left-seek, but for rightward seeking.
-   ```
-   
-   ###### remove
-   
-   ```
-   Remove the timestamp marked at the current position.
-   ```
-   
-   ###### clear
-   
-   ```
-   Clear all timestamps marked.
-   ```
-   
-   
-   
-   
+> Mark the current position as a bookmark. You can check it on the varchive page of this video.
+
+- mark-preview
+
+  > Same as mark, but additionally generate the preview(images) of the current position.
+
+- left-seek
+
+  > Leftward seek to the timestamp most closest to the current position.
+
+- right-seek
+
+> Same as left-seek, but for rightward seeking.
+
+- remove
+
+> Remove the timestamp marked at the current position.
+
+- clear
+
+> Clear all timestamps marked.
+
+##### skip-manager-backward
+
+> The skip-manager keeps the latest 100 skip(seeking) records of current playing video. This command seeks to the previous timestamp you skipped from. When you accidentally move the progress knob away from the point you are watching, you could use it to quickly back to the original timestamp.  Note: The skip-manager doesn't keep the skip records  caused by itself. The index of records will be reset when a new seek coming in.
+
+##### skip-manager-forward
+
+> Same as the skip-manager-backward, but seeks to the next jumped record.
+
+
 
 
 

@@ -631,7 +631,7 @@ not applying FFmpeg 9599 workaround
         return -4
       }
       switch rawStringSplited[1]{
-      case "sub", "secondarySub":
+      case "sub", "secondary-sub":
         let subStart: Double = rawStringSplited[1] == "sub" ? self.getDouble(MPVProperty.subStart) : self.getDouble(MPVProperty.secondarySubStart)
         let subEnd: Double = rawStringSplited[1] == "sub" ? self.getDouble(MPVProperty.subEnd) : self.getDouble(MPVProperty.secondarySubEnd)
         guard Int32(subStart) != 0 else {
