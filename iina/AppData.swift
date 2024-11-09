@@ -41,7 +41,7 @@ struct AppData {
 
   static let userInputConfFolder = "input_conf"
   static let watchLaterFolder = "watch_later"
-  static let timestampFolder = "timestamp"
+  static let varchiveFolder = "varchive"
   static let pluginsFolder = "plugins"
   static let binariesFolder = "bin"
   static let historyFile = "history.plist"

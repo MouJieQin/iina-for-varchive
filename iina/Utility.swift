@@ -388,8 +388,8 @@ class Utility {
     return url
   }()
 
-  static let timestampDirURL: URL = {
-    let url = Utility.appSupportDirUrl.appendingPathComponent(AppData.timestampFolder, isDirectory: true)
+  static let varchiveDirURL: URL = {
+    let url = Utility.appSupportDirUrl.appendingPathComponent(AppData.varchiveFolder, isDirectory: true)
     createDirIfNotExist(url: url)
     return url
   }()

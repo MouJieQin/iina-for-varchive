@@ -70,6 +70,13 @@ class WebSocketManager: WebSocketDelegate {
   var socket: WebSocket!
   var isConnected = false
   let timeoutInterval = 5.0
+  let varchiveConfigFileName = "config.plist"
+  var varchiveConfig: [String: Any] = [:]
+  var wssHost = "127.0.0.1"
+  var wssPort = "8999"
+  var wssPath = "/ws/iina/"
+  var wssURL = "wss://"
+  var maxConnections = 100
   let id: UInt32
   let player: PlayerCore
   var websocketMessage: WebsocketMessage
@@ -91,8 +98,27 @@ class WebSocketManager: WebSocketDelegate {
     self.skipManager = self.createSkipManager()
   }
   
+  private func readVarchiveConfig() {
+    let varchiveConfigPath = Utility.varchiveDirURL.appendingPathComponent(self.varchiveConfigFileName).path
+    // check exist
+    guard FileManager.default.fileExists(atPath: varchiveConfigPath) else {
+      return
+    }
+    guard let varchiveConfig = NSDictionary(contentsOfFile: varchiveConfigPath) else {
+      return
+    }
+    self.varchiveConfig = varchiveConfig as! [String: Any]
+    let websocketConfig = self.varchiveConfig["websocket"] as! [String: Any]
+    self.wssHost = websocketConfig["wssHost"] as! String
+    self.wssPort = websocketConfig["wssPort"] as! String
+    self.wssPath = websocketConfig["wssPath"] as! String
+    self.wssURL = "wss://\(self.wssHost):\(self.wssPort)\(self.wssPath)\(self.id)"
+    self.maxConnections = websocketConfig["maxConnections"] as! Int
+  }
+  
   private func createSocket() -> WebSocket {
-    var request = URLRequest(url: URL(string: "wss://127.0.0.1:8999/ws/iina/\(self.id)")!)
+    self.readVarchiveConfig()
+    var request = URLRequest(url: URL(string: self.wssURL)!)
     request.timeoutInterval = self.timeoutInterval
     let _socket = WebSocket(request: request)
     _socket.delegate = self
@@ -129,6 +155,7 @@ class WebSocketManager: WebSocketDelegate {
     guard !isConnected else {
       return
     }
+    self.showCannotConnectToVarchiveServer()
     socket = self.createSocket()
     socket.connect()
   }
@@ -457,6 +484,10 @@ class WebSocketManager: WebSocketDelegate {
         }
       }
     }
+  }
+  
+  private func showCannotConnectToVarchiveServer() {
+    player.sendOSD(.varchive(PlaybackInfo.VarchiveInfoStatus.error, "Cannot connect to varchive server, please launch the varchive server first. retrying...", self.wssURL), forcedTimeout: 3)
   }
   
   private func handleMessage(_ websocketMessage: WebsocketMessage) {
