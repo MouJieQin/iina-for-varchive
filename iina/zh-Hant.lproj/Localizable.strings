@@ -67,10 +67,6 @@
 "osd.abloop.a" = "AB循環：A";
 "osd.abloop.b" = "AB循環：B";
 "osd.abloop.clear" = "AB循環：清除";
-"osd.marktimestamp.set" = "Mark-Timestamp: Marked";
-"osd.marktimestamp.seek" = "Mark-Timestamp: Seek";
-"osd.marktimestamp.remove" = "Mark-Timestamp: Removed";
-"osd.marktimestamp.clear" = "Mark-Timestamp: Cleared";
 "osd.stop" = "停止";
 "osd.chapter" = "章節：%@";
 "osd.subtitle_scale" = "字幕縮放：%.2f 倍";

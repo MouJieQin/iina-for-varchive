@@ -319,17 +319,17 @@ class PlayerWindowController: NSWindowController, NSWindowDelegate {
       guard !player.wbSocket.identifyTimestaps(player.timestamps[index - 1], roundedPos) else {
         guard index - 1 != 0 else { return -4 }
         seekForTimeStampSeek(absoluteSecond: player.timestamps[index - 2])
-        player.sendOSD(.timestamp(.seek, index - 1, player.timestamps.count, player.timestampTips[index - 2]))
+        player.sendOSD(.bookmark(.seek, index - 1, player.timestamps.count, player.timestampTips[index - 2]))
         return 0
       }
       seekForTimeStampSeek(absoluteSecond: player.timestamps[index - 1])
-      player.sendOSD(.timestamp(.seek, index, player.timestamps.count, player.timestampTips[index - 1]))
+      player.sendOSD(.bookmark(.seek, index, player.timestamps.count, player.timestampTips[index - 1]))
       return 0
     }
 
     guard player.timestamps.count != 0, index != player.timestamps.count else { return -4 }
     seekForTimeStampSeek(absoluteSecond: player.timestamps[index])
-    player.sendOSD(.timestamp(.seek, index + 1, player.timestamps.count, player.timestampTips[index]))
+    player.sendOSD(.bookmark(.seek, index + 1, player.timestamps.count, player.timestampTips[index]))
     return 0
   }
 

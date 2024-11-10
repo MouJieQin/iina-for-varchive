@@ -67,10 +67,6 @@
 "osd.abloop.a" = "A-B-Schleife: A";
 "osd.abloop.b" = "A-B-Schleife: B";
 "osd.abloop.clear" = "A-B-Schleife: Aus";
-"osd.marktimestamp.set" = "Mark-Timestamp: Marked";
-"osd.marktimestamp.seek" = "Mark-Timestamp: Seek";
-"osd.marktimestamp.remove" = "Mark-Timestamp: Removed";
-"osd.marktimestamp.clear" = "Mark-Timestamp: Cleared";
 "osd.stop" = "Stopp";
 "osd.chapter" = "Kapitel: %@";
 "osd.subtitle_scale" = "Untertitelgröße: %.2fx";

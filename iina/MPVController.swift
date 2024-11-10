@@ -654,7 +654,7 @@ not applying FFmpeg 9599 workaround
           player.resume()
           return 0
         }
-      case "timestamps":
+      case "bookmarks":
         let pos = getDouble(MPVProperty.timePos)
         player.mainWindow.abLoopTimestamps(pos)
       default:
@@ -662,9 +662,9 @@ not applying FFmpeg 9599 workaround
         return -4
       }
 
-    case "mark-timestamp":
+    case "bookmark":
       guard rawStringSplited.count == 2 else {
-        log("The mark-timestamp must have and only have one parameter.")
+        log("The bookmark must have and only have one parameter.")
         return -4
       }
       let pos = getDouble(MPVProperty.timePos)
@@ -678,15 +678,15 @@ not applying FFmpeg 9599 workaround
           player.wbSocket.sendInsertTimestamp(subStart, preview: "mark")
         }
         return 0
-      case "right-seek", "left-seek":
-        return player.mainWindow.markTimeStampSeek(pos, rightWardFlag: rawStringSplited[1] == "right-seek")
+      case "seek-next", "seek-prev":
+        return player.mainWindow.markTimeStampSeek(pos, rightWardFlag: rawStringSplited[1] == "seek-next")
       case "remove":
         return player.wbSocket.sendRemoveTimestamp(pos)
       case "clear":
         player.wbSocket.sendClearTimestamp()
         return 0
       default:
-        log("\(rawStringSplited[1]) is an illegal parameter for mark-timestamp.")
+        log("\(rawStringSplited[1]) is an illegal parameter for bookmark.")
         return -4
       }
 
@@ -708,16 +708,27 @@ not applying FFmpeg 9599 workaround
         return -4
       }
 
-    case "skip-manager-backward":
-      player.wbSocket.skipBackward()
-      return 0
-    case "skip-manager-forward":
-      player.wbSocket.skipForward()
-      return 0
-
+    case "skip-manager":
+      guard rawStringSplited.count == 2 else {
+        log("The skip-manager must have and only have one parameter.")
+        return -4
+      }
+      switch rawStringSplited[1]{
+      case "prev":
+        player.wbSocket.skipBackward()
+        return 0
+      case "next":
+        player.wbSocket.skipForward()
+        return 0
+      default:
+        log("\(rawStringSplited[1]) is an illegal parameter for skip-manager.")
+        return -4
+      }
+        
     default:
       return self.command(rawString)
     }
+      
     return 0
   }
 

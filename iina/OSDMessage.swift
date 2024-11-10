@@ -50,7 +50,7 @@ enum OSDMessage {
   case screenshot
   case abLoop(PlaybackInfo.LoopStatus)
   case abLoopUpdate(PlaybackInfo.LoopStatus, String)
-  case timestamp(PlaybackInfo.TimestampStatus, Int, Int, String)
+  case bookmark(PlaybackInfo.TimestampStatus, Int, Int, String)
   case varchive(PlaybackInfo.VarchiveInfoStatus, String, String)
   case stop
   case chapter(String)
@@ -206,17 +206,17 @@ enum OSDMessage {
         return (NSLocalizedString("osd.abloop.b", comment: "AB-Loop: B"), .withText("\(position) / {{duration}}"))
       }
 
-    case .timestamp(let value, let index, let count, let tip):
-      // The mark-timestamp command was invoked.
+    case .bookmark(let value, let index, let count, let tip):
+      // The bookmark command was invoked.
       switch value {
-      case .set:
-        return (NSLocalizedString("osd.marktimestamp.set", comment: "Mark-Timestamp: Marked"), .withText("\(index) / \(count) {{position}} / {{duration}}\n\(tip)"))
+      case .mark:
+        return (NSLocalizedString("osd.bookmark.mark", value: "Bookmark: Marked", comment: "Bookmark: Marked"), .withText("\(index) / \(count) {{position}} / {{duration}}\n\(tip)"))
       case .seek:
-        return (NSLocalizedString("osd.marktimestamp.seek", comment: "Mark-Timestamp: Seek"), .withText("\(index) / \(count) {{position}} / {{duration}}\n\(tip)"))
+        return (NSLocalizedString("osd.bookmark.seek", value: "Bookmark: Seek", comment: "Bookmark: Seek"), .withText("\(index) / \(count) {{position}} / {{duration}}\n\(tip)"))
       case .remove:
-        return (NSLocalizedString("osd.marktimestamp.remove", comment: "Mark-Timestamp: Removed"), .withText("\(index) / \(count) {{position}} / {{duration}}\n\(tip)"))
+        return (NSLocalizedString("osd.bookmark.remove", value: "Bookmark: Removed", comment: "Bookmark: Removed"), .withText("\(index) / \(count) {{position}} / {{duration}}\n\(tip)"))
       case .clear:
-        return (NSLocalizedString("osd.marktimestamp.clear", comment: "Mark-Timestamp: Cleared"), .withText("\(count) timestamps are cleared."))
+        return (NSLocalizedString("osd.bookmark.clear", value: "Bookmark: Cleared", comment: "Bookmark: Cleared"), .withText("\(count) timestamps are cleared."))
       }
       
     case .varchive(let value, let title, let description):

@@ -67,10 +67,6 @@
 "osd.abloop.a" = "Цикл: точка А";
 "osd.abloop.b" = "Цикл: точка Б";
 "osd.abloop.clear" = "Цикл: сброшен";
-"osd.marktimestamp.set" = "Mark-Timestamp: Marked";
-"osd.marktimestamp.seek" = "Mark-Timestamp: Seek";
-"osd.marktimestamp.remove" = "Mark-Timestamp: Removed";
-"osd.marktimestamp.clear" = "Mark-Timestamp: Cleared";
 "osd.stop" = "Стоп";
 "osd.chapter" = "Глава: %@";
 "osd.subtitle_scale" = "Масштаб субтитров: %.2f×";

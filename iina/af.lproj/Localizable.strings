@@ -67,10 +67,6 @@
 "osd.abloop.a" = "AB-lus: A";
 "osd.abloop.b" = "AB-lus: B";
 "osd.abloop.clear" = "AB-lus: opgehef";
-"osd.marktimestamp.set" = "Mark-Timestamp: Marked";
-"osd.marktimestamp.seek" = "Mark-Timestamp: Seek";
-"osd.marktimestamp.remove" = "Mark-Timestamp: Removed";
-"osd.marktimestamp.clear" = "Mark-Timestamp: Cleared";
 "osd.stop" = "Stop";
 "osd.chapter" = "Hoofstuk: %@";
 "osd.subtitle_scale" = "Onderskrifskaal: %.2fx";

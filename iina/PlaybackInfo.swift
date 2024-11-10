@@ -23,7 +23,7 @@ class PlaybackInfo {
   }
 
   enum TimestampStatus {
-    case set
+    case mark
     case remove
     case clear
     case seek

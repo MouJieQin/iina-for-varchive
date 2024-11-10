@@ -323,7 +323,7 @@ class WebSocketManager: WebSocketDelegate {
         guard self.player.info.currentURL?.absoluteString.removingPercentEncoding ?? "" == clearBookmarkInfo.currentURL else {
           return
         }
-        player.sendOSD(.timestamp(.clear, 0, player.timestamps.count, ""))
+        player.sendOSD(.bookmark(.clear, 0, player.timestamps.count, ""))
         player.timestamps.removeAll()
         player.timestampTips.removeAll()
         player.mainWindow.playSlider.removeAllTimestamps()
@@ -348,7 +348,7 @@ class WebSocketManager: WebSocketDelegate {
           index: index, toolTip: tip
         )
         syncMarkTimestampsOnSlider()
-        player.sendOSD(.timestamp(.set, index + 1, player.timestamps.count, tip))
+        player.sendOSD(.bookmark(.mark, index + 1, player.timestamps.count, tip))
       }
     }
   }
@@ -367,7 +367,7 @@ class WebSocketManager: WebSocketDelegate {
   }
   
   private func removeTimestamp(_ index: Int) {
-    player.sendOSD(.timestamp(.remove, index + 1, player.timestamps.count, player.timestampTips[index]))
+    player.sendOSD(.bookmark(.remove, index + 1, player.timestamps.count, player.timestampTips[index]))
     player.timestamps.remove(at: index)
     player.timestampTips.remove(at: index)
     player.mainWindow.playSlider.removeTimestamp(at: index)

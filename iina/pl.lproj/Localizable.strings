@@ -67,10 +67,6 @@
 "osd.abloop.a" = "Pętla-AB: A";
 "osd.abloop.b" = "Pętla-AB: B";
 "osd.abloop.clear" = "Pętla-AB: wyczyszczono";
-"osd.marktimestamp.set" = "Mark-Timestamp: Marked";
-"osd.marktimestamp.seek" = "Mark-Timestamp: Seek";
-"osd.marktimestamp.remove" = "Mark-Timestamp: Removed";
-"osd.marktimestamp.clear" = "Mark-Timestamp: Cleared";
 "osd.stop" = "Zatrzymaj";
 "osd.chapter" = "Rozdział: %@";
 "osd.subtitle_scale" = "Skala napisów: %.2fx";

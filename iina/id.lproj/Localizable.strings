@@ -67,10 +67,6 @@
 "osd.abloop.a" = "Pengulangan-AB: A";
 "osd.abloop.b" = "Pengulangan-AB: B";
 "osd.abloop.clear" = "Pengulangan-AB: Dibersihkan";
-"osd.marktimestamp.set" = "Mark-Timestamp: Marked";
-"osd.marktimestamp.seek" = "Mark-Timestamp: Seek";
-"osd.marktimestamp.remove" = "Mark-Timestamp: Removed";
-"osd.marktimestamp.clear" = "Mark-Timestamp: Cleared";
 "osd.stop" = "Berhenti";
 "osd.chapter" = "Bab: %@";
 "osd.subtitle_scale" = "Skala Terjemahan: %.2fx";

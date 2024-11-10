@@ -1,38 +1,42 @@
-# IINA for Varchive
 
-> Based on the original [iina](https://github.com/iina/iina) porject, this project add websocket module to implement IPC(Internet Process Connection) with Varchive server. Besides that, there are additional custom features, such as mpv-like commands in keyboard shortcuts. You could check more information on [varchive](https://github.com/MouJieQin/varchive).
+
+<h1 align="center">IINA for Varchive</h1>
+
+Based on the original [iina](https://github.com/iina/iina) porject, this project add websocket module to implement IPC(Internet Process Connection) with [Varchive](https://github.com/MouJieQin/varchive)(video archive), a web extension app to archive videos. Besides that, there are additional custom features, such as mpv-like commands using keyboard shortcuts. 
 
 > [!TIP]
-> The following chart shows the key and its actions. The key binding is already included in the IINA default key bindings config when its key is not empty. Otherwise you will have to add key bindings you need in the config you are using in your IINA preferences.
+> The following chart shows the key and its action. The key binding is already included in the IINA for Varchive default key bindings config when its key is not empty. Otherwise you will have to add key bindings you need in the config you are using in your IINA preferences.
 
-| Key      | Action                             |
-| -------- | ---------------------------------- |
-| a        | varchive archive                   |
-| o        | varchive open-in-varchive          |
-| 1        | sub-text                           |
-|          | secondary-sub-text                 |
-| 2        | sub-start                          |
-|          | secondary-sub-start                |
-| 3        | custom-ab-loop current 1.0 1.0     |
-| 4        | custom-ab-loop sub                 |
-|          | custom-ab-loop secondary-sub       |
-| 5        | custom-ab-loop timestamps          |
-|          | mark-timestamp sub-start           |
-|          | mark-timestamp secondary-sub-start |
-| 6        | mark-timestamp mark-preview        |
-| 7        | mark-timestamp mark                |
-| 8        | mark-timestamp left-seek           |
-| 9        | mark-timestamp right-seek          |
-| 0        | mark-timestamp remove              |
-| Shift+BS | mark-timestamp clear               |
-| B        | skip-manager-backward              |
-| F        | skip-manager-forward               |
+| Key      | Action                         |
+| -------- | ------------------------------ |
+| a        | varchive archive               |
+| o        | varchive open-in-varchive      |
+| 1        | sub-text                       |
+|          | secondary-sub-text             |
+| 2        | sub-start                      |
+|          | secondary-sub-start            |
+| 3        | custom-ab-loop current 1.0 1.0 |
+| 4        | custom-ab-loop sub             |
+|          | custom-ab-loop secondary-sub   |
+| 5        | custom-ab-loop bookmarks       |
+|          | bookmark sub-start             |
+|          | bookmark secondary-sub-start   |
+| 6        | bookmark mark-preview          |
+| 7        | bookmark mark                  |
+| 8        | bookmark seek-prev             |
+| 9        | bookmark seek-next             |
+| 0        | bookmark remove                |
+| Shift+BS | bookmark clear                 |
+| B        | skip-manager prev              |
+| F        | skip-manager next              |
 
-##### varchive \<flag\>
+## Features
+
+#### varchive \<flag\>
 
 > [!TIP]
 >
-> The more information about varchive, you could check [varchive](https://github.com/MouJieQin/varchive).
+> You could check [varchive](https://github.com/MouJieQin/varchive) to know more information about it.
 
  - archive
 
@@ -42,29 +46,29 @@
 
   > Open the varchive page of this video in browser, but only when the video is archived.
 
-##### sub-text
+#### sub-text
 
 > Show the current subtitle text regardless of sub visibility.
 
 
-##### **secondary-sub-text**
+#### **secondary-sub-text**
 
 > Same as sub-text, but for the secondary subtitle.
 
 
-##### sub-start
+#### sub-start
 
 > Seek to the current subtitle start time.
 
 
-##### secondary-sub-start
+#### secondary-sub-start
 
 > Same as sub-start, but for the secondary subtitle.
 
 
-##### custom-ab-loop \<flag\>
+#### custom-ab-loop \<flag\>
 
-> It does what the abloop of mpv do, but provide a conevience.
+> It does what the abloop of mpv do, but provides a conevience.
 
 the flag argument:
 
@@ -72,7 +76,7 @@ the flag argument:
 
 > Cycle through A-B loop states, in which the current subtitle start time will be set as A point, and the current subtitle end time will be set as B point.
 
-- secondarySub
+- secondary-sub
 
 > Same as sub above, but for the secondary subtitle.
 
@@ -80,47 +84,55 @@ the flag argument:
 
 > The value1 and value2 should be positive decimals. The default value of the value1 and the valu2 is 1.0.  The point that is 'value1' seconds leftward away from the current position will be set as A point and the point that is 'value2' seconds rightward away from the current position will be set as B point. It might be used to listen to a word hard to understand.
 
-- timestamps
+- bookmarks
 
-> Cycle the adjacent pairs of timestamps in which the current position is (see mark-timestamp following).
+> Cycle the adjacent pairs of bookmarks in which the current position is (see bookmark following).
 
-##### mark-timestamp \<flag\>
+#### bookmark \<flag\>
 
-> It marks some timestamps as bookmarks and shows knobs on progress bar, enabling to seek between timestamps marked.
+> It marks some timestamps as bookmarks and shows knobs on progress bar, enabling to seek between timestamps marked. You can edit bookmarks on the corresponding varchive page of a video.
 
 the flag argument:
 
 - mark
 
-> Mark the current position as a bookmark. You can check it on the varchive page of this video.
+> Mark the current timestamp position as a bookmark. 
+>
+> The current video will be archived by varchive if it's not archived yet.
 
 - mark-preview
 
   > Same as mark, but additionally generate the preview(images) of the current position.
 
-- left-seek
+- seek-prev
 
-  > Leftward seek to the timestamp most closest to the current position.
+  > Seek to the previous bookmark closest to the current position.
 
-- right-seek
+- seek-next
 
-> Same as left-seek, but for rightward seeking.
+> Same as seek-prev, but seek to the next bookmark .
 
 - remove
 
-> Remove the timestamp marked at the current position.
+> Remove the bookmark marked at the current position.
 
 - clear
 
-> Clear all timestamps marked.
+> Clear all bookmarks marked.
 
-##### skip-manager-backward
+#### skip-manager  \<flag\>
 
-> The skip-manager keeps the latest 100 skip(seeking) records of current playing video. This command seeks to the previous timestamp you skipped from. When you accidentally move the progress knob away from the point you are watching, you could use it to quickly back to the original timestamp.  Note: The skip-manager doesn't keep the skip records  caused by itself. The index of records will be reset when a new seek coming in.
+>The skip-manager keeps the latest 100 skip(seeking) records of current playing video. When you accidentally move the progress knob away from the point you are watching, you could use it to quickly reach back to the original timestamp.  Note: The skip-manager doesn't keep the skip records  caused by itself. The index of records will be reset when a new seek coming in.
 
-##### skip-manager-forward
+- prev
 
-> Same as the skip-manager-backward, but seeks to the next jumped record.
+  > Seek to the previous timestamp you skipped from. 
+
+- next
+
+> Same as the prev, but seek to the next skipped timestamp.
+
+---
 
 
 
@@ -143,6 +155,7 @@ the flag argument:
 
 ---
 [![Crowdin](https://badges.crowdin.net/iina/localized.svg)](https://crowdin.com/project/iina)
+
 ## Features
 
 * Based on [mpv](https://github.com/mpv-player/mpv), which provides the best decoding capacity on macOS
