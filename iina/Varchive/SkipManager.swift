@@ -52,6 +52,10 @@ class SkipManager {
     initPointer()
   }
   
+  private func forceRecord() {
+    insertTimestamp(lastPos)
+  }
+  
   private func initPointer() {
     timestampPointer = -1
   }
@@ -82,6 +86,7 @@ class SkipManager {
     }
     if timestampPointer == -1 {
       timestampPointer = timestamps.count
+      forceRecord()
     }
     
     timestampPointer = timestampPointer - 1

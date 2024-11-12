@@ -38,9 +38,9 @@ Based on the original [iina](https://github.com/iina/iina) porject, this project
 >
 > You could check [varchive](https://github.com/MouJieQin/varchive) to know more information about it.
 
- - archive
+- archive
 
-> Send current video url to varchive server to archive the video, even if it's a network resource.
+ > Send current video url to varchive server to archive the video, even if it's a network resource.
 
 - open-in-varchive
 
@@ -74,19 +74,19 @@ the flag argument:
 
 - sub
 
-> Cycle through A-B loop states, in which the current subtitle start time will be set as A point, and the current subtitle end time will be set as B point.
+  > Cycle through A-B loop states, in which the current subtitle start time will be set as A point, and the current subtitle end time will be set as B point.
 
 - secondary-sub
 
-> Same as sub above, but for the secondary subtitle.
+  > Same as sub above, but for the secondary subtitle.
 
 - current [\<value1\>] [\<value2\>]
 
-> The value1 and value2 should be positive decimals. The default value of the value1 and the valu2 is 1.0.  The point that is 'value1' seconds leftward away from the current position will be set as A point and the point that is 'value2' seconds rightward away from the current position will be set as B point. It might be used to listen to a word hard to understand.
+  > The value1 and value2 should be positive decimals. The default value of the value1 and the valu2 is 1.0.  The point that is 'value1' seconds leftward away from the current position will be set as A point and the point that is 'value2' seconds rightward away from the current position will be set as B point. It might be used to listen to a word hard to understand.
 
 - bookmarks
 
-> Cycle the adjacent pairs of bookmarks in which the current position is (see bookmark following).
+  > Cycle the adjacent pairs of bookmarks in which the current position is (see bookmark following).
 
 #### bookmark \<flag\>
 
@@ -96,9 +96,9 @@ the flag argument:
 
 - mark
 
-> Mark the current timestamp position as a bookmark. 
->
-> The current video will be archived by varchive if it's not archived yet.
+  > Mark the current timestamp position as a bookmark. 
+  >
+  > The current video will be archived by varchive if it's not archived yet.
 
 - mark-preview
 
@@ -110,19 +110,19 @@ the flag argument:
 
 - seek-next
 
-> Same as seek-prev, but seek to the next bookmark .
+  > Same as seek-prev, but seek to the next bookmark .
 
 - remove
 
-> Remove the bookmark marked at the current position.
+  > Remove the bookmark marked at the current position.
 
 - clear
 
-> Clear all bookmarks marked.
+  > Clear all bookmarks marked.
 
 #### skip-manager  \<flag\>
 
->The skip-manager keeps the latest 100 skip(seeking) records of current playing video. When you accidentally move the progress knob away from the point you are watching, you could use it to quickly reach back to the original timestamp.  Note: The skip-manager doesn't keep the skip records  caused by itself. The index of records will be reset when a new seek coming in.
+>The skip-manager keeps the latest 100 skip(seeking) records of current playing video. When you accidentally move the progress knob away from the point you are watching, you could use it to quickly reach back to the original timestamp.  Note: The vlaue of the index to locate records will be reset when a new seek coming in. The skip-manager doesn't keep the skip records caused by itself. 
 
 - prev
 
@@ -130,7 +130,7 @@ the flag argument:
 
 - next
 
-> Same as the prev, but seek to the next skipped timestamp.
+  > Same as the prev, but seek to the next skipped timestamp.
 
 ---
 
