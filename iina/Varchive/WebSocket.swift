@@ -437,6 +437,7 @@ class WebSocketManager: WebSocketDelegate {
   }
   
   private func handleSeek(_ message: String) {
+    self.player.showMainWindow()
     let pos = Double(message) ?? 0.0
     if self.isfileLoaded() {
       // Mpv will throw an exception when the file is not loaded, especially while loading network resource.

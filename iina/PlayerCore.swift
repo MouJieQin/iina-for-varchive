@@ -131,8 +131,8 @@ class PlayerCore: NSObject {
   var mainWindow: MainWindowController!
   var initialWindow: InitialWindowController!
   var miniPlayer: MiniPlayerWindowController!
-
   var currentWindow: NSWindow? {
+
     return isInMiniPlayer ? miniPlayer.window : mainWindow.window
   }
 
@@ -632,6 +632,10 @@ class PlayerCore: NSObject {
     }
     
     events.emit(.musicModeChanged, data: true)
+  }
+  
+  func showMainWindow() {
+    mainWindow.window?.makeKeyAndOrderFront(self)
   }
 
   func switchBackFromMiniPlayer(automatically: Bool, showMainWindow: Bool = true) {
