@@ -40,11 +40,11 @@ Based on the original [iina](https://github.com/iina/iina) porject, this project
 
 - archive
 
- > Send current video url to varchive server to archive the video, even if it's a network resource.
+> Send current video url to varchive server to archive the video, even if it's a network resource.
 
 - open-in-varchive
 
-  > Open the varchive page of this video in browser, but only when the video is archived.
+> Open the varchive page of this video in varchive app if it's running, or in browser, but only when the video is archived.
 
 #### sub-text
 
