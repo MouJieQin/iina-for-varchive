@@ -240,13 +240,22 @@ class PlayerCore: NSObject {
   func syncTimestamps() {
     // clear all timestamps in the previous file without syncing to the timestamp file.
     self.mainWindow.clearAllTimestamp(isSyncFile: false)
-    let absolutePath = info.currentURL?.absoluteString ?? ""
-    guard !absolutePath.isEmpty else {
-      return
+    if info.isNetworkResource{
+      let absolutePath = info.currentURL?.absoluteString ?? ""
+      guard !absolutePath.isEmpty else {
+        return
+      }
+      playingFilePath = absolutePath
+      let timestampFileName = absolutePath.md5 + ".plist"
+      timestampFile = Utility.timestampDirURL.appendingPathComponent(timestampFileName).path
+    } else {
+      let absolutePath = info.currentURL?.absoluteString.removingPercentEncoding ?? ""
+      guard !absolutePath.isEmpty else {
+        return
+      }
+      playingFilePath = absolutePath
+      timestampFile = playingFilePath.replacingOccurrences(of: "file://", with: "")+".iina.bookmark.plist"
     }
-    playingFilePath = absolutePath
-    let timestampFileName = absolutePath.md5 + ".plist"
-    timestampFile = Utility.timestampDirURL.appendingPathComponent(timestampFileName).path
     // check exist
     guard FileManager.default.fileExists(atPath: timestampFile) else {
       return
