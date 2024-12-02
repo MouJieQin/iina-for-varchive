@@ -359,11 +359,11 @@ class PlayerWindowController: NSWindowController, NSWindowDelegate {
   func seekForTimeStampSeek(absoluteSecond: Double) {
     player.seek(absoluteSecond: absoluteSecond)
     player.info.isSeekingTimestamp = true
-    guard player.info.isPaused else {
-      player.pause()
-      player.info.isPausedDueToSeekingTimestamp = true
-      return
-    }
+//    guard player.info.isPaused else {
+//      player.pause()
+//      player.info.isPausedDueToSeekingTimestamp = true
+//      return
+//    }
   }
 
   func markTimeStampSeek(_ pos: Double, rightWardFlag: Bool) -> Int32 {
