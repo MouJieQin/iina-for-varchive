@@ -77,6 +77,9 @@ class JavascriptPluginInstance {
   }
 
   func canAccess(url: URL) -> Bool {
+    if url.absoluteString.hasPrefix(plugin.root.absoluteString){
+      return true
+    }
     guard let host = url.host else {
       return false
     }

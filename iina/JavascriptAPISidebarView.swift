@@ -31,10 +31,13 @@ class JavascriptAPISidebarView: JavascriptAPI, JavascriptAPISidebarViewExportabl
       throwError(withMessage: "sidebar.loadFile called when window is not available. Please call it after receiving the \"iina.window-loaded\" event.")
       return
     }
-    let rootURL = pluginInstance.plugin.root
-    let url = rootURL.appendingPathComponent(path)
+    var url = URL(string: path)
+    if url == nil {
+      let rootURL = pluginInstance.plugin.root
+      url = rootURL.appendingPathComponent(path)
+    }
     Utility.executeOnMainThread {
-      let nav = pluginInstance.sidebarTabView.load(URLRequest(url: url))
+      let nav = pluginInstance.sidebarTabView.load(URLRequest(url: url!))
       if nav == nil {
         throwError(withMessage: "Failed to load ")
       }
