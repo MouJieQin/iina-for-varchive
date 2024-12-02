@@ -367,22 +367,35 @@ class PlayerWindowController: NSWindowController, NSWindowDelegate {
   }
 
   func markTimeStampSeek(_ pos: Double, rightWardFlag: Bool) -> Int32 {
+    guard player.timestamps.count != 0 else { return -3 }
     let roundedPos = player.mpv.roundToTwoPlaces(decimal: pos)
     let index = findIndexInTimeStamps(roundedPos)
     guard rightWardFlag else {
-      guard index != 0 else { return -4 }
+      guard index != 0 else {
+        seekForTimeStampSeek(absoluteSecond: player.timestamps[player.timestamps.count - 1])
+        player.sendOSD(.timestamp(.seek, player.timestamps.count, player.timestamps.count, player.timestampTips[player.timestamps.count - 1]))
+        return 0
+      }
       guard !identifyTimestaps(player.timestamps[index - 1], roundedPos) else {
-        guard index - 1 != 0 else { return -4 }
+        guard index - 1 != 0 else {
+          seekForTimeStampSeek(absoluteSecond: player.timestamps[player.timestamps.count - 1])
+          player.sendOSD(.timestamp(.seek, player.timestamps.count, player.timestamps.count, player.timestampTips[player.timestamps.count - 1]))
+          return 0
+        }
         seekForTimeStampSeek(absoluteSecond: player.timestamps[index - 2])
-        player.sendOSD(.timestamp(.seek, index - 1 , player.timestamps.count, player.timestampTips[index - 2 ]))
+        player.sendOSD(.timestamp(.seek, index - 1, player.timestamps.count, player.timestampTips[index - 2]))
         return 0
       }
       seekForTimeStampSeek(absoluteSecond: player.timestamps[index - 1])
-      player.sendOSD(.timestamp(.seek, index, player.timestamps.count, player.timestampTips[index - 1 ]))
+      player.sendOSD(.timestamp(.seek, index, player.timestamps.count, player.timestampTips[index - 1]))
       return 0
     }
 
-    guard player.timestamps.count != 0, index != player.timestamps.count else { return -4 }
+    guard index != player.timestamps.count else {
+      seekForTimeStampSeek(absoluteSecond: player.timestamps[0])
+      player.sendOSD(.timestamp(.seek, 1, player.timestamps.count, player.timestampTips[0]))
+      return 0
+    }
     seekForTimeStampSeek(absoluteSecond: player.timestamps[index])
     player.sendOSD(.timestamp(.seek, index + 1, player.timestamps.count, player.timestampTips[index]))
     return 0
@@ -390,9 +403,9 @@ class PlayerWindowController: NSWindowController, NSWindowDelegate {
 
   func identifyTimestaps(_ firstTimestamp: Double, _ secondaryTimestamp: Double) -> Bool {
     let offset = firstTimestamp - secondaryTimestamp
-    return offset > -0.1 && offset < 0.1
+    return offset > -3 && offset < 3
   }
-
+  
   func removeTimestamp(_ index: Int) {
     player.sendOSD(.timestamp(.remove, index + 1, player.timestamps.count, player.timestampTips[index]))
     player.timestamps.remove(at: index)
