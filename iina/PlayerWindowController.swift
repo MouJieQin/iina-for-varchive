@@ -331,13 +331,13 @@ class PlayerWindowController: NSWindowController, NSWindowDelegate {
     }
     player.timestamps.insert(roundedPos, at: index)
     player.timestampTips.insert(tip, at: index)
-    playSlider.insertTimestamp(pos: secondsToPercent(roundedPos), index: index, toolTip: tip)
+    playSlider.insertTimestamp(pos: secondsToPercent(roundedPos), index: index, toolTip: tip, color: player.bookmarkKnobColor)
     return index
   }
 
   func loadTimestaps() {
     for index in 0 ..< player.timestamps.count {
-      playSlider.insertTimestamp(pos: secondsToPercent(player.timestamps[index]), index: index, toolTip: player.timestampTips[index])
+      playSlider.insertTimestamp(pos: secondsToPercent(player.timestamps[index]), index: index, toolTip: player.timestampTips[index], color: player.bookmarkKnobColor)
     }
     syncMarkTimestampsOnSlider()
   }

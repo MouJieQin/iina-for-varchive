@@ -104,8 +104,8 @@ final class PlaySlider: NSSlider {
     needsDisplay = true
   }
 
-  func insertTimestamp(pos: Double, index: Int, toolTip: String) {
-    timestampMarkKnobs.insert(PlaySliderLoopKnob(slider: self, toolTip: toolTip, knobHeightAdjustment: CGFloat(0.25)), at: index)
+  func insertTimestamp(pos: Double, index: Int, toolTip: String, color: NSColor?) {
+    timestampMarkKnobs.insert(PlaySliderLoopKnob(slider: self, toolTip: toolTip, knobHeightAdjustment: CGFloat(0.25), color: color), at: index)
     timestampMarkKnobs[index].doubleValue = pos
     timestampMarkKnobs[index].isHidden = false
   }
