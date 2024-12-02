@@ -626,6 +626,7 @@ not applying FFmpeg 9599 workaround
       return 0
 
     case "custom-ab-loop":
+      player.mainWindow.pretendMouseMoved()
       guard rawStringSplited.count >= 2 else {
         log("The custom-ab-loop must have at least one parameter.")
         return -4
@@ -663,6 +664,7 @@ not applying FFmpeg 9599 workaround
       }
 
     case "mark-timestamp":
+      player.mainWindow.pretendMouseMoved()
       guard rawStringSplited.count == 2 else {
         log("The mark-timestamp must have and only have one parameter.")
         return -4

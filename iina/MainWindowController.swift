@@ -1096,6 +1096,12 @@ class MainWindowController: PlayerWindowController {
       updateTimer()
     }
   }
+  
+  func pretendMouseMoved() {
+    guard !isInInteractiveMode else { return }
+    showUI()
+    updateTimer()
+  }
 
   @objc func handleMagnifyGesture(recognizer: NSMagnificationGestureRecognizer) {
     guard pinchAction != .none else { return }
