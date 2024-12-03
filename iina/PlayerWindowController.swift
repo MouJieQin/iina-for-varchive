@@ -304,20 +304,29 @@ class PlayerWindowController: NSWindowController, NSWindowDelegate {
   func seekForTimeStampSeek(absoluteSecond: Double) {
     player.seek(absoluteSecond: absoluteSecond)
     player.info.isSeekingTimestamp = true
-    guard player.info.isPaused else {
-      player.pause()
-      player.info.isPausedDueToSeekingTimestamp = true
-      return
-    }
+//    guard player.info.isPaused else {
+//      player.pause()
+//      player.info.isPausedDueToSeekingTimestamp = true
+//      return
+//    }
   }
 
   func markTimeStampSeek(_ pos: Double, rightWardFlag: Bool) -> Int32 {
+    guard player.timestamps.count != 0 else { return -3 }
     let roundedPos = player.mpv.roundToTwoPlaces(decimal: pos)
     let index = player.wbSocket.findIndexInTimeStamps(roundedPos)
     guard rightWardFlag else {
-      guard index != 0 else { return -4 }
+      guard index != 0 else {
+        seekForTimeStampSeek(absoluteSecond: player.timestamps[player.timestamps.count - 1])
+        player.sendOSD(.bookmark(.seek, player.timestamps.count, player.timestamps.count, player.timestampTips[player.timestamps.count - 1]))
+        return 0
+      }
       guard !player.wbSocket.identifyTimestaps(player.timestamps[index - 1], roundedPos) else {
-        guard index - 1 != 0 else { return -4 }
+        guard index - 1 != 0 else {
+          seekForTimeStampSeek(absoluteSecond: player.timestamps[player.timestamps.count - 1])
+          player.sendOSD(.bookmark(.seek, player.timestamps.count, player.timestamps.count, player.timestampTips[player.timestamps.count - 1]))
+          return 0
+        }
         seekForTimeStampSeek(absoluteSecond: player.timestamps[index - 2])
         player.sendOSD(.bookmark(.seek, index - 1, player.timestamps.count, player.timestampTips[index - 2]))
         return 0
@@ -327,7 +336,11 @@ class PlayerWindowController: NSWindowController, NSWindowDelegate {
       return 0
     }
 
-    guard player.timestamps.count != 0, index != player.timestamps.count else { return -4 }
+    guard index != player.timestamps.count else {
+      seekForTimeStampSeek(absoluteSecond: player.timestamps[0])
+      player.sendOSD(.bookmark(.seek, 1, player.timestamps.count, player.timestampTips[0]))
+      return 0
+    }
     seekForTimeStampSeek(absoluteSecond: player.timestamps[index])
     player.sendOSD(.bookmark(.seek, index + 1, player.timestamps.count, player.timestampTips[index]))
     return 0

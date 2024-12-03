@@ -45,6 +45,7 @@ struct AppData {
   static let pluginsFolder = "plugins"
   static let binariesFolder = "bin"
   static let historyFile = "history.plist"
+  static let customConfigFile = "custom_config.plist"
   static let thumbnailCacheFolder = "thumb_cache"
   static let screenshotCacheFolder = "screenshot_cache"
 

@@ -47,6 +47,8 @@ final class PlaySliderLoopKnob: NSView {
 
   private let knobHeight: CGFloat
   
+  private let customKnobColor: NSColor?
+  
   /// Percentage of the height of the primary knob to use for the loop knobs when drawing.
   ///
   /// The height of loop knobs is reduced in order to give prominence to the slider's knob that controls the playback position.
@@ -91,11 +93,12 @@ final class PlaySliderLoopKnob: NSView {
   /// - Parameters:
   ///   - slider: The slider this thumb belongs to.
   ///   - toolTip: The help tag to display for this thumb.
-  init(slider: PlaySlider, toolTip: String, knobHeightAdjustment: CGFloat = knobHeightAdjustment) {
+  init(slider: PlaySlider, toolTip: String, knobHeightAdjustment: CGFloat = knobHeightAdjustment, color: NSColor? = nil) {
     self.slider = slider
     self.cell = slider.customCell
     // We want loop knobs to be shorter than the primary knob.
     knobHeight = round(cell.knobHeight * knobHeightAdjustment)
+    customKnobColor = color
     // The frame is calculated and set once the superclass is initialized.
     super.init(frame: NSZeroRect)
     self.toolTip = toolTip
@@ -127,12 +130,16 @@ final class PlaySliderLoopKnob: NSView {
   // MARK:- Drawing
 
   private func knobColor() -> NSColor {
-    // Starting with macOS Mojave 10.14 colors can be configured to automatically adjust for the
-    // current appearance.
-    if #available(macOS 10.14, *) {
-      return NSColor(named: .mainSliderLoopKnob)!
+    if customKnobColor != nil {
+      return customKnobColor!
     } else {
-      return slider.window!.effectiveAppearance.isDark ? .darkKnobColor : .lightKnobColor
+      // Starting with macOS Mojave 10.14 colors can be configured to automatically adjust for the
+      // current appearance.
+      if #available(macOS 10.14, *) {
+        return NSColor(named: .mainSliderLoopKnob)!
+      } else {
+        return slider.window!.effectiveAppearance.isDark ? .darkKnobColor : .lightKnobColor
+      }
     }
   }
 

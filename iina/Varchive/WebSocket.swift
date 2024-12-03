@@ -213,7 +213,7 @@ class WebSocketManager: WebSocketDelegate {
 
   func identifyTimestaps(_ firstTimestamp: Double, _ secondaryTimestamp: Double) -> Bool {
     let offset = firstTimestamp - secondaryTimestamp
-    return offset > -0.1 && offset < 0.1
+    return offset > -3 && offset < 3
   }
   
   private func findIndexInTimestamps(_ pos: Double, startIndex: Int, endIndex: Int) -> Int {
@@ -345,7 +345,7 @@ class WebSocketManager: WebSocketDelegate {
         player.timestampTips.insert(tip, at: index)
         self.player.mainWindow.playSlider.insertTimestamp(
           pos: player.mainWindow.secondsToPercentForBookmark(timestamp),
-          index: index, toolTip: tip
+          index: index, toolTip: tip, color: player.bookmarkKnobColor
         )
         syncMarkTimestampsOnSlider()
         player.sendOSD(.bookmark(.mark, index + 1, player.timestamps.count, tip))
@@ -393,7 +393,7 @@ class WebSocketManager: WebSocketDelegate {
     for index in 0 ..< player.timestamps.count {
       player.mainWindow.playSlider.insertTimestamp(
         pos: player.mainWindow.secondsToPercentForBookmark(player.timestamps[index]),
-        index: index, toolTip: player.timestampTips[index]
+        index: index, toolTip: player.timestampTips[index], color: player.bookmarkKnobColor
       )
     }
     syncMarkTimestampsOnSlider()

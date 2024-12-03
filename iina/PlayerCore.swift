@@ -226,6 +226,35 @@ class PlayerCore: NSObject {
   var timestamps: [Double] = []
   var timestampTips: [String] = []
   var wbSocket: WebSocketManager!
+  var customConfig: NSDictionary = [:]
+  var bookmarkKnobColor: NSColor? = nil
+  
+  func loadCustomConfigFromFile() {
+    // check exis
+    guard FileManager.default.fileExists(atPath: Utility.customConfigURL.path) else {
+      customConfig = ["Bookmark": ["KnobColor": ["calibratedRed": -1.0, "green": -1.0, "blue": -1.0, "alpha": -1.0]]]
+      syncCustomConfigFile()
+      return
+    }
+    guard let dicFromPList = NSDictionary(contentsOfFile: Utility.customConfigURL.path) else {
+      return
+    }
+    let bookmark = dicFromPList["Bookmark"] as! [String: Any]
+    let KnobColor = bookmark["KnobColor"] as! [String: Any]
+    let calibratedRed = KnobColor["calibratedRed"] as! CGFloat
+    let green = KnobColor["green"] as! CGFloat
+    let blue = KnobColor["blue"] as! CGFloat
+    let alpha = KnobColor["alpha"] as! CGFloat
+    if calibratedRed < 0 || green < 0 || blue < 0 || alpha < 0 {
+      bookmarkKnobColor = nil
+    } else {
+      bookmarkKnobColor = NSColor(calibratedRed: calibratedRed, green: green, blue: blue, alpha: alpha)
+    }
+  }
+
+  func syncCustomConfigFile() {
+    NSDictionary(dictionary: customConfig).write(toFile: Utility.customConfigURL.path, atomically: true)
+  }
 
   var isABLoopActive: Bool {
     abLoopA != 0 && abLoopB != 0 && mpv.getString(MPVOption.PlaybackControl.abLoopCount) != "0"
@@ -243,6 +272,7 @@ class PlayerCore: NSObject {
     if #available(macOS 10.12.2, *) {
       self._touchBarSupport = TouchBarSupport(playerCore: self)
     }
+    self.loadCustomConfigFromFile()
   }
 
   // MARK: - Plugins

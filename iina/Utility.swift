@@ -429,6 +429,10 @@ class Utility {
   static let playbackHistoryURL: URL = {
     return Utility.appSupportDirUrl.appendingPathComponent(AppData.historyFile, isDirectory: false)
   }()
+  
+  static let customConfigURL: URL = {
+    return Utility.appSupportDirUrl.appendingPathComponent(AppData.customConfigFile, isDirectory: false)
+  }()
 
   static let tempDirURL: URL = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
 
