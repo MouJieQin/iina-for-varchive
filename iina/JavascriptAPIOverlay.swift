@@ -61,11 +61,14 @@ class JavascriptAPIOverlay: JavascriptAPI, JavascriptAPIOverlayExportable, WKScr
       throwError(withMessage: "overlay.loadFile called when window is not available. Please call it after receiving the \"iina.window-loaded\" event.")
       return
     }
-    let rootURL = pluginInstance.plugin.root
-    let url = rootURL.appendingPathComponent(path)
+    var url = URL(string: path)
+    if url == nil {
+      let rootURL = pluginInstance.plugin.root
+      url = rootURL.appendingPathComponent(path)
+    }
     
     DispatchQueue.main.async {
-      self.pluginInstance.overlayView.loadFileURL(url, allowingReadAccessTo: rootURL)
+      self.pluginInstance.overlayView.load(URLRequest(url: url!))
       self.pluginInstance.overlayViewLoaded = true
       self.inSimpleMode = false
     }

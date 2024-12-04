@@ -75,9 +75,9 @@ class PluginStandaloneWindow: NSWindow, WKNavigationDelegate {
 
   func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
     if let url = navigationAction.request.url, pluginInstance.canAccess(url: url) {
-      decisionHandler(.cancel)
-    } else {
       decisionHandler(.allow)
+    } else {
+      decisionHandler(.cancel)
     }
   }
 

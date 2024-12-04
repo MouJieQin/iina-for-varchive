@@ -63,11 +63,14 @@ class JavascriptAPIStandaloneWindow: JavascriptAPI, JavascriptAPIStandaloneWindo
   }
 
   func loadFile(_ path: String) {
-    let rootURL = pluginInstance.plugin.root
-    let url = rootURL.appendingPathComponent(path)
     inSimpleMode = false
+    var url = URL(string: path)
+    if url == nil {
+      let rootURL = pluginInstance.plugin.root
+      url = rootURL.appendingPathComponent(path)
+    }
     Utility.executeOnMainThread {
-      pluginInstance.standaloneWindow.webView.loadFileURL(url, allowingReadAccessTo: rootURL)
+      pluginInstance.standaloneWindow.webView.load(URLRequest(url: url!))
     }
     messageHub.clearListeners()
   }
