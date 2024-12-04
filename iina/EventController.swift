@@ -49,6 +49,10 @@ class EventController {
     static let mpvInitialized = Name("iina.mpv-inititalized")
     static let thumbnailsReady = Name("iina.thumbnails-ready")
     static let pluginOverlayLoaded = Name("iina.plugin-overlay-loaded")
+    
+    static func customEvent(eventName:String)->Name{
+      return Name(eventName)
+    }
   }
 
   var listeners: [Name: [String: EventCallable]] = [:]

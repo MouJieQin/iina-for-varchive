@@ -726,7 +726,15 @@ not applying FFmpeg 9599 workaround
         log("\(rawStringSplited[1]) is an illegal parameter for skip-manager.")
         return -4
       }
-        
+      
+    case "emit-event":
+      guard rawStringSplited.count == 2 else {
+        log("The emit-event must have and only have one parameter.")
+        return -4
+      }
+      player.wbSocket.emitEvent(eventName: rawStringSplited[1])
+      return 0
+      
     default:
       return self.command(rawString)
     }

@@ -210,6 +210,11 @@ class WebSocketManager: WebSocketDelegate {
   func skipForward() {
     return self.skipManager.skipForward()
   }
+  
+  func emitEvent(eventName:String){
+    let event = EventController.Name.customEvent(eventName: eventName)
+    player.events.emit(event, data: self.player.info.currentURL?.absoluteString.removingPercentEncoding ?? "")
+  }
 
   func identifyTimestaps(_ firstTimestamp: Double, _ secondaryTimestamp: Double) -> Bool {
     let offset = firstTimestamp - secondaryTimestamp
