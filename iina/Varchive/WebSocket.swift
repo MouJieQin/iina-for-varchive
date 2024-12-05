@@ -17,6 +17,12 @@ class URLinfo: Codable {
   var currentURL: String?
 }
 
+class PluginInfo: Codable {
+  var currentURL: String?
+  var metaFilename: String?
+  var event:String?
+}
+
 class TimestampInfo: Codable {
   var currentURL: String?
   var index: Int?
@@ -76,6 +82,7 @@ class WebSocketManager: WebSocketDelegate {
   var wssPort = "8999"
   var wssPath = "/ws/iina/"
   var wssURL = "wss://"
+  var metaFilename = "nil"
   var maxConnections = 100
   let id: UInt32
   let player: PlayerCore
@@ -210,11 +217,19 @@ class WebSocketManager: WebSocketDelegate {
   func skipForward() {
     return self.skipManager.skipForward()
   }
-  
-  func emitEvent(eventName:String){
-    let event = EventController.Name.customEvent(eventName: eventName)
-    player.events.emit(event, data: self.player.info.currentURL?.absoluteString.removingPercentEncoding ?? "")
+    
+  func emitEvent(_ name: String) {
+    let event = EventController.Name.customEvent(eventName: name)
+    let pluginInfo = PluginInfo()
+    pluginInfo.currentURL = self.player.info.currentURL?.absoluteString.removingPercentEncoding ?? ""
+    pluginInfo.metaFilename = self.metaFilename
+    pluginInfo.event = name
+    let type = ["varchive", "plugin", "event"]
+    let data =  self.convertInfoToJson(type, message: pluginInfo)
+    player.events.emit(event, data: data)
+    self.writeText(text: self.convertInfoToJson(type, message: pluginInfo))
   }
+  
 
   func identifyTimestaps(_ firstTimestamp: Double, _ secondaryTimestamp: Double) -> Bool {
     let offset = firstTimestamp - secondaryTimestamp
@@ -496,6 +511,11 @@ class WebSocketManager: WebSocketDelegate {
     player.sendOSD(.varchive(PlaybackInfo.VarchiveInfoStatus.error, "Cannot connect to varchive server, please launch the varchive server first. retrying...", self.wssURL), forcedTimeout: 3)
   }
   
+  private func handleConnection(_ message: String) {
+    self.metaFilename = message
+    self.emitEvent("iina.varchive-connection-received")
+  }
+  
   private func handleMessage(_ websocketMessage: WebsocketMessage) {
     let type = websocketMessage.type!
     let message = websocketMessage.message!
@@ -519,6 +539,8 @@ class WebSocketManager: WebSocketDelegate {
       }
     case "notification":
       self.handleVarchiveNotification(message)
+    case "connection":
+      self.handleConnection(message)
     default:
       Logger.log("WebSocketManager: websocketMessage being not handled:\(type)", subsystem: self.player.subsystem)
     }
