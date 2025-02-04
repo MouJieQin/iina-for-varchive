@@ -1886,7 +1886,8 @@ class MainWindowController: PlayerWindowController {
   @objc
   override func updateTitle() {
     if player.info.isNetworkResource {
-      window?.title = player.getMediaTitle()
+//      window?.title = player.getMediaTitle()
+      window?.title = player.info.varchiveTitle
     } else {
       window?.representedURL = player.info.currentURL
       // Workaround for issue #3543, IINA crashes reporting:

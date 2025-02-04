@@ -516,6 +516,11 @@ class WebSocketManager: WebSocketDelegate {
     self.emitEvent("iina.varchive-connection-received")
   }
   
+  private func handleTitle(_ message: String){
+    self.player.info.varchiveTitle = message
+    self.player.mainWindow.updateTitle()
+  }
+  
   private func handleMessage(_ websocketMessage: WebsocketMessage) {
     let type = websocketMessage.type!
     let message = websocketMessage.message!
@@ -541,6 +546,8 @@ class WebSocketManager: WebSocketDelegate {
       self.handleVarchiveNotification(message)
     case "connection":
       self.handleConnection(message)
+    case "title":
+      self.handleTitle(message)
     default:
       Logger.log("WebSocketManager: websocketMessage being not handled:\(type)", subsystem: self.player.subsystem)
     }
