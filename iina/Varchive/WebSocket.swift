@@ -453,7 +453,7 @@ class WebSocketManager: WebSocketDelegate {
   }
   
   private func isfileLoaded() -> Bool {
-    return self.player.info.state == .loaded
+    return self.player.info.state == .playing || self.player.info.state == .paused
   }
   
   private func handleSeek(_ message: String) {

@@ -522,6 +522,7 @@ class PlayerCore: NSObject {
 
     // Send load file command
     info.justOpenedFile = true
+
     self.wbSocket.connect()
     info.state = .loading
     mpv.command(.loadfile, args: [path], level: .verbose)
@@ -2095,6 +2096,7 @@ class PlayerCore: NSObject {
   func fileEnded(_ dueToStopCommand: Bool) {
     // if receive end-file when loading file, might be error
     // wait for idle
+    self.wbSocket?.disconnect()
     if info.state == .loading || info.state == .starting {
       if !dueToStopCommand {
         receivedEndFileWhileLoading = true
