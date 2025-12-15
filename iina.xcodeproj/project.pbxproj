@@ -4317,6 +4317,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4964988E2919E47900CD61A5 /* OpenInIINA.xcconfig */;
 			buildSettings = {
+				DEVELOPMENT_TEAM = GGLDT2TX6B;
 			};
 			name = Debug;
 		};
@@ -4324,6 +4325,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4964988E2919E47900CD61A5 /* OpenInIINA.xcconfig */;
 			buildSettings = {
+				DEVELOPMENT_TEAM = GGLDT2TX6B;
 			};
 			name = Release;
 		};
@@ -4360,6 +4362,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4964988E2919E47900CD61A5 /* OpenInIINA.xcconfig */;
 			buildSettings = {
+				DEVELOPMENT_TEAM = GGLDT2TX6B;
 			};
 			name = Nightly;
 		};
@@ -4396,6 +4399,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4964988E2919E47900CD61A5 /* OpenInIINA.xcconfig */;
 			buildSettings = {
+				DEVELOPMENT_TEAM = GGLDT2TX6B;
 			};
 			name = Beta;
 		};
