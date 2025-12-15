@@ -5,6 +5,18 @@
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict>
+			<key>CFBundleTypeName</key>
+			<string>Folder</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>LSHandlerRank</key>
+			<string>Default</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>public.folder</string>
+			</array>
+		</dict>
+		<dict>
 			<key>CFBundleTypeExtensions</key>
 			<array>
 				<string>mkv</string>
@@ -487,8 +499,6 @@
 				<string>aiff</string>
 				<string>ape</string>
 				<string>caf</string>
-				<string>mid</string>
-				<string>midi</string>
 				<string>pcm</string>
 				<string>vox</string>
 				<string>tta</string>
@@ -707,7 +717,7 @@
 				<string>public.audio</string>
 			</array>
 			<key>UTTypeDescription</key>
-			<string>Monkey's Audio Lossless Audio</string>
+			<string>Monkey&apos;s Audio Lossless Audio</string>
 			<key>UTTypeIdentifier</key>
 			<string>io.iina.ape</string>
 			<key>UTTypeTagSpecification</key>
@@ -1235,23 +1245,6 @@
 				<string>public.audio</string>
 			</array>
 			<key>UTTypeDescription</key>
-			<string>MIDI File</string>
-			<key>UTTypeIdentifier</key>
-			<string>io.iina.mid</string>
-			<key>UTTypeTagSpecification</key>
-			<dict>
-				<key>public.filename-extension</key>
-				<array>
-					<string>mid</string>
-				</array>
-			</dict>
-		</dict>
-		<dict>
-			<key>UTTypeConformsTo</key>
-			<array>
-				<string>public.audio</string>
-			</array>
-			<key>UTTypeDescription</key>
 			<string>Matroska Audio File</string>
 			<key>UTTypeIdentifier</key>
 			<string>io.iina.mka</string>
@@ -1353,6 +1346,40 @@
 				</array>
 			</dict>
 		</dict>
+    <dict>
+      <key>UTTypeConformsTo</key>
+      <array>
+        <string>public.audio</string>
+      </array>
+      <key>UTTypeDescription</key>
+      <string>Direct Stream Digital DSF File</string>
+      <key>UTTypeIdentifier</key>
+      <string>io.iina.dsf</string>
+      <key>UTTypeTagSpecification</key>
+      <dict>
+        <key>public.filename-extension</key>
+        <array>
+          <string>dsf</string>
+        </array>
+      </dict>
+    </dict>
+    <dict>
+      <key>UTTypeConformsTo</key>
+      <array>
+        <string>public.audio</string>
+      </array>
+      <key>UTTypeDescription</key>
+      <string>Direct Stream Digital DFF File</string>
+      <key>UTTypeIdentifier</key>
+      <string>io.iina.dff</string>
+      <key>UTTypeTagSpecification</key>
+      <dict>
+        <key>public.filename-extension</key>
+        <array>
+          <string>dff</string>
+        </array>
+      </dict>
+    </dict>
 	</array>
 	<key>com.colliderli.iina.build.branch</key>
 	<string>IINA_BUILD_BRANCH</string>

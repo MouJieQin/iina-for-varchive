@@ -17,6 +17,7 @@ doc = Nokogiri::HTML URI.open(DOC_URL)
 
 nodes = doc.css '#property-list > .docutils > dt, #property-list > .docutils > dd'
 $prop_set = Hash.new(0)
+$track_list_nodes = []
 
 def write_common_header(file)
   file.write "///\n"
@@ -37,11 +38,20 @@ def write_prop(file, node)
   end
   $prop_set[camel_name] += 1
 
-  if name.include? 'current-tracks'
-    # According to the mpv documentation this property is not supposed to be
-    # used programmatically. We still output a comment for the property so
-    # people can figure out why the Swift constant is missing.
-    file.write "  /** #{name}  As per mpv docs, scripts etc. should not use this. */\n"
+  # if current node is track-list, save a copy for later use
+  if name.include? 'track-list/N/'
+    %w(audio video sub sub2).each do |track_type|
+      new_node = node.dup
+      new_node.content = new_node.content.sub! 'track-list/N/', "current-tracks/#{track_type}/"
+      $track_list_nodes << new_node
+    end
+  end
+
+  if name == 'current-tracks/...'
+    # current-track redirects to the correct entry in track-list, so copy the entries in track-list
+    $track_list_nodes.each do |tl_node|
+      write_prop file, tl_node
+    end
   elsif name.include? '/'
     if name.include? 'N'
       func_name = name.to_camel
@@ -103,7 +113,7 @@ File.open(File.join(__dir__, 'MPVOption.swift'), 'w') do |file|
   option_sections.each do |section|
     section_title = section.at_css 'h2'
     section_title_camel = section_title.content.to_camel
-    if section_title_camel == 'TV' then next end  # jump tv 
+    if section_title_camel == 'TV' then next end  # jump tv
     file.write "  struct #{section_title_camel} {\n"
     option_list = section.xpath './dl/dt/tt'
     option_list.each do |option|
@@ -124,6 +134,17 @@ File.open(File.join(__dir__, 'MPVOption.swift'), 'w') do |file|
     file.write "  }\n\n"
   end
 
+  file.write "}\n\n"
+  file.write "// MARK: - Enums for Option Values\n\n"
+  file.write "protocol MPVOptionValue {\n"
+  file.write "  static var defaultValue: Self { get }\n"
+  file.write "  init?(rawValue: String)\n"
+  file.write "}\n\n"
+  file.write "enum CocoaCbSwRenderer: String, MPVOptionValue {\n"
+  file.write "  case auto\n"
+  file.write "  case no\n"
+  file.write "  case yes\n"
+  file.write "  static var defaultValue = CocoaCbSwRenderer.auto\n"
   file.write "}\n"
 end
 

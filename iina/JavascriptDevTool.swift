@@ -18,7 +18,7 @@ import Carbon
 extension MenuController {
   func menuItem(forPluginInstance inst: JavascriptPluginInstance, tag: Int) -> NSMenuItem {
     let item = NSMenuItem()
-    item.title = inst.plugin.name + (inst.isGlobal ? " Global" : "")
+    item.title = inst.plugin.name + (inst.isGlobal ? " (Global)" : "")
     item.representedObject = inst
     item.tag = JavasctiptDevTool.JSMenuItemInstance
     item.target = self
@@ -443,7 +443,7 @@ fileprivate struct ConsoleView: View {
 }
 
 
-/// Display various JavaScipt values and log messages
+/// Display various JavaScript values and log messages
 @available(macOS 12.0, *)
 fileprivate struct ResultView: View {
   var result: ResultItem

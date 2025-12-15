@@ -145,11 +145,11 @@ class OnlineSubtitle: NSObject {
 
     func fetchSubtitles(url: URL, player: PlayerCore) -> Promise<[URL]> {
       return getFetcher().fetch(from: url, withProviderID: providerID, playerCore: player)
-      .get { subtitles in
+      .get { [self] subtitles in
         if subtitles.isEmpty {
           throw OnlineSubtitle.CommonError.noResult
         } else {
-          player.sendOSD(.foundSub(subtitles.count))
+          player.sendOSD(.downloadingSub(subtitles.count, name))
         }
       }.thenFlatMap { subtitle in
         subtitle.download()
@@ -296,7 +296,7 @@ class OnlineSubtitle: NSObject {
     }
   }
 
-  private static func log(_ message: String, level: Logger.Level = .debug) {
+  private static func log(_ message: @autoclosure () -> String, level: Logger.Level = .debug) {
     Logger.log(message, level: level, subsystem: Logger.Sub.onlinesub)
   }
 }

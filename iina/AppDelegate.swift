@@ -10,7 +10,7 @@ import Cocoa
 import MediaPlayer
 import Sparkle
 
-let IINA_ENABLE_PLUGIN_SYSTEM = Preference.bool(for: .iinaEnablePluginSystem)
+let IINA_ENABLE_PLUGIN_SYSTEM = true
 
 /** Max time interval for repeated `application(_:openFile:)` calls. */
 fileprivate let OpenFileRepeatTime = TimeInterval(0.2)
@@ -22,6 +22,9 @@ fileprivate let AlternativeMenuItemTag = 1
 
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate, SPUUpdaterDelegate {
+
+  /// The `AppDelegate` singleton object.
+  static var shared: AppDelegate { NSApp.delegate as! AppDelegate }
 
   /** Whether performed some basic initialization, like bind menu items. */
   var isReady = false
@@ -63,14 +66,12 @@ class AppDelegate: NSObject, NSApplicationDelegate, SPUUpdaterDelegate {
   lazy var logWindow: LogWindowController = LogWindowController()
 
   lazy var vfWindow: FilterWindowController = {
-    let w = FilterWindowController()
-    w.filterType = MPVProperty.vf
+    let w = FilterWindowController(filterType: MPVProperty.vf, autosaveName: Constants.WindowAutosaveName.videoFilters)
     return w
   }()
 
   lazy var afWindow: FilterWindowController = {
-    let w = FilterWindowController()
-    w.filterType = MPVProperty.af
+    let w = FilterWindowController(filterType: MPVProperty.af, autosaveName: Constants.WindowAutosaveName.audioFilters)
     return w
   }()
 
@@ -138,7 +139,12 @@ class AppDelegate: NSObject, NSApplicationDelegate, SPUUpdaterDelegate {
     guard let date = InfoDictionary.shared.buildDate,
           let sdk = InfoDictionary.shared.buildSDK,
           let xcode = InfoDictionary.shared.buildXcode else { return }
-    Logger.log("Built using Xcode \(xcode) and macOS SDK \(sdk) on \(date)")
+    let toString = DateFormatter()
+    toString.dateStyle = .medium
+    toString.timeStyle = .medium
+    // Always use the en_US locale for dates in the log file.
+    toString.locale = Locale(identifier: "en_US")
+    Logger.log("Built using Xcode \(xcode) and macOS SDK \(sdk) on \(toString.string(from: date))")
     guard let branch = InfoDictionary.shared.buildBranch,
           let commit = InfoDictionary.shared.buildCommit else { return }
     Logger.log("From branch \(branch), commit \(commit)")
@@ -188,12 +194,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, SPUUpdaterDelegate {
 
     // Useful to know the versions of significant dependencies that are being used so log that
     // information as well when it can be obtained.
-
-    // The version of mpv is not logged at this point because mpv does not provide a static
-    // method that returns the version. To obtain version related information you must
-    // construct a mpv object, which has side effects. So the mpv version is logged in
-    // applicationDidFinishLaunching to preserve the existing order of initialization.
-
+    Logger.log(MPVOptionDefaults.shared.mpvVersion)
     Logger.log("FFmpeg \(String(cString: av_version_info()))")
     // FFmpeg libraries and their versions in alphabetical order.
     let libraries: [(name: String, version: UInt32)] = [("libavcodec", avcodec_version()), ("libavformat", avformat_version()), ("libavutil", avutil_version()), ("libswscale", swscale_version())]
@@ -202,10 +203,16 @@ class AppDelegate: NSObject, NSApplicationDelegate, SPUUpdaterDelegate {
       // format which needs to be decoded into a string for display.
       Logger.log("  \(library.name) \(AppDelegate.versionAsString(library.version))")
     }
+    Logger.log("libass \(MPVOptionDefaults.shared.libassVersion)")
+
     logBuildDetails()
     logPlatformDetails()
 
     Logger.log("App will launch")
+
+    // Start asynchronously gathering and caching information about the hardware decoding
+    // capabilities of this Mac.
+    HardwareDecodeCapabilities.shared.checkCapabilities()
 
     // Workaround macOS Sonoma clearing the recent documents list when the IINA code is not signed
     // with IINA's certificate as is the case for developer and nightly builds.
@@ -214,6 +221,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, SPUUpdaterDelegate {
     // register for url event
     NSAppleEventManager.shared().setEventHandler(self, andSelector: #selector(self.handleURLEvent(event:withReplyEvent:)), forEventClass: AEEventClass(kInternetEventClass), andEventID: AEEventID(kAEGetURL))
 
+    // Check for legacy pref entries and migrate them to their modern equivalents
+    LegacyMigration.shared.migrateLegacyPreferences()
+
     // guide window
     if FirstRunManager.isFirstRun(for: .init("firstLaunchAfter\(version)")) {
       guideWindow.show(pages: [.highlights])
@@ -221,6 +231,41 @@ class AppDelegate: NSObject, NSApplicationDelegate, SPUUpdaterDelegate {
 
     // Hide Window > "Enter Full Screen" menu item, because this is already present in the Video menu
     UserDefaults.standard.set(false, forKey: "NSFullScreenMenuItemEverywhere")
+
+    // Install plugins
+    if FirstRunManager.isFirstRun(for: .init("installedDefaultPlugins")) {
+      var hasError = false
+      Logger.log("Installing default plugins")
+      if let pluginPath = Bundle.main.resourcePath?.appending("/plugins"),
+         FileManager.default.fileExists(atPath: pluginPath),
+         let contents = try? FileManager.default.contentsOfDirectory(atPath: pluginPath) {
+        contents.filter { $0.hasSuffix(".iinaplgz") }
+          .forEach {
+            do {
+              let path = pluginPath.appending("/\($0)")
+              let plugin = try JavascriptPlugin.create(fromPackageURL: URL(fileURLWithPath: path))
+              if JavascriptPlugin.plugins.contains(where: { $0.identifier == plugin.identifier }) {
+                Logger.log("Skipped \(plugin.identifier), already installed")
+                return
+              }
+              plugin.normalizePath()
+              JavascriptPlugin.plugins.append(plugin)
+              plugin.enabled = true
+              Logger.log("Installed \(plugin.identifier)")
+            } catch let error {
+              hasError = true
+              Logger.log(error.localizedDescription, level: .error)
+            }
+          }
+      } else {
+        hasError = true
+        Logger.log("Cannot find default plugins", level: .error)
+      }
+
+      if hasError {
+        FirstRunManager.unsetFirstRun(for: .init("installedDefaultPlugins"))
+      }
+    }
 
     // handle arguments
     let arguments = ProcessInfo.processInfo.arguments.dropFirst()
@@ -293,23 +338,13 @@ class AppDelegate: NSObject, NSApplicationDelegate, SPUUpdaterDelegate {
     NSColorPanel.shared.showsAlpha = true
 
     // other initializations at App level
-    if #available(macOS 10.12.2, *) {
-      NSApp.isAutomaticCustomizeTouchBarMenuItemEnabled = false
-      NSWindow.allowsAutomaticWindowTabbing = false
-    }
+    NSApp.isAutomaticCustomizeTouchBarMenuItemEnabled = false
+    NSWindow.allowsAutomaticWindowTabbing = false
 
     JavascriptPlugin.loadGlobalInstances()
 
     let mpv = PlayerCore.active.mpv!
-    Logger.log("Using \(mpv.mpvVersion) and libass \(mpv.libassVersion)")
-
-    if #available(macOS 10.13, *) {
-      if RemoteCommandController.useSystemMediaControl {
-        Logger.log("Setting up MediaPlayer integration")
-        RemoteCommandController.setup()
-        NowPlayingInfoManager.updateInfo(state: .unknown)
-      }
-    }
+    Logger.log("Configuration when building mpv: \(mpv.getString(MPVProperty.mpvConfiguration)!)", level: .verbose)
 
     // if have pending open request
     if let url = pendingURL {
@@ -357,7 +392,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, SPUUpdaterDelegate {
             exit(EX_USAGE)
           }
           pc.switchToMiniPlayer()
-        } else if #available(macOS 10.12, *), commandLineStatus.enterPIP {
+        } else if commandLineStatus.enterPIP {
           pc.mainWindow.enterPIP()
         }
       }
@@ -367,7 +402,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, SPUUpdaterDelegate {
 
     NSApplication.shared.servicesProvider = self
 
-    (NSApp.delegate as? AppDelegate)?.menuController?.updatePluginMenu()
+    AppDelegate.shared.menuController?.updatePluginMenu()
   }
 
   /** Show welcome window if `application(_:openFile:)` wasn't called, i.e. launched normally. */
@@ -401,43 +436,23 @@ class AppDelegate: NSObject, NSApplicationDelegate, SPUUpdaterDelegate {
     return false
   }
 
+  /// Returns a Boolean value that indicates if the app terminates once the last window closes.
+  ///
+  /// IINA will not quit when the last window is closed unless the `Quit after all windows are closed` setting is enabled.
+  /// - Note: When the welcome window is enabled this method will be called during the transition from showing the welcome
+  ///     window to playing media. This happens because the welcome window will be closed before the player window is opened as
+  ///     opening the player window is delayed until mpv reports the window size required. For this reason the state of the active
+  ///     player core must be checked as it could be preparing to open a window.
+  /// - Parameter sender: The application object whose last window was closed.
+  /// - Returns: `false` if the application should not be terminated when its last window is closed; otherwise, `true` to
+  ///     terminate the application.
   func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
-    guard PlayerCore.active.mainWindow.loaded || PlayerCore.active.initialWindow.loaded else { return false }
-    guard !PlayerCore.active.mainWindow.isWindowHidden else { return false }
-    return Preference.bool(for: .quitWhenNoOpenedWindow)
-  }
-
-  @objc
-  func shutdownTimedout() {
-    timedOut = true
-    if !allPlayersHaveShutdown {
-      Logger.log("Timed out waiting for players to stop and shutdown", level: .warning)
-      // For debugging list players that have not terminated.
-      for player in PlayerCore.playerCores {
-        let label = player.label ?? "unlabeled"
-        if !player.isStopped {
-          Logger.log("Player \(label) failed to stop", level: .warning)
-        } else if !player.isShutdown {
-          Logger.log("Player \(label) failed to shutdown", level: .warning)
-        }
-      }
-      // For debugging purposes we do not remove observers in case players stop or shutdown after
-      // the timeout has fired as knowing that occurred maybe useful for debugging why the
-      // termination sequence failed to complete on time.
-      Logger.log("Not waiting for players to shutdown; proceeding with application termination",
-                 level: .warning)
-    }
-    if OnlineSubtitle.loggedIn {
-      // The request to log out of the online subtitles provider has not completed. This should not
-      // occur as the logout request uses a timeout that is shorter than the termination timeout to
-      // avoid this occurring. Therefore if this message is logged something has gone wrong with the
-      // shutdown code.
-      Logger.log("Timed out waiting for log out of online subtitles provider to complete",
-                 level: .warning)
-    }
-    Logger.log("Proceeding with application termination due to time out", level: .warning)
-    // Tell Cocoa to proceed with termination.
-    NSApp.reply(toApplicationShouldTerminate: true)
+    // If the user has not enabled the setting then no need to check anything else.
+    guard Preference.bool(for: .quitWhenNoOpenedWindow) else { return false }
+    let player = PlayerCore.active
+    guard !player.info.state.active else { return false }
+    guard player.mainWindow.loaded || player.initialWindow.loaded else { return false }
+    return !player.mainWindow.isWindowHidden
   }
 
   func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
@@ -453,14 +468,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, SPUUpdaterDelegate {
     // The menu items are being removed because setting the isEnabled property to false had no
     // effect under macOS 12.6.
     removeAllMenuItems(dockMenu)
-    // If supported and enabled disable all remote media commands. This also removes IINA from
-    // the Now Playing widget.
-    if #available(macOS 10.13, *) {
-      if RemoteCommandController.useSystemMediaControl {
-        Logger.log("Disabling remote commands")
-        RemoteCommandController.disableAllCommands()
-      }
-    }
+    // Disable all remote media commands. This also removes IINA from the Now Playing widget.
+    RemoteCommandController.shared.disable()
 
     // The first priority was to shutdown any new input from the user. The second priority is to
     // send a logout request if logged into an online subtitles provider as that needs time to
@@ -482,12 +491,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, SPUUpdaterDelegate {
 
     // Check if there are any players that are not shutdown. If all players are already shutdown
     // then application termination can proceed immediately. This will happen if there is only one
-    // player and shutdown was initiated by typing "q" in the player window. That sends a quit
-    // command directly to mpv causing mpv and the player to shutdown before application
-    // termination is initiated.
+    // player and shutdown was initiated by sending a quit command directly to mpv through it's IPC
+    // interface causing mpv and the player to shutdown before application termination is initiated.
     allPlayersHaveShutdown = true
     for player in PlayerCore.playerCores {
-      if !player.isShutdown {
+      if player.info.state != .shutDown {
         allPlayersHaveShutdown = false
         break
       }
@@ -509,6 +517,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, SPUUpdaterDelegate {
       Logger.log("Waiting for log out of online subtitles provider to complete")
     }
 
+    if HistoryController.shared.tasksOutstanding != 0 {
+      canTerminateNow = false
+      Logger.log("Waiting for saving of playback history to complete")
+    }
+
     // If the user pressed Q and mpv initiated the termination then players will already be
     // shutdown and it may be possible to proceed with termination.
     if canTerminateNow {
@@ -521,17 +534,38 @@ class AppDelegate: NSObject, NSApplicationDelegate, SPUUpdaterDelegate {
     // arbitrary timeout that forces termination to complete. The expectation is that this timeout
     // is never triggered. If a timeout warning is logged during termination then that needs to be
     // investigated.
-    var timer: Timer
-    if #available(macOS 10.12, *) {
-      timer = Timer(timeInterval: terminationTimeout, repeats: false) { _ in
-        // Once macOS 10.11 is no longer supported the contents of the method can be inlined in this
-        // closure.
-        self.shutdownTimedout()
+    let timer = Timer(timeInterval: terminationTimeout, repeats: false) { [unowned self] _ in
+      timedOut = true
+      if !allPlayersHaveShutdown {
+        Logger.log("Timed out waiting for players to stop and shutdown", level: .warning)
+        // For debugging list players that have not terminated.
+        for player in PlayerCore.playerCores {
+          let label = player.label ?? "unlabeled"
+          if player.info.state == .stopping {
+            Logger.log("Player \(label) failed to stop", level: .warning)
+          } else if player.info.state == .shuttingDown {
+            Logger.log("Player \(label) failed to shutdown", level: .warning)
+          }
+        }
+        // For debugging purposes we do not remove observers in case players stop or shutdown after
+        // the timeout has fired as knowing that occurred maybe useful for debugging why the
+        // termination sequence failed to complete on time.
+        Logger.log("Not waiting for players to shutdown; proceeding with application termination",
+                   level: .warning)
       }
-    } else {
-      timer = Timer(timeInterval: terminationTimeout, target: self,
-                    selector: #selector(self.shutdownTimedout), userInfo: nil, repeats: false)
+      if OnlineSubtitle.loggedIn {
+        // The request to log out of the online subtitles provider has not completed. This should not
+        // occur as the logout request uses a timeout that is shorter than the termination timeout to
+        // avoid this occurring. Therefore if this message is logged something has gone wrong with the
+        // shutdown code.
+        Logger.log("Timed out waiting for log out of online subtitles provider to complete",
+                   level: .warning)
+      }
+      Logger.log("Proceeding with application termination due to time out", level: .warning)
+      // Tell Cocoa to proceed with termination.
+      NSApp.reply(toApplicationShouldTerminate: true)
     }
+
     RunLoop.main.add(timer, forMode: .common)
 
     // Establish an observer for a player core stopping.
@@ -571,19 +605,23 @@ class AppDelegate: NSObject, NSApplicationDelegate, SPUUpdaterDelegate {
       if !allPlayersHaveShutdown {
         // If any player has not shutdown then continue waiting.
         for player in PlayerCore.playerCores {
-          guard player.isShutdown else { return }
+          guard player.info.state == .shutDown else { return }
         }
         allPlayersHaveShutdown = true
         // All players have shutdown.
         Logger.log("All players have shutdown")
       }
+      // If still logged in to subtitle providers then continue waiting.
       guard !OnlineSubtitle.loggedIn else { return }
-      // All players have shutdown. No longer logged into an online subtitles provider.
+      // If still still saving playback history then continue waiting.
+      guard HistoryController.shared.tasksOutstanding == 0 else { return }
+      // All players have shutdown. No longer logged into an online subtitles provider and saving of
+      // playback history has finished.
       Logger.log("Proceeding with application termination")
       // No longer need the timer that forces termination to proceed.
       timer.invalidate()
       // No longer need the observers for players stopping and shutting down, along with the
-      // observer for logout requests completing.
+      // observer for logout requests completing and saving of playback history finishing.
       ObjcUtils.silenced {
         observers.forEach {
           NotificationCenter.default.removeObserver($0)
@@ -630,9 +668,26 @@ class AppDelegate: NSObject, NSApplicationDelegate, SPUUpdaterDelegate {
     }
     observers.append(observer)
 
+    // Establish an observer for saving of playback history finishing.
+    observer = center.addObserver(forName: .iinaHistoryTaskFinished, object: nil, queue: .main) { _ in
+      guard !self.timedOut else {
+        // Saving of playback history finished after IINA already timed out, gave up waiting, and
+        // told Cocoa to proceed with termination. This is a problem as it indicates playback
+        // history might be being lost.
+        Logger.log("Saving of playback history finished after application termination timed out",
+          level: .warning)
+        return
+      }
+      // If there are still tasks outstanding then must continue waiting.
+      guard HistoryController.shared.tasksOutstanding == 0 else { return }
+      Logger.log("Saving of playback history finished")
+      proceedWithTermination()
+    }
+    observers.append(observer)
+
     // Instruct any players that are already stopped to start shutting down.
     for player in PlayerCore.playerCores {
-      if player.isStopped && !player.isShutdown {
+      if player.info.state == .idle {
         player.shutdown()
       }
     }
@@ -684,17 +739,30 @@ class AppDelegate: NSObject, NSApplicationDelegate, SPUUpdaterDelegate {
     
     // if installing a plugin package
     if let pluginPackageURL = urls.first(where: { $0.pathExtension == "iinaplgz" }) {
-      showPreferences(self)
       preferenceWindowController.performAction(.installPlugin(url: pluginPackageURL))
       return
     }
 
     // open pending files
     pendingFilesForOpenFile.removeAll()
-    if PlayerCore.activeOrNew.openURLs(urls) == 0 {
+    if PlayerCore.openURLs(urls) == 0 {
       Utility.showAlert("nothing_to_open")
     }
   }
+
+  /// Method to opt-in to secure restorable state.
+  ///
+  /// From the `Restorable State` section of the [AppKit Release Notes for macOS 14](https://developer.apple.com/documentation/macos-release-notes/appkit-release-notes-for-macos-14#Restorable-State):
+  ///
+  /// Secure coding is automatically enabled for restorable state for applications linked on the macOS 14.0 SDK. Applications that
+  /// target prior versions of macOS should implement `NSApplicationDelegate.applicationSupportsSecureRestorableState()`
+  /// to return`true` so it’s enabled on all supported OS versions.
+  ///
+  /// This is about conformance to [NSSecureCoding](https://developer.apple.com/documentation/foundation/nssecurecoding)
+  /// which protects against object substitution attacks. If an application does not implement this method then a warning will be emitted
+  /// reporting secure coding is not enabled for restorable state.
+  @available(macOS 12.0, *)
+  @MainActor func applicationSupportsSecureRestorableState(_ app: NSApplication) -> Bool { true }
 
   // MARK: - Accept dropped string and URL
 
@@ -790,8 +858,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, SPUUpdaterDelegate {
       }
 
       // enqueue
-      if let enqueueValue = queryDict["enqueue"], enqueueValue == "1", !PlayerCore.lastActive.info.playlist.isEmpty {
-        PlayerCore.lastActive.addToPlaylist(urlValue)
+      let playlistEmpty = PlayerCore.lastActive.info.$playlist.withLock { $0.isEmpty }
+      if let enqueueValue = queryDict["enqueue"], enqueueValue == "1", !playlistEmpty {
+        PlayerCore.lastActive.appendToPlaylist(urlValue)
         PlayerCore.lastActive.postNotification(.iinaPlaylistChanged)
         PlayerCore.lastActive.sendOSD(.addToPlaylist(1))
       } else {
@@ -800,13 +869,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, SPUUpdaterDelegate {
 
       // presentation options
       if let fsValue = queryDict["full_screen"], fsValue == "1" {
-        // full_screeen
+        // full_screen
         player.mpv.setFlag(MPVOption.Window.fullscreen, true)
       } else if let pipValue = queryDict["pip"], pipValue == "1" {
         // pip
-        if #available(macOS 10.12, *) {
-          player.mainWindow.enterPIP()
-        }
+        player.mainWindow.enterPIP()
       }
 
       // mpv options
@@ -840,8 +907,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, SPUUpdaterDelegate {
         }
       }
       let isAlternative = (sender as? NSMenuItem)?.tag == AlternativeMenuItemTag
-      let playerCore = PlayerCore.activeOrNewForMenuAction(isAlternative: isAlternative)
-      if playerCore.openURLs(panel.urls) == 0 {
+      if PlayerCore.openURLs(panel.urls, inverseOpenInNewWindowPref: isAlternative) == 0 {
         Utility.showAlert("nothing_to_open")
       }
     }
@@ -851,7 +917,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, SPUUpdaterDelegate {
     Logger.log("Menu - Open URL")
     openURLWindow.isAlternativeAction = sender.tag == AlternativeMenuItemTag
     openURLWindow.showWindow(nil)
-    openURLWindow.resetFields()
+    openURLWindow.resetWindowState()
   }
 
   @IBAction func menuNewWindow(_ sender: Any) {
@@ -873,6 +939,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, SPUUpdaterDelegate {
 
   @IBAction func showPreferences(_ sender: AnyObject) {
     preferenceWindowController.showWindow(self)
+  }
+
+  @objc func showPluginPreferences(_ sender: NSMenuItem) {
+    preferenceWindowController.openPreferenceView(withNibName: "PrefPluginViewController")
   }
 
   @IBAction func showVideoFilterWindow(_ sender: AnyObject) {
@@ -987,7 +1057,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, SPUUpdaterDelegate {
   ///
   /// For macOS Sonoma `sharedfilelistd` was changed to tie the list of recent documents to the app based on its certificate.
   /// if `sharedfilelistd` determines the list is being accessed by a different app then it clears the list. See issue
-  /// [#4688](https://github.com/iina/iina/issues/4688) for details.
+  /// [#4688](https://github.com/iina/iina/issues/4688) for details. Apple has now applied this change to macOS
+  /// Ventura as well.
   ///
   /// This new behavior does not cause a problem when the code is signed with IINA's certificate. However developer and nightly
   /// builds use an ad hoc certificate. This causes the list of recently opened files to be cleared each time a different unsigned IINA build
@@ -995,25 +1066,52 @@ class AppDelegate: NSObject, NSApplicationDelegate, SPUUpdaterDelegate {
   /// be restored when `sharedfilelistd` clears its list.
   ///
   /// If the following is true:
-  /// - Running under macOS Sonoma and above
+  /// - Workaround has been enabled by setting `enableRecentDocumentsWorkaround`
+  /// - Running under macOS Ventura and above
   /// - Recording of recent files is enabled
   /// - The list in  [NSDocumentController.shared.recentDocumentURLs](https://developer.apple.com/documentation/appkit/nsdocumentcontroller/1514976-recentdocumenturls) is empty
   /// - The list in the IINA setting `recentDocuments` is not empty
   ///
   /// Then this method assumes that the macOS daemon `sharedfilelistd` cleared the list and it populates the list of recent
   /// document URLs with the list stored in IINA's settings.
+  /// - Note: This workaround can cause significant slowdown at startup if the list of recent documents contains files on a mounted
+  ///         volume that is unreachable. For this reason the workaround is disabled by default and must be enabled by running the
+  ///         following command in [Terminal](https://support.apple.com/guide/terminal/welcome/mac):
+  ///         `defaults write com.colliderli.iina enableRecentDocumentsWorkaround true`
   private func restoreRecentDocuments() {
-    guard #available(macOS 14, *), Preference.bool(for: .recordRecentFiles),
+    guard Preference.bool(for: .enableRecentDocumentsWorkaround),
+          #available(macOS 13, *), Preference.bool(for: .recordRecentFiles),
           NSDocumentController.shared.recentDocumentURLs.isEmpty,
           let recentDocuments = Preference.array(for: .recentDocuments),
           !recentDocuments.isEmpty else { return }
     var foundStale = false
     for document in recentDocuments {
       var isStale = false
-      guard let asData = document as? Data,
-            let bookmark = try? URL(resolvingBookmarkData: asData, bookmarkDataIsStale: &isStale) else {
-        guard let asString = document as? String, let url = URL(string: asString) else { continue }
+      // Recent documents are normally stored as bookmark data.
+      guard let asData = document as? Data else {
+        guard let asString = document as? String, let url = URL(string: asString) else {
+          // Should never occur. This is an internal error.
+          Logger.log("Saved recent document is of unrecognized type: \(type(of: document))",
+                     level: .error)
+          continue
+        }
         // Saving as a bookmark must have failed and instead the URL was saved as a string.
+        NSDocumentController.shared.noteNewRecentDocumentURL(url)
+        continue
+      }
+      // Must not cause macOS to prompt the user to mount a volume when the list contains files that
+      // are on volumes that are not currently mounted.
+      guard let bookmark = try? URL(resolvingBookmarkData: asData,
+                                    options: [.withoutMounting, .withoutUI],
+                                    bookmarkDataIsStale: &isStale) else {
+        // Creating a URL from a bookmark fails if the original file can not be located or is on a
+        // volume that is not mounted. Form a URL from the path contained in the bookmark.
+        guard let resource = URL.resourceValues(forKeys: [.pathKey], fromBookmarkData: asData),
+              let path = resource.path, let url = URL(string: path) else {
+          Logger.log("Unable to obtain obtain the path from a bookmark", level: .error)
+          continue
+        }
+        Logger.log("Unable to create a bookmark, creating URL from path for: \(path)", level: .verbose)
         NSDocumentController.shared.noteNewRecentDocumentURL(url)
         continue
       }
@@ -1036,12 +1134,14 @@ class AppDelegate: NSObject, NSApplicationDelegate, SPUUpdaterDelegate {
   /// `restoreRecentDocuments` and the issue [#4688](https://github.com/iina/iina/issues/4688) for more
   /// information..
   func saveRecentDocuments() {
-    guard #available(macOS 14, *) else { return }
+    guard Preference.bool(for: .enableRecentDocumentsWorkaround), #available(macOS 13, *) else { return }
     var recentDocuments: [Any] = []
     for document in NSDocumentController.shared.recentDocumentURLs {
       guard let bookmark = try? document.bookmarkData() else {
         // Fall back to storing a string when unable to create a bookmark.
-        recentDocuments.append(document.absoluteString)
+        let path = document.absoluteString
+        Logger.log("Unable to create a bookmark, saving recent document as a string: \(path)")
+        recentDocuments.append(path)
         continue
       }
       recentDocuments.append(bookmark)
@@ -1123,13 +1223,37 @@ struct CommandLineStatus {
   }
 }
 
-@available(macOS 10.13, *)
+/// Controller that supports using macOS media keys and remote commands.
+///
+/// The IINA setting `Use system media control` found on the `Key Bindings` tab of IINA's settings controls use of the
+/// macOS [Control Center](https://support.apple.com/guide/mac-help/quickly-change-settings-mchl50f94f8f/mac)
+/// Now Playing module. This class handles the use of the AppKit class
+/// [MPRemoteCommandCenter](https://developer.apple.com/documentation/mediaplayer/mpremotecommandcenter)
+/// which allows IINA to receive and respond to remote control events sent by external accessories and system controls. This includes
+/// buttons in the Now Playing module, the media keys, access by Siri, etc.
+/// - Important: As IINA is assuming control over a shared macOS feature it is critical that IINA releases control when no media is
+///     open. See issue [#4331](https://github.com/iina/iina/issues/4331).
 class RemoteCommandController {
-  static let remoteCommand = MPRemoteCommandCenter.shared()
+  /// The `RemoteCommandController` singleton object.
+  static let shared = RemoteCommandController()
 
   static var useSystemMediaControl: Bool = Preference.bool(for: .useMediaKeys)
 
-  static func setup() {
+  /// Remote commands supported by IINA.
+  private let commands: [MPRemoteCommand]
+
+  private var isEnabled = false
+
+  func disable() {
+    guard isEnabled else { return }
+    commands.forEach { $0.removeTarget(nil) }
+    isEnabled = false
+    log("Disabled media keys and remote commands")
+  }
+
+  func enable() {
+    guard RemoteCommandController.useSystemMediaControl, !isEnabled else { return }
+    let remoteCommand = MPRemoteCommandCenter.shared()
     remoteCommand.playCommand.addTarget { _ in
       PlayerCore.lastActive.resume()
       return .success
@@ -1158,8 +1282,6 @@ class RemoteCommandController {
       PlayerCore.lastActive.nextLoopMode()
       return .success
     }
-    remoteCommand.changeShuffleModeCommand.isEnabled = false
-    // remoteCommand.changeShuffleModeCommand.addTarget {})
     remoteCommand.changePlaybackRateCommand.supportedPlaybackRates = [0.5, 1, 1.5, 2]
     remoteCommand.changePlaybackRateCommand.addTarget { event in
       PlayerCore.lastActive.setSpeed(Double((event as! MPChangePlaybackRateCommandEvent).playbackRate))
@@ -1179,20 +1301,30 @@ class RemoteCommandController {
       PlayerCore.lastActive.seek(absoluteSecond: (event as! MPChangePlaybackPositionCommandEvent).positionTime)
       return .success
     }
+    isEnabled = true
+    log("Enabled media keys and remote commands")
   }
 
-  static func disableAllCommands() {
-    remoteCommand.playCommand.removeTarget(nil)
-    remoteCommand.pauseCommand.removeTarget(nil)
-    remoteCommand.togglePlayPauseCommand.removeTarget(nil)
-    remoteCommand.stopCommand.removeTarget(nil)
-    remoteCommand.nextTrackCommand.removeTarget(nil)
-    remoteCommand.previousTrackCommand.removeTarget(nil)
-    remoteCommand.changeRepeatModeCommand.removeTarget(nil)
-    remoteCommand.changeShuffleModeCommand.removeTarget(nil)
-    remoteCommand.changePlaybackRateCommand.removeTarget(nil)
-    remoteCommand.skipForwardCommand.removeTarget(nil)
-    remoteCommand.skipBackwardCommand.removeTarget(nil)
-    remoteCommand.changePlaybackPositionCommand.removeTarget(nil)
+  // MARK: - Private Functions
+
+  private func log(_ message: @autoclosure () -> String, level: Logger.Level = .debug) {
+    Logger.log(message, level: level, subsystem: Logger.Sub.nowPlaying)
+  }
+
+  private init() {
+    // Remote commands IINA supports.
+    let remoteCommand = MPRemoteCommandCenter.shared()
+    commands = [
+      remoteCommand.changePlaybackPositionCommand,
+      remoteCommand.changePlaybackRateCommand,
+      remoteCommand.changeRepeatModeCommand,
+      remoteCommand.nextTrackCommand,
+      remoteCommand.pauseCommand,
+      remoteCommand.playCommand,
+      remoteCommand.previousTrackCommand,
+      remoteCommand.skipBackwardCommand,
+      remoteCommand.skipForwardCommand,
+      remoteCommand.stopCommand,
+      remoteCommand.togglePlayPauseCommand]
   }
 }

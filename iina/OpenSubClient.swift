@@ -60,7 +60,7 @@ class OpenSubClient {
     ///   [HTTP status code](https://www.iana.org/assignments/http-status-codes/http-status-codes.xhtml).
     case contentMissing(statusCode: Int?)
     
-    /// An error that indicates the REST API call failed, returning a JSON struct containing information about the faillure.
+    /// An error that indicates the REST API call failed, returning a JSON struct containing information about the failure.
     /// - Parameter response: An `ErrorResponse` object containing information about the failure.
     case errorResponse(response: OpenSubClient.ErrorResponse)
   }
@@ -117,35 +117,10 @@ class OpenSubClient {
   private let decoder: JSONDecoder = {
     let decoder = JSONDecoder()
     decoder.keyDecodingStrategy = .convertFromSnakeCase
-    guard #available(macOS 10.12, *) else {
-      let iso8601 = DateFormatter()
-      iso8601.calendar = Calendar(identifier: .iso8601)
-      iso8601.locale = Locale(identifier: "en_US_POSIX")
-      iso8601.timeZone = TimeZone(secondsFromGMT: 0)
-      iso8601.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
-      let iso8601WithFractionalSeconds = DateFormatter()
-      iso8601WithFractionalSeconds.calendar = Calendar(identifier: .iso8601)
-      iso8601WithFractionalSeconds.locale = Locale(identifier: "en_US_POSIX")
-      iso8601WithFractionalSeconds.timeZone = TimeZone(secondsFromGMT: 0)
-      iso8601WithFractionalSeconds.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSZ"
-      decoder.dateDecodingStrategy = .custom({ (decoder) -> Date in
-        let container = try decoder.singleValueContainer()
-        let dateStr = try container.decode(String.self)
-        if let date = iso8601.date(from: dateStr) {
-          return date
-        }
-        if let date = iso8601WithFractionalSeconds.date(from: dateStr) {
-          return date
-        }
-        throw DecodingError.dataCorruptedError(in: container,
-                                               debugDescription: "Expected ISO 8601 date: \(dateStr)")
-      })
-      return decoder
-    }
-    let iso8601 = ISO8601DateFormatter()
-    let iso8601WithFractionalSeconds = ISO8601DateFormatter()
-    iso8601WithFractionalSeconds.formatOptions = [.withFractionalSeconds]
     decoder.dateDecodingStrategy = .custom({ (decoder) -> Date in
+      let iso8601 = ISO8601DateFormatter()
+      let iso8601WithFractionalSeconds = ISO8601DateFormatter()
+      iso8601WithFractionalSeconds.formatOptions = [.withFractionalSeconds]
       let container = try decoder.singleValueContainer()
       let dateStr = try container.decode(String.self)
       if let date = iso8601.date(from: dateStr) {
@@ -269,7 +244,7 @@ class OpenSubClient {
 
   /// [Languages](https://opensubtitles.stoplight.io/docs/opensubtitles-api/1de776d20e873-languages)
   /// method.
-  /// - Returns: A `LanguagesResponse` containing a list of the supported lanuage codes.
+  /// - Returns: A `LanguagesResponse` containing a list of the supported language codes.
   func languages() -> Promise<LanguagesResponse> {
     return after(seconds: rateLimiter.delayBeforeCall()).then { [self] in
       Promise { resolver in
@@ -343,7 +318,7 @@ class OpenSubClient {
   }
 
   /// [Logout](https://opensubtitles.stoplight.io/docs/opensubtitles-api/9fe4d6d078e50-logout) method.
-  /// - Parameter timeout: The timeout to to use for the the request.
+  /// - Parameter timeout: The timeout to to use for the request.
   /// - Returns: A `LogoutResponse`
   func logout(timeout: TimeInterval? = nil) -> Promise<LogoutResponse> {
     return after(seconds: rateLimiter.delayBeforeCall()).then { [self] in
@@ -537,7 +512,7 @@ class OpenSubClient {
     return headers
   }
 
-  private func log(_ message: String, level: Logger.Level = .debug) {
+  private func log(_ message: @autoclosure () -> String, level: Logger.Level = .debug) {
     Logger.log(message, level: level, subsystem: Logger.Sub.opensubapi)
   }
 
@@ -805,9 +780,7 @@ class OpenSubClient {
       var comments: String?
 #endif
       var downloadCount: Int
-#if DEBUG
       var featureDetails: SubtitleFeatureDetails
-#endif
       var files: [SubtitleFile]
 #if DEBUG
       var foreignPartsOnly: Bool?

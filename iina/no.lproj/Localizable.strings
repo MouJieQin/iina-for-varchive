@@ -16,6 +16,9 @@
 "general.username" = "Brukernavn";
 "general.password" = "Passord";
 
+"input.value_is_empty" = "Value cannot be empty.";
+"input.already_exists" = "Value already exists.";
+
 // Guide Window
 "guide.highlights" = "Highlights";
 "guide.basic_settings" = "Grunnleggende innstillinger";
@@ -24,13 +27,17 @@
 // Initial Window
 "initial.announcement" = "Du bruker en %@ versjon av IINA";
 "initial.beta.desc" = "Hvis du vil rulle tilbake til en utgivelsesversjon, fjern avkrysningen for \"motta betaoppdateringer\" fra Innstillinger > Generelt, og installer en stabil versjon fra vår <a href=\"https://iina.io\">offisielle nettside</a>.";
-"initial.nightly.desc" = "Nightly anbefales ikke til daglig bruk. For øyeblikket støtter ikke nightly-versjoner automatisk oppdatering. Last ned nyere versjoner fra vårt <a href=\"https://nightly.iina.io\">nightly nettsted</a>.";
+"initial.nightly.desc" = "Nightly is not recommended to be used as your daily driver. Currently nightly builds do not support auto update. Please manually download newer builds from our <a href=\"https://nightly.iina.io\">nightly website</a>.";
 "initial.debug.desc" = "Feilsøkingsversjoner er vanligvis ikke optimalisert for ytelse, så det anbefales derfor ikke for daglig bruk. Feilsøkingsversjoner støtter ikke automatisk oppdatering.";
 "initial.bug_report" = "Meld feil via <a href=\"https://github.com/iina/iina/issues\">GitHub Issues</a>.";
+
+// Inspector Window
+"inspector.error" = "Feil";
 
 // MainWindowController.swift
 "main.buffering_indicator" = "Bufrer… %d%%";
 "main.opening_stream" = "Åpner strøm…";
+"main.seeking_indicator" = "Seeking…";
 "osc.precision" = "Presisjon";
 "osc.1s" = "1 sekund";
 "osc.100ms" = "100 millisekunder";
@@ -43,24 +50,63 @@
 "quicksetting.hwdec" = "Maskinvaredekoding";
 "quicksetting.deinterlace" = "Deinterlace";
 "quicksetting.hdr" = "HDR";
+"quicksetting.hide" = "Skjul";
+"quicksetting.reset_speed" = "Reset speed to 1x";
+
+// EQ Presets
+"eq.preset.flat" = "Flat";
+"eq.preset.acoustic" = "Acoustic";
+"eq.preset.classical" = "Classical";
+"eq.preset.dance" = "Dance";
+"eq.preset.deep" = "Deep";
+"eq.preset.electronic" = "Electronic";
+"eq.preset.hip_hop" = "Hip Hop";
+"eq.preset.increase_bass" = "Increase Bass";
+"eq.preset.increase_treble" = "Increase Treble";
+"eq.preset.increase_vocal" = "Increase Vocal";
+"eq.preset.jazz" = "Jazz";
+"eq.preset.latin" = "Latin";
+"eq.preset.loundness" = "Loundness";
+"eq.preset.lounge" = "Lounge";
+"eq.preset.piano" = "Piano";
+"eq.preset.pop" = "Pop";
+"eq.preset.rnb" = "R&B";
+"eq.preset.reduce_bass" = "Reduce Bass";
+"eq.preset.reduce_treble" = "Reduce Treble";
+"eq.preset.rock" = "Rock";
+"eq.preset.small_speaker" = "Small Speaker";
+"eq.preset.spoken_word" = "Spoken Word";
+
+"alert.eq.new_profile.title" = "New EQ Profile";
+"alert.eq.new_profile.message" = "Please enter a profile name.";
+"alert.eq.rename.title" = "Rename Current Profile";
+"alert.eq.rename.message" = "Please enter a new profile name.";
 
 // OSDMessage.swift
 "osd.pause" = "Pause";
 "osd.resume" = "Gjenoppta";
-"osd.volume" = "Volum: %i";
-"osd.speed" = "Hastighet: %.2fx";
+"osd.volume" = "Volum: %@";
+"osd.speed" = "Speed: %@x";
 "osd.aspect" = "Bildeformat: %@";
 "osd.crop" = "Beskjæring: %@";
 "osd.rotate" = "Roter: %i°";
 "osd.deinterlace" = "Fjern sammenfletting: %@";
 "osd.hwdec" = "Maskinvaredekoding: %@";
 "osd.audio_delay.nodelay" = "Lydforsinkelse: ingen forsinkelse";
-"osd.audio_delay.later" = "Lydforsinkelse: %.2fs senere";
-"osd.audio_delay.earlier" = "Lydforsinkelse: %.2fs tidligere";
+"osd.audio_delay.later" = "Lydforsinkelse: %@s senere";
+"osd.audio_delay.earlier" = "Lydforsinkelse: %@s tidligere";
 "osd.sub_delay.nodelay" = "Undertekstforsinkelse: ingen forsinkelse";
-"osd.sub_delay.later" = "Undertekstforsinkelse: %.2fs senere";
-"osd.sub_delay.earlier" = "Undertekstforsinkelse: %.2fs tidligere";
-"osd.subtitle_pos" = "Undertekstposisjon: %.1f";
+"osd.sub_delay.later" = "Undertekstforsinkelse: %@s senere";
+"osd.sub_delay.earlier" = "Undertekstforsinkelse: %@s tidligere";
+"osd.subtitle_pos" = "Undertekstposisjon: %@";
+"osd.sub_hidden" = "Subtitles Hidden";
+"osd.sub_visible" = "Subtitles Visible";
+"osd.sub_second_delay.nodelay" = "Secondary Subtitle Delay: No Delay";
+"osd.sub_second_delay.later" = "Secondary Subtitle Delay: %@s Later";
+"osd.sub_second_delay.earlier" = "Secondary Subtitle Delay: %@s Earlier";
+"osd.sub_second_hidden" = "Secondary Subtitles Hidden";
+"osd.sub_second_pos" = "Secondary Subtitle Position: %@";
+"osd.sub_second_visible" = "Secondary Subtitles Visible";
 "osd.mute" = "Demp";
 "osd.unmute" = "Opphev demping";
 "osd.screenshot" = "Skjermbilde lagret";
@@ -69,7 +115,7 @@
 "osd.abloop.clear" = "AB-løkke: fjernet";
 "osd.stop" = "Stopp";
 "osd.chapter" = "Kapittel: %@";
-"osd.subtitle_scale" = "Undertekstskala: %.2fs";
+"osd.subtitle_scale" = "Undertekstskala: %@s";
 "osd.add_to_playlist" = "La til %i filer i spillelisten";
 "osd.clear_playlist" = "Tømte spilleliste";
 "osd.video_eq.contrast" = "Kontrast: %i";
@@ -80,7 +126,8 @@
 "osd.find_online_sub" = "Finner understekster på nett…";
 "osd.find_online_sub.source" = "fra";
 "osd.sub_not_found" = "Ingen undertekster funnet";
-"osd.sub_found" = "%d undertekster funnet. Nedlaster…";
+"osd.sub_found" = "%d subtitles found.";
+"osd.sub_downloading" = "Downloading %d subtitles";
 "osd.sub_downloaded" = "Undertekster nedlastet";
 "osd.sub_saved" = "Undertekster lagret";
 "osd.network_error" = "Nettverksfeil";
@@ -116,14 +163,29 @@
 
 "preference.enable_adv_settings" = "Aktiver avanserte innstillinger";
 
+"preference.sub_override_level.no" = "no";
 "preference.sub_override_level.force" = "force";
+"preference.sub_override_level.scale" = "scale";
 "preference.sub_override_level.strip" = "fjern";
 "preference.sub_override_level.yes" = "yes";
 
-"menu.volume" = "Volum: %d";
-"menu.volume_muted" = "Volum: %d (dempet)";
-"menu.audio_delay" = "Lydforsinkelse: %.2fs";
-"menu.sub_delay" = "Undertekstforsinkelse: %.2fs";
+"preference.sub_override_level.descriptive_text.no" = "Render subtitles as specified by the subtitle scripts, without overrides.";
+"preference.sub_override_level.descriptive_text.force" = "Apply all subtitle styles.";
+"preference.sub_override_level.descriptive_text.scale" = "Apply the scale setting in addition to the style settings in this section.";
+"preference.sub_override_level.descriptive_text.strip" = "Radically strip all ASS tags and styles from the subtitle.";
+"preference.sub_override_level.descriptive_text.yes" = "Apply all the style settings in this section.";
+
+"preference.ytdl_plugin_not_installed" = "Install the Online Media plugin from \"Plugins > Install from GitHub\" to enjoy advanced features such and video downloading and auto yt-dlp updates.";
+"preference.ytdl_plugin_installed" = "The built-in youtube-dl support is disabled since you have the Online media plugin installed.";
+
+"menu.volume" = "Volum: %@";
+"menu.volume_muted" = "Volum: %@ (dempet)";
+"menu.audio_delay" = "Lydforsinkelse: %@s";
+"menu.sub_delay" = "Undertekstforsinkelse: %@s";
+"menu.sub_hide" = "Hide Subtitles";
+"menu.sub_show" = "Show Subtitles";
+"menu.sub_second_hide" = "Hide Secondary Subtitles";
+"menu.sub_second_show" = "Show Secondary Subtitles";
 "menu.fullscreen" = "Gå til fullskjerm";
 "menu.exit_fullscreen" = "Avslutt fullskjerm";
 "menu.pip" = "Bilde-i-bilde";
@@ -132,7 +194,7 @@
 "menu.exit_mini_player" = "Exit Music Mode";
 "menu.pause" = "Pause";
 "menu.resume" = "Gjenoppta";
-"menu.speed" = "Hastighet: %.2fx";
+"menu.speed" = "Speed: %@x";
 "menu.chapters" = "Vis kapittelpanel";
 "menu.hide_chapters" = "Gjem kapittelpanel";
 "menu.playlist" = "Vis spillelistepanel";
@@ -144,21 +206,32 @@
 "menu.subtitles" = "Vis undertekstpanel";
 "menu.hide_subtitles" = "Skjul undertekstpanel";
 
-"menu.seek_forward" = "Steg fremover: %.0fs";
-"menu.seek_backward" = "Steg bakover: %.0fs";
-"menu.speed_up" = "Øk hastigheten med %.1fx";
-"menu.speed_down" = "Senk hastigheten med %.1fx";
-"menu.volume_up" = "Volum + %.0f%%";
-"menu.volume_down" = "Volum - %.0f%%";
-"menu.audio_delay_up" = "Lydforsinkelse + %.1fs";
-"menu.audio_delay_down" = "Lydforsinkelse - %.1fs";
-"menu.sub_delay_up" = "Undertekstforsinkelse + %.1fs";
-"menu.sub_delay_down" = "Undertekstforsinkelse - %.1fs";
+"menu.seek_forward" = "Steg fremover: %@s";
+"menu.seek_backward" = "Steg bakover: %@s";
+"menu.speed_up" = "Speed Up by %@x";
+"menu.speed_down" = "Speed Down by %@x";
+"menu.volume_up" = "Volum + %@%%";
+"menu.volume_down" = "Volum - %@%%";
+"menu.audio_delay_up" = "Lydforsinkelse + %@s";
+"menu.audio_delay_down" = "Lydforsinkelse - %@s";
+"menu.sub_delay_up" = "Undertekstforsinkelse + %@s";
+"menu.sub_delay_down" = "Undertekstforsinkelse - %@s";
 
-"menu.crop_custom" = "Egendefinert...";
+"menu.crop_custom" = "Custom…";
 "menu.find_online_sub" = "Finn undertekster på nettet fra %@";
 
+"menu.manage_plugins" = "Manage Plugins…";
+"menu.developer_tool" = "Developer Tool";
+"menu.more_plugin" = "More…";
+"menu.conflicting_shortcuts" = "Conflicting key shortcuts…";
+"menu.reload_plugins" = "Reload All Plugins";
+"menu.show_plugins_panel" = "Show Plugins Panel";
+"menu.hide_plugins_panel" = "Hide Plugins Panel";
+
+"track.audio" = "Lyd";
 "track.none" = "<None>";
+"track.sub" = "Undertekster";
+"track.video" = "Video";
 
 "subtrack.no_loaded" = "Ingen undertekster innlastet";
 "subtrack.no_external" = "Ingen eksterne undertekster funnet";
@@ -172,7 +245,6 @@
 
 "alert.fatal_error" = "Fatal feil: %@ \nProgrammet vil avslutte nå.";
 "alert.mpv_error" = "Intern feil %@ (%@) ved innstilling av %@.";
-"alert.sleep" = "Kan ikke forhindre skjermhvile! (0x%0X8)";
 
 "alert.unsupported_audio" = "Ustøttet ekstern lydfil.";
 "alert.unsupported_sub" = "Ustøttet ekstern undertekst.";
@@ -185,16 +257,18 @@
 "alert.error_saving_file" = "Error occurred when saving %@: %@";
 "alert.error_deleting_file" = "Kan ikke slette filen.";
 
+"alert.target_peak.bad_value" = "The value \"%@\" is invalid.\nPlease provide a value between 10 and 10000, or 0.";
+
 "alert.config.new.title" = "Ny inndatakonfigurasjon";
 "alert.config.new.message" = "Angi et navn til den nye konfigurasjonen.";
 "alert.config.duplicate.title" = "Duplicate Configuration";
 "alert.config.duplicate.message" = "Please enter name for the duplicated configuration file.";
-"alert.config.empty_name" = "The name cannot be empty.";
-"alert.config.name_existing" = "The name already exists.";
 "alert.config.file_existing.title" = "Filen finnes allerede";
-"alert.config.file_existing.message" = "This should not happen. Choose OK to overwrite, Cancel to reveal the file in Finder.";
+"alert.config.file_existing.message" = "A config file with the same filename already exists. Choose OK to show the file in Finder.";
 "alert.config.cannot_create" = "Cannot create config file!\n%@";
 "alert.config.cannot_write" = "Cannot write to config file!";
+"alert.config.rename.title" = "Rename Input Configuration";
+"alert.config.rename.message" = "Please enter the new name for the configuration.";
 
 "alert.filter.incorrect" = "Error occurred when setting filters. Please check your parameter format.";
 "alert.add_filter.title" = "New Filter";
@@ -283,6 +357,11 @@
 
 "playlist.total_length" = "%@ totalt";
 "playlist.total_length_with_selected" = "%@ av %@ valgt";
+"playlist.sorting.header" = "Sorting";
+"playlist.sorting.filename_ascending" = "Filename Ascending";
+"playlist.sorting.filename_descending" = "Filename Descending";
+"playlist.sorting.path_ascending" = "File Path Ascending";
+"playlist.sorting.path_descending" = "File Path Descending";
 "pl_menu.title_multi" = "%d objekter";
 "pl_menu.play_next" = "Spill neste";
 "pl_menu.play_in_new_window" = "Spill i nytt vindu";
@@ -322,6 +401,7 @@
 "osc_toolbar.music_mode" = "Enter music mode";
 "osc_toolbar.sub_track" = "Choose subtitle track";
 "osc_toolbar.screenshot" = "Take a screenshot";
+"osc_toolbar.plugins" = "Show plugins panel";
 
 "mini_player.album_art" = "Toggle album art";
 "mini_player.loop" = "Repeat";
@@ -332,6 +412,7 @@
 "mini_player.volume" = "Volum";
 "mini_player.close" = "Close music mode";
 "mini_player.back" = "Return to video mode";
+"mini_player.sort" = "Sort the playlist";
 
 // Touch bar
 

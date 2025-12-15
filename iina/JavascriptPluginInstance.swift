@@ -172,10 +172,7 @@ class JavascriptPluginInstance {
       apis["subtitle"] = JavascriptAPISubtitle(context: ctx, pluginInstance: self)
       apis["input"] = JavascriptAPIInput(context: ctx, pluginInstance: self)
     }
-
-    if #available(macOS 10.15, *) {
-      apis["ws"] = JavascriptAPIWebSocketController(context: ctx, pluginInstance: self)
-    }
+    apis["ws"] = JavascriptAPIWebSocketController(context: ctx, pluginInstance: self)
 
     if player == nil {
       // it's a global instance

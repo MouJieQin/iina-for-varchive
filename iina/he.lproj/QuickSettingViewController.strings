@@ -2,7 +2,7 @@
 "1KQ-oZ-A2x.title" = "מהירות:";
 
 /* Class = "NSTextFieldCell"; title = "s"; ObjectID = "1VY-EN-1mi"; */
-"1VY-EN-1mi.title" = "שנ'";
+"1VY-EN-1mi.title" = "שניות";
 
 /* Class = "NSTextFieldCell"; title = "Width:"; ObjectID = "22j-ra-GAY"; */
 "22j-ra-GAY.title" = "רוחב:";
@@ -11,10 +11,16 @@
 "3kI-6i-ujt.title" = "צבע:";
 
 /* Class = "NSTextFieldCell"; title = "+12 dB"; ObjectID = "4BZ-H1-GEU"; */
-"4BZ-H1-GEU.title" = "+12 דציבלים";
+"4BZ-H1-GEU.title" = "+12 dB";
 
 /* Class = "NSTextFieldCell"; title = "Color:"; ObjectID = "6LO-6y-IsA"; */
 "6LO-6y-IsA.title" = "צבע:";
+
+/* Class = "NSSegmentedCell"; 88M-pi-2Hc.ibShadowedLabels[0] = "Primary Subtitles"; ObjectID = "88M-pi-2Hc"; */
+"88M-pi-2Hc.ibShadowedLabels[0]" = "כתוביות ראשיות";
+
+/* Class = "NSSegmentedCell"; 88M-pi-2Hc.ibShadowedLabels[1] = "Secondary Subtitles"; ObjectID = "88M-pi-2Hc"; */
+"88M-pi-2Hc.ibShadowedLabels[1]" = "כתוביות משניות";
 
 /* Class = "NSButtonCell"; title = "Load External Audio Track…"; ObjectID = "8Ax-5X-osl"; */
 "8Ax-5X-osl.title" = "טען רצועת שמע חיצונית…";
@@ -43,11 +49,8 @@
 /* Class = "NSTextFieldCell"; title = "BORDER"; ObjectID = "GlZ-YU-dNm"; */
 "GlZ-YU-dNm.title" = "גבול";
 
-/* Class = "NSTextFieldCell"; title = "31.25"; ObjectID = "HBF-J7-Tie"; */
-"HBF-J7-Tie.title" = "31.25";
-
 /* Class = "NSTextFieldCell"; title = "-5s"; ObjectID = "IYU-eq-dls"; */
-"YCG-xK-eAs.title" = "- 5 שניות";
+"YCG-xK-eAs.title" = "-5 שניות";
 
 /* Class = "NSMenuItem"; title = "1.5"; ObjectID = "JbG-Ur-b55"; */
 "JbG-Ur-b55.title" = "1.5";
@@ -59,7 +62,7 @@
 "Lnu-kz-cql.title" = "שמע חיצוני:";
 
 /* Class = "NSTextFieldCell"; title = "-12 dB"; ObjectID = "Lpw-ws-Ezh"; */
-"Lpw-ws-Ezh.title" = "- 12 דציבלים";
+"Lpw-ws-Ezh.title" = "-12 דציבלים";
 
 /* Class = "NSButtonCell"; title = "SUBTITLES"; ObjectID = "NxO-to-jcI"; */
 "NxO-to-jcI.title" = "כתוביות";
@@ -101,7 +104,7 @@
 "bKb-pW-HnS.title" = "כתוביות משניות:";
 
 /* Class = "NSTextFieldCell"; title = "s"; ObjectID = "bsT-FB-GhF"; */
-"bsT-FB-GhF.title" = "שנ'";
+"bsT-FB-GhF.title" = "שניות";
 
 /* Class = "NSTabViewItem"; label = "Audio"; ObjectID = "bzk-c2-LH5"; */
 "bzk-c2-LH5.label" = "שמע";
@@ -176,7 +179,7 @@
 "to3-rc-Agv.title" = "הטיה:";
 
 /* Class = "NSTextFieldCell"; title = "-5s"; ObjectID = "uCX-EC-jXM"; */
-"uCX-EC-jXM.title" = "- 5 שניות";
+"uCX-EC-jXM.title" = "-5 שניות";
 
 /* Class = "NSTextFieldCell"; title = "0s"; ObjectID = "udN-rq-omw"; */
 "udN-rq-omw.title" = "0 שניות";
@@ -194,7 +197,31 @@
 "x39-62-7KC.title" = "רצועת שמע:";
 
 /* Class = "NSTextFieldCell"; title = "+5s"; ObjectID = "xfX-wr-DTJ"; */
-"xfX-wr-DTJ.title" = "+ 5 שניות";
+"xfX-wr-DTJ.title" = "+5 שניות";
+
+/* Class = "NSTextFieldCell"; title = "+5s"; ObjectID = "Kt8-Kg-i2O"; */
+"Kt8-Kg-i2O.title" = "+5 שניות";
 
 /* Class = "NSTextFieldCell"; title = "Equalizer"; ObjectID = "zcD-Tg-7Oi"; */
 "zcD-Tg-7Oi.title" = "אקולייזר:";
+
+/* Class = "NSTextFieldCell"; title = "Hardware Decoding"; ObjectID = "rw1-Qb-0RV"; */
+"rw1-Qb-0RV.title" = "פענוח חומרה";
+
+/* Class = "NSTextFieldCell"; title = "Deinterlace"; ObjectID = "eqd-nF-8ff"; */
+"eqd-nF-8ff.title" = "ביטול שזירה";
+
+/* Class = "NSTextFieldCell"; title = "HDR"; ObjectID = "UW4-by-XRS"; */
+"UW4-by-XRS.title" = "HDR";
+
+/* Class = "NSMenuItem"; title = "Save the current EQ as a preset…"; ObjectID = "sE0-LN-T8i"; */
+"sE0-LN-T8i.title" = "שמור את הגדרות ה EQ הנוכחיות…";
+
+/* Class = "NSMenuItem"; title = "Rename the current EQ preset…"; ObjectID = "2tD-0L-UUs"; */
+"2tD-0L-UUs.title" = "שנה את שם הגדרות ה EQ הנוכחיות…";
+
+/* Class = "NSMenuItem"; title = "Remove the current EQ preset"; ObjectID = "dvI-Rj-7qF"; */
+"dvI-Rj-7qF.title" = "הסר את הגדרות ה EQ הנוכחיות";
+
+/* Class = "NSMenuItem"; title = "Manual"; ObjectID = "LPh-nJ-GjN"; */
+"LPh-nJ-GjN.title" = "ידני";

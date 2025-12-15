@@ -16,6 +16,9 @@
 "general.username" = "نام کاربری";
 "general.password" = "رمز عبور";
 
+"input.value_is_empty" = "Value cannot be empty.";
+"input.already_exists" = "Value already exists.";
+
 // Guide Window
 "guide.highlights" = "تازه‌ها";
 "guide.basic_settings" = "تنظیمات پایه";
@@ -24,13 +27,17 @@
 // Initial Window
 "initial.announcement" = "شما در حال استفاده از نسخه %@ برنامه IINA میباشید";
 "initial.beta.desc" = "تیک گزینه‌ی “دریافت بروزرسانی‌های بتا” را از بخش تنظیمات - عمومی بردارید و یک نسخه‌ی پایدار را از <a href=\"https://iina.io\">سایت رسمی ما</a> نصب کنید.";
-"initial.nightly.desc" = "حالت شب برای استفاده روزانه پیشنهاد نمیشود. درحال حاضر نسخه حالت شب از بروزرسانی خودکار پشتیبانی نمیکند. لطفا برای دریافت دستی جدیدترین بروزرسانی به <a href=\"https://nightly.iina.io\"> وبسایت ما</a> مراجعه فرمایید.";
+"initial.nightly.desc" = "Nightly is not recommended to be used as your daily driver. Currently nightly builds do not support auto update. Please manually download newer builds from our <a href=\"https://nightly.iina.io\">nightly website</a>.";
 "initial.debug.desc" = "نسخه دیباگ معمولا کامل بهینه سازی نشده است ، پس برای استفاده روزانه پیشنهاد نمیشود. نسخه دیباگ از بروزرسانی خودکار پیشتیبانی نمیکنند.";
 "initial.bug_report" = "مشکلات را از طریق <a href=\"https://github.com/iina/iina/issues\"> با ما درمیان بگذارید</a>.";
+
+// Inspector Window
+"inspector.error" = "خطا";
 
 // MainWindowController.swift
 "main.buffering_indicator" = "در حال بارگذاری... %d%%";
 "main.opening_stream" = "در حال بازکردن استریم…";
+"main.seeking_indicator" = "Seeking…";
 "osc.precision" = "دقت";
 "osc.1s" = "۱ ثانیه";
 "osc.100ms" = "۱۰۰ میلی ثانیه";
@@ -43,24 +50,63 @@
 "quicksetting.hwdec" = "رمزگشایی سخت‌افزاری";
 "quicksetting.deinterlace" = "تبدیل تصویر به غیر interlace";
 "quicksetting.hdr" = "اچ‌دی‌آر";
+"quicksetting.hide" = "پنهان کردن";
+"quicksetting.reset_speed" = "Reset speed to 1x";
+
+// EQ Presets
+"eq.preset.flat" = "Flat";
+"eq.preset.acoustic" = "Acoustic";
+"eq.preset.classical" = "Classical";
+"eq.preset.dance" = "Dance";
+"eq.preset.deep" = "Deep";
+"eq.preset.electronic" = "Electronic";
+"eq.preset.hip_hop" = "Hip Hop";
+"eq.preset.increase_bass" = "Increase Bass";
+"eq.preset.increase_treble" = "Increase Treble";
+"eq.preset.increase_vocal" = "Increase Vocal";
+"eq.preset.jazz" = "Jazz";
+"eq.preset.latin" = "Latin";
+"eq.preset.loundness" = "Loundness";
+"eq.preset.lounge" = "Lounge";
+"eq.preset.piano" = "Piano";
+"eq.preset.pop" = "Pop";
+"eq.preset.rnb" = "R&B";
+"eq.preset.reduce_bass" = "Reduce Bass";
+"eq.preset.reduce_treble" = "Reduce Treble";
+"eq.preset.rock" = "Rock";
+"eq.preset.small_speaker" = "Small Speaker";
+"eq.preset.spoken_word" = "Spoken Word";
+
+"alert.eq.new_profile.title" = "New EQ Profile";
+"alert.eq.new_profile.message" = "Please enter a profile name.";
+"alert.eq.rename.title" = "Rename Current Profile";
+"alert.eq.rename.message" = "Please enter a new profile name.";
 
 // OSDMessage.swift
 "osd.pause" = "مکث";
 "osd.resume" = "ادامه";
-"osd.volume" = "بلندی صدا: %i";
-"osd.speed" = "سرعت: %.2f برابر";
+"osd.volume" = "بلندی صدا: %@";
+"osd.speed" = "Speed: %@x";
 "osd.aspect" = "نسبت تصویر: %@";
 "osd.crop" = "برش: %@";
 "osd.rotate" = "چرخش: %i";
 "osd.deinterlace" = "تبدیل تصویر به غیر interlace: %@";
 "osd.hwdec" = "استفاده از تبدیل سخت‌افزاری: %@";
 "osd.audio_delay.nodelay" = "تاخیر صدا: بدون تاخیر";
-"osd.audio_delay.later" = "تاخیر صوت: %.2f ثانيه";
-"osd.audio_delay.earlier" = "تاخیر صوت: %.2f ثانيه زودتر";
+"osd.audio_delay.later" = "تاخیر صوت: %@ ثانيه";
+"osd.audio_delay.earlier" = "تاخیر صوت: %@ ثانيه زودتر";
 "osd.sub_delay.nodelay" = "تاخیر صدا: بدون تاخیر";
-"osd.sub_delay.later" = "تاخیر زیرنویس: %.2f ثانیه بعدتر";
-"osd.sub_delay.earlier" = "تاخیر زیرنویس: %.2f ثانیه زودتر";
-"osd.subtitle_pos" = "جایگذاری زیرنویس: %.1f";
+"osd.sub_delay.later" = "تاخیر زیرنویس: %@ ثانیه بعدتر";
+"osd.sub_delay.earlier" = "تاخیر زیرنویس: %@ ثانیه زودتر";
+"osd.subtitle_pos" = "جایگذاری زیرنویس: %@";
+"osd.sub_hidden" = "مخفی کردن زیرنویس";
+"osd.sub_visible" = "نمایش دادن زیرنویس";
+"osd.sub_second_delay.nodelay" = "تاخیر زیرنویس دوم: بدون تاخیر";
+"osd.sub_second_delay.later" = "تاخیر زیرنویس دوم: %@ ثانیه دیرتر";
+"osd.sub_second_delay.earlier" = "تاخیر زیرنویس دوم: %@ ثانیه زودتر";
+"osd.sub_second_hidden" = "زیرنویس دوم مخفی";
+"osd.sub_second_pos" = "جایگاه زیرنویس دوم: %@";
+"osd.sub_second_visible" = "زیرنویس دوم مشخص";
 "osd.mute" = "بی صدا";
 "osd.unmute" = "با صدا";
 "osd.screenshot" = "عکس از صفحه گرفته شد";
@@ -69,7 +115,7 @@
 "osd.abloop.clear" = "حلقه AB: پاک سازی شد";
 "osd.stop" = "توقف";
 "osd.chapter" = "قسمت: %@";
-"osd.subtitle_scale" = "بزرگنمایی زیرنویس: %.2f برابر";
+"osd.subtitle_scale" = "بزرگنمایی زیرنویس: %@ برابر";
 "osd.add_to_playlist" = "%i فایل به لیست پخش اضافه شد";
 "osd.clear_playlist" = "پاک کردن لیست پخش";
 "osd.video_eq.contrast" = "کنتراست: %i";
@@ -80,20 +126,21 @@
 "osd.find_online_sub" = "جستجوی زیرنویس آنلاین…";
 "osd.find_online_sub.source" = "از:";
 "osd.sub_not_found" = "هیچ زیرنویسی یافت نشد.";
-"osd.sub_found" = "%d زیرنویس پیدا شد. در حال بارگیری…";
+"osd.sub_found" = "%d زیرنویس پیدا شد.";
+"osd.sub_downloading" = "در حال دانلود%d زیرنویس";
 "osd.sub_downloaded" = "زیرنویس دانلود شد";
 "osd.sub_saved" = "زیرنویس ذخیره شد";
 "osd.network_error" = "خطای شبکه";
 "osd.file_error" = "خطا در خواندن فایل";
 "osd.cannot_login" = "عدم توانایی ورود";
 "osd.canceled" = "لغو شده";
-"osd.cannot_connect" = "Cannot connect";
-"osd.timed_out" = "Timed Out";
+"osd.cannot_connect" = "اتصال برقرار نشد";
+"osd.timed_out" = "خارج از دسترس";
 "osd.filter_added" = "فیلتر اضافه شده: %@";
 "osd.filter_removed" = "حذف فیلتر";
-"osd.file_loop" = "Loop Single File";
-"osd.playlist_loop" = "Loop Playlist";
-"osd.no_loop" = "Disable Looping";
+"osd.file_loop" = "تکرار یک فایل";
+"osd.playlist_loop" = "تکرار لیست پحش";
+"osd.no_loop" = "لغو تکرار";
 
 "preference.title" = "تنظیمات";
 "preference.general" = "عمومی";
@@ -116,14 +163,29 @@
 
 "preference.enable_adv_settings" = "فعال‌سازی تنظیمات پیشرفته";
 
+"preference.sub_override_level.no" = "no";
 "preference.sub_override_level.force" = "force";
+"preference.sub_override_level.scale" = "scale";
 "preference.sub_override_level.strip" = "strip";
-"preference.sub_override_level.yes" = "yes";
+"preference.sub_override_level.yes" = "بله";
 
-"menu.volume" = "بلندی صدا: %d";
-"menu.volume_muted" = "صدا: %d (بی صدا)";
-"menu.audio_delay" = "تاخیر صوت: %.2f ثانيه";
-"menu.sub_delay" = "تاخیر زیرنویس: %.2f ثانیه";
+"preference.sub_override_level.descriptive_text.no" = "Render subtitles as specified by the subtitle scripts, without overrides.";
+"preference.sub_override_level.descriptive_text.force" = "Apply all subtitle styles.";
+"preference.sub_override_level.descriptive_text.scale" = "Apply the scale setting in addition to the style settings in this section.";
+"preference.sub_override_level.descriptive_text.strip" = "Radically strip all ASS tags and styles from the subtitle.";
+"preference.sub_override_level.descriptive_text.yes" = "Apply all the style settings in this section.";
+
+"preference.ytdl_plugin_not_installed" = "";
+"preference.ytdl_plugin_installed" = "The built-in youtube-dl support is disabled since you have the Online media plugin installed.";
+
+"menu.volume" = "بلندی صدا: %@";
+"menu.volume_muted" = "صدا: %@ (بی صدا)";
+"menu.audio_delay" = "تاخیر صوت: %@ ثانيه";
+"menu.sub_delay" = "تاخیر زیرنویس: %@ ثانیه";
+"menu.sub_hide" = "Hide Subtitles";
+"menu.sub_show" = "Show Subtitles";
+"menu.sub_second_hide" = "Hide Secondary Subtitles";
+"menu.sub_second_show" = "Show Secondary Subtitles";
 "menu.fullscreen" = "حالت تمام صفحه";
 "menu.exit_fullscreen" = "خروج از تمام صفحه";
 "menu.pip" = "استفاده از تصویر در تصویر";
@@ -132,7 +194,7 @@
 "menu.exit_mini_player" = "Exit Music Mode";
 "menu.pause" = "مکث";
 "menu.resume" = "ادامه";
-"menu.speed" = "سرعت: %.2f برابر";
+"menu.speed" = "Speed: %@x";
 "menu.chapters" = "پنل سرفصل های فیلم رو نشون بده";
 "menu.hide_chapters" = "پنل سرفصل های فیلم رو پنهان کن";
 "menu.playlist" = "نمایش لیست تماشا";
@@ -144,21 +206,32 @@
 "menu.subtitles" = "پنل زیرنویس رو نشون بده";
 "menu.hide_subtitles" = "پنل زیرنویس رو پنهان کن";
 
-"menu.seek_forward" = "%.0f ثانیه به جلو";
-"menu.seek_backward" = "%.0f ثانیه به عقب";
-"menu.speed_up" = "بالا بردن سرعت به مقدار %.1fx";
-"menu.speed_down" = "پایین آوردن سرعت به مقدار %.1fx";
-"menu.volume_up" = "افزایش صدا + %.0f%%";
-"menu.volume_down" = "کاهش صدا - %.0f%%";
-"menu.audio_delay_up" = "تاخیر صدا + %.1f ثانيه";
-"menu.audio_delay_down" = "تاخیر صدا - %.1f ثانيه";
-"menu.sub_delay_up" = "تاخیر زیرنویس + %.1f ثانیه";
-"menu.sub_delay_down" = "تاخیر زیرنویس - %.1f ثانیه";
+"menu.seek_forward" = "%@ ثانیه به جلو";
+"menu.seek_backward" = "%@ ثانیه به عقب";
+"menu.speed_up" = "Speed Up by %@x";
+"menu.speed_down" = "Speed Down by %@x";
+"menu.volume_up" = "افزایش صدا + %@%%";
+"menu.volume_down" = "کاهش صدا - %@%%";
+"menu.audio_delay_up" = "تاخیر صدا + %@ ثانيه";
+"menu.audio_delay_down" = "تاخیر صدا - %@ ثانيه";
+"menu.sub_delay_up" = "تاخیر زیرنویس + %@ ثانیه";
+"menu.sub_delay_down" = "تاخیر زیرنویس - %@ ثانیه";
 
-"menu.crop_custom" = "سفارشی...";
+"menu.crop_custom" = "سفارشی…";
 "menu.find_online_sub" = "Find Online Subtitles from %@";
 
+"menu.manage_plugins" = "Manage Plugins…";
+"menu.developer_tool" = "Developer Tool";
+"menu.more_plugin" = "More…";
+"menu.conflicting_shortcuts" = "Conflicting key shortcuts…";
+"menu.reload_plugins" = "Reload All Plugins";
+"menu.show_plugins_panel" = "Show Plugins Panel";
+"menu.hide_plugins_panel" = "Hide Plugins Panel";
+
+"track.audio" = "صدا";
 "track.none" = "<هیچکدام>";
+"track.sub" = "زیرنویس";
+"track.video" = "ویدئو";
 
 "subtrack.no_loaded" = "هیچ زیرنویسی یافته نشد";
 "subtrack.no_external" = "زیرنویسی پیدا نشد";
@@ -172,7 +245,6 @@
 
 "alert.fatal_error" = "Fatal error: %@ \nThe application will exit now.";
 "alert.mpv_error" = "Internal error %@ (%@) when setting option %@.";
-"alert.sleep" = "Cannot prevent display sleep! (0x%0X8)";
 
 "alert.unsupported_audio" = "Unsupported external audio file.";
 "alert.unsupported_sub" = "Unsupported external subtitle.";
@@ -185,16 +257,18 @@
 "alert.error_saving_file" = "Error occurred when saving %@: %@";
 "alert.error_deleting_file" = "فایل دیلیت نمی شود.";
 
+"alert.target_peak.bad_value" = "The value \"%@\" is invalid.\nPlease provide a value between 10 and 10000, or 0.";
+
 "alert.config.new.title" = "New Input Configuration";
 "alert.config.new.message" = "Please enter a name for the new configuration.";
 "alert.config.duplicate.title" = "Duplicate Configuration";
 "alert.config.duplicate.message" = "Please enter name for the duplicated configuration file.";
-"alert.config.empty_name" = "The name cannot be empty.";
-"alert.config.name_existing" = "The name already exists.";
 "alert.config.file_existing.title" = "فايل قبلا ساخته شده";
-"alert.config.file_existing.message" = "This should not happen. Choose OK to overwrite, Cancel to reveal the file in Finder.";
+"alert.config.file_existing.message" = "A config file with the same filename already exists. Choose OK to show the file in Finder.";
 "alert.config.cannot_create" = "فایل Config غیرقابل ساختن است\n%@";
 "alert.config.cannot_write" = "Cannot write to config file!";
+"alert.config.rename.title" = "Rename Input Configuration";
+"alert.config.rename.message" = "Please enter the new name for the configuration.";
 
 "alert.filter.incorrect" = "Error occurred when setting filters. Please check your parameter format.";
 "alert.add_filter.title" = "فیلتر جدید";
@@ -283,6 +357,11 @@
 
 "playlist.total_length" = "%@ in total";
 "playlist.total_length_with_selected" = "%@ of %@ selected";
+"playlist.sorting.header" = "Sorting";
+"playlist.sorting.filename_ascending" = "Filename Ascending";
+"playlist.sorting.filename_descending" = "Filename Descending";
+"playlist.sorting.path_ascending" = "File Path Ascending";
+"playlist.sorting.path_descending" = "File Path Descending";
 "pl_menu.title_multi" = "%d Items";
 "pl_menu.play_next" = "Play Next";
 "pl_menu.play_in_new_window" = "پخش در پنجره جدید";
@@ -322,6 +401,7 @@
 "osc_toolbar.music_mode" = "Enter music mode";
 "osc_toolbar.sub_track" = "Choose subtitle track";
 "osc_toolbar.screenshot" = "Take a screenshot";
+"osc_toolbar.plugins" = "Show plugins panel";
 
 "mini_player.album_art" = "Toggle album art";
 "mini_player.loop" = "Repeat";
@@ -332,6 +412,7 @@
 "mini_player.volume" = "صدا";
 "mini_player.close" = "Close music mode";
 "mini_player.back" = "Return to video mode";
+"mini_player.sort" = "Sort the playlist";
 
 // Touch bar
 

@@ -24,25 +24,15 @@ struct InfoDictionary {
     return String(buildCommit.prefix(7))
   }
 
-  var buildDate: String? {
+  var buildDate: Date? {
     let dateParser: (String) -> Date?
-    if #available(macOS 10.12, *) {
-      let formatter = ISO8601DateFormatter()
-      dateParser = formatter.date(from:)
-    } else {
-      let formatter = DateFormatter()
-      formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
-      dateParser = formatter.date(from:)
-    }
+    let formatter = ISO8601DateFormatter()
+    dateParser = formatter.date(from:)
     guard let date = dictionary["\(buildKeyPrefix).date"] as? String,
           let dateObj = dateParser(date) else {
       return nil
     }
-    // Use a localized date for the build date.
-    let toString = DateFormatter()
-    toString.dateStyle = .medium
-    toString.timeStyle = .medium
-    return toString.string(from: dateObj)
+    return dateObj
   }
 
   private var buildKeyPrefix: String {

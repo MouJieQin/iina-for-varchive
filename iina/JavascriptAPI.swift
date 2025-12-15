@@ -90,7 +90,11 @@ class JavascriptAPI: NSObject {
         throwError(withMessage: "The path should be an absolute path: \(path)")
         return (nil, false)
       }
-      return (absPath, false)
+      return (
+        absPath,
+        absPath.hasPrefix(pluginInstance.plugin.dataURL.path) ||
+        absPath.hasPrefix(pluginInstance.plugin.tmpURL.path)
+      )
     }!
   }
 
@@ -128,41 +132,19 @@ func createUInt8Array(fromData data: Data) -> JSValue? {
   let context = JSContext.current()!
   let length = data.count
 
-  // JSObjectMakeTypedArrayWithBytesNoCopy is only available on macOS 10.12.
-  if #available(macOS 10.12, *) {
-    let rawPtr = UnsafeMutableBufferPointer<UInt8>.allocate(capacity: length)
-    _ = data.withUnsafeBytes { (dataPtr: UnsafeRawBufferPointer) in
-      rawPtr.initialize(from: dataPtr)
-    }
-    let deallocator: JSTypedArrayBytesDeallocator = { ptr, _ in
-      ptr?.deallocate()
-    }
-    let arrayBufferRef = JSObjectMakeTypedArrayWithBytesNoCopy(context.jsGlobalContextRef,
-                                                               kJSTypedArrayTypeUint8Array,
-                                                               rawPtr.baseAddress,
-                                                               length,
-                                                               deallocator,
-                                                               nil,
-                                                               nil)
-    return JSValue(jsValueRef: arrayBufferRef, in: context)
-  } else {
-    // Inefficient fallback
-    let getter: @convention(block) (Int) -> UInt8 = { offset in
-      return data[offset]
-
-    }
-    context.setObject(getter, forKeyedSubscript: "__iina_data_getter" as NSString)
-
-    let array = context.evaluateScript("""
-          Uint8Array.from(function* () {
-            for (let i = 0; i < \(length); i++) {
-              yield __iina_data_getter(i);
-            }
-          }())
-          """)
-
-    context.setObject(nil, forKeyedSubscript: "__iina_data_getter" as NSString)
-    return array
-
+  let rawPtr = UnsafeMutableBufferPointer<UInt8>.allocate(capacity: length)
+  _ = data.withUnsafeBytes { (dataPtr: UnsafeRawBufferPointer) in
+    rawPtr.initialize(from: dataPtr)
   }
+  let deallocator: JSTypedArrayBytesDeallocator = { ptr, _ in
+    ptr?.deallocate()
+  }
+  let arrayBufferRef = JSObjectMakeTypedArrayWithBytesNoCopy(context.jsGlobalContextRef,
+                                                             kJSTypedArrayTypeUint8Array,
+                                                             rawPtr.baseAddress,
+                                                             length,
+                                                             deallocator,
+                                                             nil,
+                                                             nil)
+  return JSValue(jsValueRef: arrayBufferRef, in: context)
 }

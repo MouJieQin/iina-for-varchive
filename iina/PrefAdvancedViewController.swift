@@ -23,7 +23,7 @@ class PrefAdvancedViewController: PreferenceViewController, PreferenceWindowEmbe
   }
 
   var preferenceTabImage: NSImage {
-    return NSImage(named: NSImage.Name("pref_advanced"))!
+    return makeSymbol("flask", fallbackImage: "pref_advanced")
   }
 
   var preferenceContentIsScrollable: Bool {
@@ -42,7 +42,7 @@ class PrefAdvancedViewController: PreferenceViewController, PreferenceWindowEmbe
   @IBOutlet var loggingSettingsView: NSView!
   @IBOutlet var mpvSettingsView: NSView!
 
-  @IBOutlet weak var enableAdvancedSettingsBtn: Switch!
+  @IBOutlet weak var enableAdvancedSettingsLabel: NSTextField!
   @IBOutlet weak var optionsTableView: NSTableView!
   @IBOutlet weak var useAnotherConfigDirBtn: NSButton!
   @IBOutlet weak var chooseConfigDirBtn: NSButton!
@@ -61,11 +61,8 @@ class PrefAdvancedViewController: PreferenceViewController, PreferenceWindowEmbe
     optionsTableView.delegate = self
     optionsTableView.sizeLastColumnToFit()
     removeButton.isEnabled = false
-
-    enableAdvancedSettingsBtn.checked = Preference.bool(for: .enableAdvancedSettings)
-    enableAdvancedSettingsBtn.action = {
-      Preference.set($0, for: .enableAdvancedSettings)
-    }
+    
+    enableAdvancedSettingsLabel.stringValue = NSLocalizedString("preference.enable_adv_settings", comment: "Enable advanced settings")
   }
 
   func saveToUserDefaults() {
@@ -80,7 +77,7 @@ class PrefAdvancedViewController: PreferenceViewController, PreferenceWindowEmbe
   }
   
   @IBAction func showLogWindow(_ sender: AnyObject) {
-    (NSApp.delegate as! AppDelegate).logWindow.showWindow(self)
+    AppDelegate.shared.logWindow.showWindow(self)
   }
 
   @IBAction func addOptionBtnAction(_ sender: AnyObject) {

@@ -19,7 +19,7 @@ class OpenSub {
     private static let dateFormatter: DateFormatter = {
       let dateFormatter = DateFormatter()
       dateFormatter.dateStyle = .medium
-      dateFormatter.timeStyle = .medium
+      dateFormatter.timeStyle = .none
       return dateFormatter
     }()
 
@@ -72,22 +72,25 @@ class OpenSub {
     ///            view displayed to the user for choosing the subtitle files to download.
     override func getDescription() -> (name: String, left: String, right: String) {
       let attributes = subtitle.attributes
-      let downloadCount = String(attributes.downloadCount)
-      let filename = attributes.files[0].fileName
-      let framesPerSecond: String
-      if let fps = attributes.fps, fps != 0 {
-        framesPerSecond = " \(String(Int(fps.rounded(.up)))) fps"
-      } else {
-        framesPerSecond = ""
+      var tokens: [String] = []
+
+      tokens.append(attributes.language)
+
+      if let releaseYear = attributes.featureDetails.year, releaseYear > 0 {
+        tokens.append("(\(releaseYear))")
       }
-      let language = attributes.language
-      let rating = String(attributes.ratings)
+
+      if let fps = attributes.fps, fps != 0 {
+        tokens.append("\(fps.stringWithMaxFractionDigits2) fps")
+      }
+
+      let downloadCount = "\u{2b07}\(attributes.downloadCount)"
+      tokens.append(downloadCount)
+
+      let fileName = attributes.files[0].fileName
+      let description = tokens.joined(separator: "  ")
       let uploadDate = OpenSub.Subtitle.dateFormatter.string(from: attributes.uploadDate)
-      return (
-        filename,
-        "\(language)\(framesPerSecond) \u{2b07}\(downloadCount) \u{2605}\(rating)",
-        uploadDate
-      )
+      return (fileName, description, uploadDate)
     }
   }
 
@@ -255,7 +258,7 @@ class OpenSub {
     /// Filter out unsupported language codes.
     ///
     /// IINA's `Preferred language` setting is used when automatically loading local subtitle files as well as when downloading
-    /// from subtitle sites. As a result it may contian language codes not supported by Open Subtitles. When logging is enabled this
+    /// from subtitle sites. As a result it may contain language codes not supported by Open Subtitles. When logging is enabled this
     /// method will log the language codes in the setting that are not supported by Open Subtitles and will be ignored. This is only
     /// done for ease of debugging.
     func filterLanguageCodes() -> Promise<Void> {
@@ -290,10 +293,10 @@ class OpenSub {
     /// Open Subtitles requests that applications logout of of user sessions so that they can free resources. This is discussed in the
     /// [Best Practices](https://opensubtitles.stoplight.io/docs/opensubtitles-api/6ef2e232095c7-best-practices)
     /// section of the Open Subtitles REST API documentation.
-    /// - Parameter timeout: The timeout to to use for the the request.
+    /// - Parameter timeout: The timeout to to use for the request.
     override func logout(timeout: TimeInterval? = nil) -> Promise<Void> {
       guard OpenSubClient.shared.loggedIn else {
-        Logger.log("Not logged in to Open Subtitles")
+        log("Not logged in to Open Subtitles")
         return .value
       }
       log("Logging out of Open Subtitles")
@@ -383,7 +386,7 @@ class OpenSub {
     }
   }
 
-  private static func log(_ message: String, level: Logger.Level = .debug) {
+  private static func log(_ message: @autoclosure () -> String, level: Logger.Level = .debug) {
     Logger.log(message, level: level, subsystem: Logger.Sub.opensub)
   }
 }

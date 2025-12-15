@@ -21,7 +21,7 @@ class PrefGeneralViewController: PreferenceViewController, PreferenceWindowEmbed
   }
 
   var preferenceTabImage: NSImage {
-    return NSImage(named: NSImage.Name("pref_general"))!
+    return makeSymbol("gear", fallbackImage: "pref_general")
   }
 
   override var sectionViews: [NSView] {
@@ -58,7 +58,7 @@ class PrefGeneralViewController: PreferenceViewController, PreferenceWindowEmbed
 
   @IBAction func rememberRecentChanged(_ sender: NSButton) {
     if sender.state == .off {
-      (NSApp.delegate as! AppDelegate).clearRecentDocuments(self)
+      AppDelegate.shared.clearRecentDocuments(self)
     }
   }
 }

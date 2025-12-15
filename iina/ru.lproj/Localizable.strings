@@ -16,21 +16,28 @@
 "general.username" = "Имя пользователя";
 "general.password" = "Пароль";
 
+"input.value_is_empty" = "Значение не может быть пустым.";
+"input.already_exists" = "Значение уже существует.";
+
 // Guide Window
-"guide.highlights" = "Основные моменты";
+"guide.highlights" = "Что нового в IINA";
 "guide.basic_settings" = "Основные параметры";
 "guide.faq" = "Часто задаваемые вопросы (FAQ)";
 
 // Initial Window
 "initial.announcement" = "Вы используете %@ версию IINA";
-"initial.beta.desc" = "Снимите отметку \"Получать бета-обновления\" из \"Настройки\" - \"Основные\" и установите стабильную версию с нашего <a href=\"https://iina.io\"> официального сайта </a>.";
+"initial.beta.desc" = "Снимите флажок «Получать бета-обновления» в Настройках (вкладка «Основные») и установите стабильную версию с нашего <a href=\"https://iina.io\">официального сайта</a>.";
 "initial.nightly.desc" = "Ночные сборки не рекомендуются для ежедневного использования. На данный момент ночные сборки не поддерживают автоматическое обновление. Пожалуйста, загрузите новейшую сборку вручную с нашего <a href=\"https://nightly.iina.io\">веб-сайта ночных сборок</a>.";
 "initial.debug.desc" = "Отладочные сборки обычно не окончательно оптимизированы, поэтому не рекомендуются для ежедневного использования. Отладочные сборки не поддерживают автоматическое обновление.";
 "initial.bug_report" = "Сообщить через <a href=\"https://github.com/iina/iina/issues\">GitHub проблемы</a>.";
 
+// Inspector Window
+"inspector.error" = "Ошибка";
+
 // MainWindowController.swift
 "main.buffering_indicator" = "Буферизация… %d%%";
 "main.opening_stream" = "Открытие потока…";
+"main.seeking_indicator" = "Поиск…";
 "osc.precision" = "Точность";
 "osc.1s" = "1 сек.";
 "osc.100ms" = "100 миллисекунд";
@@ -43,33 +50,72 @@
 "quicksetting.hwdec" = "Аппаратное декодирование";
 "quicksetting.deinterlace" = "Деинтерлейсинг";
 "quicksetting.hdr" = "HDR";
+"quicksetting.hide" = "Скрыть";
+"quicksetting.reset_speed" = "Сбросить скорость до 1x";
+
+// EQ Presets
+"eq.preset.flat" = "Без коррекции";
+"eq.preset.acoustic" = "Акустическая";
+"eq.preset.classical" = "Классическая";
+"eq.preset.dance" = "Танцевальная";
+"eq.preset.deep" = "Дип-хаус";
+"eq.preset.electronic" = "Электронная";
+"eq.preset.hip_hop" = "Хип-хоп";
+"eq.preset.increase_bass" = "Больше низких частот";
+"eq.preset.increase_treble" = "Больше высоких частот";
+"eq.preset.increase_vocal" = "Больше вокала";
+"eq.preset.jazz" = "Джаз";
+"eq.preset.latin" = "Латиноамериканская";
+"eq.preset.loundness" = "Тонкомпенсация";
+"eq.preset.lounge" = "Лаунж";
+"eq.preset.piano" = "Фортепиано";
+"eq.preset.pop" = "Поп";
+"eq.preset.rnb" = "Ритм-энд-блюз";
+"eq.preset.reduce_bass" = "Меньше низких частот";
+"eq.preset.reduce_treble" = "Меньше высоких частот";
+"eq.preset.rock" = "Рок";
+"eq.preset.small_speaker" = "Малые динамики";
+"eq.preset.spoken_word" = "Речь";
+
+"alert.eq.new_profile.title" = "Новая настройка эквалайзера";
+"alert.eq.new_profile.message" = "Пожалуйста, укажите имя профиля.";
+"alert.eq.rename.title" = "Переименовать текущий профиль";
+"alert.eq.rename.message" = "Пожалуйста, введите новое имя профиля.";
 
 // OSDMessage.swift
-"osd.pause" = "Пауза";
+"osd.pause" = "Приостановить";
 "osd.resume" = "Возобновить";
-"osd.volume" = "Громкость: %i";
-"osd.speed" = "Скорость: %.2f×";
+"osd.volume" = "Громкость: %@";
+"osd.speed" = "Скорость: %@×";
 "osd.aspect" = "Соотношение сторон: %@";
 "osd.crop" = "Кадрирование: %@";
 "osd.rotate" = "Поворот: %i°";
 "osd.deinterlace" = "Деинтерлейсинг: %@";
 "osd.hwdec" = "Аппаратное декодирование: %@";
 "osd.audio_delay.nodelay" = "Задержка аудио: нет задержки";
-"osd.audio_delay.later" = "Задержка аудио: на %.2f с позже";
-"osd.audio_delay.earlier" = "Задержка аудио: на %.2f с раньше";
+"osd.audio_delay.later" = "Задержка аудио: на %@ с позже";
+"osd.audio_delay.earlier" = "Задержка аудио: на %@ с раньше";
 "osd.sub_delay.nodelay" = "Задержка субтитров: нет задержки";
-"osd.sub_delay.later" = "Задержка субтитров: на %.2f с позже";
-"osd.sub_delay.earlier" = "Задержка субтитров: на %.2f с раньше";
-"osd.subtitle_pos" = "Позиция субтитров: %.1f";
-"osd.mute" = "Без звука";
+"osd.sub_delay.later" = "Задержка субтитров: на %@ с позже";
+"osd.sub_delay.earlier" = "Задержка субтитров: на %@ с раньше";
+"osd.subtitle_pos" = "Позиция субтитров: %@";
+"osd.sub_hidden" = "Субтитры скрыты";
+"osd.sub_visible" = "Субтитры отображаются";
+"osd.sub_second_delay.nodelay" = "Задержка вторых субтитров: без задержки";
+"osd.sub_second_delay.later" = "Задержка вторых субтитров: %@ сек. позже";
+"osd.sub_second_delay.earlier" = "Задержка вторых субтитров: %@ сек. раньше";
+"osd.sub_second_hidden" = "Вторые субтитры скрыты";
+"osd.sub_second_pos" = "Позиция вторых субтитров: %@";
+"osd.sub_second_visible" = "Вторые субтитры видны";
+"osd.mute" = "Выключить звук";
 "osd.unmute" = "Включение звука";
-"osd.screenshot" = "Скриншот сохранен";
+"osd.screenshot" = "Снимок экрана сохранен";
 "osd.abloop.a" = "Цикл: точка А";
 "osd.abloop.b" = "Цикл: точка Б";
 "osd.abloop.clear" = "Цикл: сброшен";
-"osd.stop" = "Стоп";
+"osd.stop" = "Остановить";
 "osd.chapter" = "Глава: %@";
-"osd.subtitle_scale" = "Масштаб субтитров: %.2f×";
+"osd.subtitle_scale" = "Масштаб субтитров: %@×";
 "osd.add_to_playlist" = "Добавлено %i файлов в плейлист";
 "osd.clear_playlist" = "Плейлист очищен";
 "osd.video_eq.contrast" = "Контраст: %i";
@@ -80,7 +126,8 @@
 "osd.find_online_sub" = "Поиск субтитров в интернете…";
 "osd.find_online_sub.source" = "из";
 "osd.sub_not_found" = "Субтитры не найдены";
-"osd.sub_found" = "Найдено %d субтитров. Скачивание…";
+"osd.sub_found" = "%d субтитров найдено.";
+"osd.sub_downloading" = "Загрузка %d субтитров";
 "osd.sub_downloaded" = "Субтитры скачаны";
 "osd.sub_saved" = "Субтитры сохранены";
 "osd.network_error" = "Ошибка сети";
@@ -116,14 +163,29 @@
 
 "preference.enable_adv_settings" = "Включить расширенные настройки";
 
+"preference.sub_override_level.no" = "no";
 "preference.sub_override_level.force" = "force";
-"preference.sub_override_level.strip" = "игнорировать все теги и стили в .ass";
+"preference.sub_override_level.scale" = "scale";
+"preference.sub_override_level.strip" = "strip";
 "preference.sub_override_level.yes" = "yes";
 
-"menu.volume" = "Громкость: %d";
-"menu.volume_muted" = "Громкость: %d (без звука)";
-"menu.audio_delay" = "Задержка аудио: %.2f с";
-"menu.sub_delay" = "Задержка субтитров: %.2f с";
+"preference.sub_override_level.descriptive_text.no" = "Показывать субтитры как задано в ASS, без переопределения пользователем.";
+"preference.sub_override_level.descriptive_text.force" = "Применить все стили, переопределяющие субтитры.";
+"preference.sub_override_level.descriptive_text.scale" = "Применить все стили субтитров, заданные в данном разделе, а также масштабирование шрифта.";
+"preference.sub_override_level.descriptive_text.strip" = "Игнорировать все стили и теги в субтитрах ASS.";
+"preference.sub_override_level.descriptive_text.yes" = "Применить все стили субтитров, заданные в данном разделе.";
+
+"preference.ytdl_plugin_not_installed" = "Установите плагин Online Media из меню «Плагины > Установить с GitHub», чтобы получить дополнительные возможности, такие как загрузка видео и автоматическое обновление yt-dlp.";
+"preference.ytdl_plugin_installed" = "Встроенная поддержка youtube-dl отключена, так как у вас установлен плагин Online Media.";
+
+"menu.volume" = "Громкость: %@";
+"menu.volume_muted" = "Громкость: %@ (без звука)";
+"menu.audio_delay" = "Задержка аудио: %@ с";
+"menu.sub_delay" = "Задержка субтитров: %@ с";
+"menu.sub_hide" = "Скрыть субтитры";
+"menu.sub_show" = "Показать субтитры";
+"menu.sub_second_hide" = "Скрыть вторые субтитры";
+"menu.sub_second_show" = "Показать вторые субтитры";
 "menu.fullscreen" = "Перейти в полноэкранный режим";
 "menu.exit_fullscreen" = "Выйти из полноэкранного режима";
 "menu.pip" = "Войти в режим «Картинка в картинке»";
@@ -132,7 +194,7 @@
 "menu.exit_mini_player" = "Выйти из музыкального режима";
 "menu.pause" = "Пауза";
 "menu.resume" = "Возобновить";
-"menu.speed" = "Скорость: %.2fx";
+"menu.speed" = "Скорость: %@×";
 "menu.chapters" = "Показать панель глав";
 "menu.hide_chapters" = "Скрыть панель глав";
 "menu.playlist" = "Показать панель плейлиста";
@@ -144,21 +206,32 @@
 "menu.subtitles" = "Показывать панель субтитров";
 "menu.hide_subtitles" = "Скрыть панель субтитров";
 
-"menu.seek_forward" = "Шаг вперед %.0f с";
-"menu.seek_backward" = "Шаг назад %.0f с";
-"menu.speed_up" = "Повысить скорость до %.1fx";
-"menu.speed_down" = "Снизить скорость до %.1fx";
-"menu.volume_up" = "Громкость + %.0f%%";
-"menu.volume_down" = "Громкость - %.0f%%";
-"menu.audio_delay_up" = "Задержка аудио + %.1f с";
-"menu.audio_delay_down" = "Задержка аудио - %.1f с";
-"menu.sub_delay_up" = "Задержка субтитров + %.1f с";
-"menu.sub_delay_down" = "Задержка субтитров - %.1f с";
+"menu.seek_forward" = "Шаг вперед %@ с";
+"menu.seek_backward" = "Шаг назад %@ с";
+"menu.speed_up" = "Повысить скорость до %@x";
+"menu.speed_down" = "Снизить скорость до %@x";
+"menu.volume_up" = "Громкость + %@%%";
+"menu.volume_down" = "Громкость - %@%%";
+"menu.audio_delay_up" = "Задержка аудио + %@ с";
+"menu.audio_delay_down" = "Задержка аудио - %@ с";
+"menu.sub_delay_up" = "Задержка субтитров + %@ с";
+"menu.sub_delay_down" = "Задержка субтитров - %@ с";
 
-"menu.crop_custom" = "Другое...";
+"menu.crop_custom" = "Другое…";
 "menu.find_online_sub" = "Найти субтитры онлайн на %@";
 
+"menu.manage_plugins" = "Управление плагинами…";
+"menu.developer_tool" = "Инструменты разработчика";
+"menu.more_plugin" = "Еще…";
+"menu.conflicting_shortcuts" = "Конфликтующие сочетания клавиш…";
+"menu.reload_plugins" = "Перезагрузить все плагины";
+"menu.show_plugins_panel" = "Показать панель расширений";
+"menu.hide_plugins_panel" = "Скрыть панель расширений";
+
+"track.audio" = "Аудио";
 "track.none" = "<Нет>";
+"track.sub" = "Субтитры";
+"track.video" = "Видео";
 
 "subtrack.no_loaded" = "Нет загруженных субтитров";
 "subtrack.no_external" = "Внешние субтитры не найдены";
@@ -172,7 +245,6 @@
 
 "alert.fatal_error" = "Фатальная ошибка: %@ \nПриложение будет завершено.";
 "alert.mpv_error" = "Внутренняя ошибка %@ (%@) при установке опции %@.";
-"alert.sleep" = "Не удалось оставить дисплей включенным! (0x%0X8)";
 
 "alert.unsupported_audio" = "Неподдерживаемая внешняя аудиодорожка.";
 "alert.unsupported_sub" = "Неподдерживаемые внешние субтитры.";
@@ -185,16 +257,18 @@
 "alert.error_saving_file" = "Ошибка при сохранении %@: %@";
 "alert.error_deleting_file" = "Невозможно удалить файл.";
 
+"alert.target_peak.bad_value" = "Значение \"%@\" является недопустимым.\nПожалуйста, введите значение в диапазоне от 10 до 10000, либо 0.";
+
 "alert.config.new.title" = "Новая конфигурация клавиш";
 "alert.config.new.message" = "Введите имя для новой конфигурации.";
 "alert.config.duplicate.title" = "Дублировать конфигурацию";
-"alert.config.duplicate.message" = "Введите имя для дублированного файла конфигурации.";
-"alert.config.empty_name" = "Имя не может быть пустым.";
-"alert.config.name_existing" = "Имя уже существует.";
+"alert.config.duplicate.message" = "Введите имя для дубля файла конфигурации.";
 "alert.config.file_existing.title" = "Файл уже существует";
-"alert.config.file_existing.message" = "Так не должно быть. Нажмите «OK» для перезаписи, «Отмена» для обнаружения файла в Finder.";
+"alert.config.file_existing.message" = "Уже есть файл конфигурации с тем же именем. Нажмите ОК для показа этого файла в Finder.";
 "alert.config.cannot_create" = "Не удалось создать файл конфигурации!\n%@";
 "alert.config.cannot_write" = "Не удалось записать файл конфигурации!";
+"alert.config.rename.title" = "Новое имя для конфигурации клавиш";
+"alert.config.rename.message" = "Пожалуйста, укажите новое имя конфигурации.";
 
 "alert.filter.incorrect" = "При установке фильтров произошла ошибка. Проверьте формат параметров.";
 "alert.add_filter.title" = "Новый фильтр";
@@ -209,7 +283,7 @@
 
 "alert.playlist.error_deleting" = "Ошибка удаления: %@";
 
-"alert.screenshot.error_taking" = "Невозможно сделать скриншот!";
+"alert.screenshot.error_taking" = "Невозможно сделать снимок экрана!";
 
 "alert.sub.no_selected" = "Сначала выберите скачанные субтитры.";
 "alert.sub_lang_not_set" = "Перед использованием OpenSubtitles выберите в настройках предпочитаемый язык субтитров. Сейчас используется английский.";
@@ -283,6 +357,11 @@
 
 "playlist.total_length" = "%@ в общей сложности";
 "playlist.total_length_with_selected" = "%@ из %@ выбрано";
+"playlist.sorting.header" = "Сортировка";
+"playlist.sorting.filename_ascending" = "Имя файла (по возрастанию)";
+"playlist.sorting.filename_descending" = "Имя файла (по убыванию)";
+"playlist.sorting.path_ascending" = "Путь к файлу (по возрастанию)";
+"playlist.sorting.path_descending" = "Путь к файлу (по убыванию)";
 "pl_menu.title_multi" = "%d элементов";
 "pl_menu.play_next" = "Воспроизвести следующим";
 "pl_menu.play_in_new_window" = "Воспроизвести в новом окне";
@@ -317,11 +396,12 @@
 
 "osc_toolbar.settings" = "Быстрые настройки";
 "osc_toolbar.playlist" = "Плейлист и главы";
-"osc_toolbar.pip" = "Войти в режим «Картинка в картинке»";
-"osc_toolbar.full_screen" = "Включить полноэкранный режим";
-"osc_toolbar.music_mode" = "Перейти в музыкальный режим";
-"osc_toolbar.sub_track" = "Выберите дорожку субтитров";
-"osc_toolbar.screenshot" = "Сделать скриншот";
+"osc_toolbar.pip" = "Режим «Картинка в картинке»";
+"osc_toolbar.full_screen" = "Полноэкранный режим";
+"osc_toolbar.music_mode" = "Музыкальный режим";
+"osc_toolbar.sub_track" = "Субтитры";
+"osc_toolbar.screenshot" = "Снимок экрана";
+"osc_toolbar.plugins" = "Плагины";
 
 "mini_player.album_art" = "Изменить обложку альбома";
 "mini_player.loop" = "Повторять";
@@ -332,6 +412,7 @@
 "mini_player.volume" = "Громкость";
 "mini_player.close" = "Закрыть музыкальный режим";
 "mini_player.back" = "Вернуться в видео режим";
+"mini_player.sort" = "Сортировать плейлист";
 
 // Touch bar
 
@@ -349,7 +430,7 @@
 "touchbar.seek" = "Перемотка";
 "touchbar.time" = "Временная позиция";
 "touchbar.remainingTimeOrTotalDuration" = "Оставшееся время / Общая продолжительность";
-"touchbar.toggle_pip" = "Переключить в \"Картинка в картинке\"";
+"touchbar.toggle_pip" = "Режим «Картинка в картинке»";
 
 // Plugin permissions
 

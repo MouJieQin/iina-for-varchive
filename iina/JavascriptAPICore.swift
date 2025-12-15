@@ -105,14 +105,16 @@ class JavascriptAPICore: JavascriptAPI, JavascriptAPICoreExportable {
   }
 
   func getHistory() -> Any {
-    return HistoryController.shared.history.map {
-      [
-        "name": $0.name,
-        "url": $0.url.absoluteString,
-        "date": $0.addedDate,
-        "progress": $0.mpvProgress?.second ?? NSNull(),
-        "duration": $0.duration.second
-      ] as [String: Any]
+    HistoryController.shared.$history.withLock {
+      $0.map {
+        [
+          "name": $0.name,
+          "url": $0.url.absoluteString,
+          "date": $0.addedDate,
+          "progress": $0.mpvProgress?.second ?? NSNull(),
+          "duration": $0.duration.second
+        ] as [String: Any]
+      }
     }
   }
 
@@ -130,7 +132,7 @@ class JavascriptAPICore: JavascriptAPI, JavascriptAPICoreExportable {
     return [
       "iina": iinaVersion,
       "build": build,
-      "mpv": player!.mpv.mpvVersion
+      "mpv": MPVOptionDefaults.shared.mpvVersion
     ]
   }
 }
@@ -141,7 +143,7 @@ fileprivate func serialize(track: MPVTrack) -> [String: Any] {
   return [
     "id": track.id,
     "title": track.title ?? NSNull(),
-    "formattedTitie": track.readableTitle,
+    "formattedTitle": track.readableTitle,
     "lang": track.lang ?? NSNull(),
     "codec": track.codec ?? NSNull(),
     "isDefault": track.isDefault,
@@ -250,6 +252,8 @@ fileprivate class WindowAPI: JavascriptAPI, CoreSubAPIExportable {
         return ["frame": frame, "main": screen == main, "current": screen == current]
       }
       return screens
+    case "miniaturized":
+      return window.window!.isMiniaturized
     default:
       return nil
     }
@@ -272,13 +276,11 @@ fileprivate class WindowAPI: JavascriptAPI, CoreSubAPIExportable {
       guard let val = value as? Bool, val != window.fsState.isFullscreen else { return }
       window.toggleWindowFullScreen()
     case "pip":
-      if #available(macOS 10.12, *) {
-        guard let val = value as? Bool else { return }
-        if val {
-          window.enterPIP()
-        } else {
-          window.exitPIP()
-        }
+      guard let val = value as? Bool else { return }
+      if val {
+        window.enterPIP()
+      } else {
+        window.exitPIP()
       }
     case "ontop":
       guard let val = value as? Bool else { return }
@@ -295,6 +297,13 @@ fileprivate class WindowAPI: JavascriptAPI, CoreSubAPIExportable {
       } else {
         window.hideSideBar(animate: true)
       }
+    case "miniaturized":
+      guard let val = value as? Bool else { return }
+      if val {
+        window.window!.miniaturize(self)
+      } else {
+        window.window!.deminiaturize(self)
+      }
     default:
       log("core.window: \(prop) is not accessible", level: .warning)
     }
@@ -307,9 +316,9 @@ fileprivate class StatusAPI: JavascriptAPI, CoreSubAPIExportable {
   func __proxyGet(_ prop: String) -> Any? {
     switch prop {
     case "paused":
-      return !player!.info.isPlaying
+      return player!.info.state == .paused
     case "idle":
-      return player!.info.isIdle
+      return player!.info.state == .idle
     case "position":
       return player!.info.videoPosition?.second ?? NSNull()
     case "duration":

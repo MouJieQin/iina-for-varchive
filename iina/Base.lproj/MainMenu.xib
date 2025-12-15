@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="21507" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="23727" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="21507"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="23727"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="NSApplication">
@@ -130,6 +130,9 @@
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="N0Z-h7-JSg"/>
+                            <menuItem title="Show Current File in Finder" id="che-dy-QUU">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                            </menuItem>
                             <menuItem title="Delete Current File" id="npH-8B-XA4">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                             </menuItem>
@@ -531,9 +534,12 @@ CA
                                     </items>
                                 </menu>
                             </menuItem>
-                            <menuItem title="Second Subtitle" id="mGw-jm-5x2">
+                            <menuItem title="Hide Subtitles" id="smo-rw-rg7" userLabel="Hide Subtitles">
                                 <modifierMask key="keyEquivalentModifierMask"/>
-                                <menu key="submenu" title="Second Subtitle" systemMenu="font" id="UwY-P2-Xdb">
+                            </menuItem>
+                            <menuItem title="Secondary Subtitle" id="mGw-jm-5x2">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <menu key="submenu" title="Secondary Subtitle" systemMenu="font" id="UwY-P2-Xdb">
                                     <items>
                                         <menuItem title="&lt;None&gt;" id="9pa-9C-ueQ">
                                             <modifierMask key="keyEquivalentModifierMask"/>
@@ -543,6 +549,9 @@ CA
                                         </menuItem>
                                     </items>
                                 </menu>
+                            </menuItem>
+                            <menuItem title="Hide Secondary Subtitles" id="BOm-ia-wOV">
+                                <modifierMask key="keyEquivalentModifierMask"/>
                             </menuItem>
                             <menuItem title="Load External Subtitle…" id="k6x-hf-ATi">
                                 <modifierMask key="keyEquivalentModifierMask"/>
@@ -633,7 +642,8 @@ CA
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="eu3-7i-yIM"/>
                             <menuItem title="Inspector" keyEquivalent="i" id="bwz-r0-peR"/>
-                            <menuItem title="Log Viewer" keyEquivalent="L" id="0tJ-RQ-kuW">
+                            <menuItem title="Log Viewer" keyEquivalent="l" id="0tJ-RQ-kuW">
+                                <modifierMask key="keyEquivalentModifierMask" control="YES" command="YES"/>
                                 <connections>
                                     <action selector="showLogWindow:" target="Voe-Tx-rLC" id="2EU-WD-3kO"/>
                                 </connections>
@@ -726,6 +736,8 @@ CA
                 <outlet property="fullScreen" destination="6Eq-ni-6hG" id="y11-Q1-drn"/>
                 <outlet property="gotoScreenshotFolder" destination="lj0-Oo-7nB" id="Jlj-kX-fv0"/>
                 <outlet property="halfSize" destination="snW-S8-Cw5" id="PDi-lV-6HL"/>
+                <outlet property="hideSecondSubtitles" destination="BOm-ia-wOV" id="iKO-xG-GWA"/>
+                <outlet property="hideSubtitles" destination="smo-rw-rg7" id="LQB-s7-8Yy"/>
                 <outlet property="increaseAudioDelay" destination="4ae-MT-2L1" id="nsv-LC-B9o"/>
                 <outlet property="increaseAudioDelaySlightly" destination="lew-3S-oGY" id="Fo9-t3-WFI"/>
                 <outlet property="increaseSubDelay" destination="pAo-L5-qTO" id="55m-ex-for"/>
@@ -779,6 +791,7 @@ CA
                 <outlet property="savedVideoFiltersMenu" destination="xhY-fF-oio" id="MDx-8r-ENg"/>
                 <outlet property="screenshot" destination="AoP-K6-Kb5" id="dhl-4W-7yS"/>
                 <outlet property="secondSubTrackMenu" destination="UwY-P2-Xdb" id="D3B-WW-bAk"/>
+                <outlet property="showCurrentFileInFinder" destination="che-dy-QUU" id="p1H-Xj-dbg"/>
                 <outlet property="smallerSize" destination="ZOF-MG-6II" id="0jA-m5-Qy7"/>
                 <outlet property="speedDown" destination="HsE-LN-Nd6" id="0ZB-lc-ngV"/>
                 <outlet property="speedDownSlightly" destination="DUP-nm-BJt" id="Ym7-LJ-eQp"/>
@@ -806,8 +819,14 @@ CA
                         <action selector="openFile:" target="Voe-Tx-rLC" id="Zlo-gp-oIk"/>
                     </connections>
                 </menuItem>
+                <menuItem title="Open URL…" id="Qwb-26-zjX">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <connections>
+                        <action selector="openURL:" target="Voe-Tx-rLC" id="vSz-YP-8UA"/>
+                    </connections>
+                </menuItem>
             </items>
-            <point key="canvasLocation" x="18.5" y="678.5"/>
+            <point key="canvasLocation" x="18" y="689.5"/>
         </menu>
         <customObject id="wTK-gz-aTs" customClass="SPUStandardUpdaterController">
             <connections>

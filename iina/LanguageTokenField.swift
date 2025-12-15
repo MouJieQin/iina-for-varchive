@@ -45,10 +45,6 @@ fileprivate struct LangToken: Equatable, Hashable, CustomStringConvertible {
     return lhs.equalTo(rhs)
   }
 
-  static func !=(lhs: LangToken, rhs: LangToken) -> Bool {
-    return !lhs.equalTo(rhs)
-  }
-
   func hash(into hasher: inout Hasher) {
     hasher.combine(editingString)
   }
@@ -88,10 +84,6 @@ fileprivate struct LangSet {
 
   func toNewlineSeparatedValues() -> String {
     return langTokens.map{ $0.identifierString }.joined(separator: "\n")
-  }
-
-  func contains(_ token: LangToken) -> Bool {
-    return !langTokens.filter({ $0.identifierString == token.identifierString }).isEmpty
   }
 }
 
@@ -283,7 +275,7 @@ extension LanguageTokenField: NSTokenFieldDelegate {
   }
 
   // Serializes an array of LangToken objects into a string of CSV (cut/copy/paste support)
-  // Need to override this because it will default to using `tokenizingCharacterSet`, which needed to be overriden for
+  // Need to override this because it will default to using `tokenizingCharacterSet`, which needed to be overridden for
   // internal parsing of `editingString`s to work correctly, but we want to use CSV when exporting `identifierString`s
   // because they are more user-readable.
   func tokenField(_ tokenField: NSTokenField, writeRepresentedObjects objects: [Any], to pboard: NSPasteboard) -> Bool {

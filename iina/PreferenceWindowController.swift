@@ -10,8 +10,8 @@ import Cocoa
 
 fileprivate extension String {
   func removedLastSemicolon() -> String {
-    let trimed = trimWhitespaceSuffix()
-    guard !trimed.hasSuffix(":") else { return String(trimed.dropLast()) }
+    let trimmed = trimWhitespaceSuffix()
+    guard !trimmed.hasSuffix(":") else { return String(trimmed.dropLast()) }
     return self
   }
 
@@ -150,12 +150,15 @@ class PreferenceWindowController: NSWindowController {
   @IBOutlet weak var maskView: PrefSearchResultMaskView!
   @IBOutlet weak var prefDetailScrollView: NSScrollView!  // contains the prefs detail panel (on right)
   // Check `prefDetailContentView` constraints in the XIB for window content insets
+  @IBOutlet weak var scrollViewTopConstraint: NSLayoutConstraint!
   @IBOutlet weak var prefDetailContentView: NSView!       // contains the sections stack
   @IBOutlet weak var prefSectionsStackView: NSStackView!  // add prefs sections to this
   @IBOutlet var completionPopover: NSPopover!
   @IBOutlet weak var completionTableView: NSTableView!
   @IBOutlet weak var noResultLabel: NSTextField!
 
+  @IBOutlet weak var searchFieldTopConstraint: NSLayoutConstraint!
+  @IBOutlet weak var searchFieldBottomConstraint: NSLayoutConstraint!
   @IBOutlet weak var navTableSearchFieldSpacingConstraint: NSLayoutConstraint!
 
   private var detailViewBottomConstraint: NSLayoutConstraint?
@@ -182,6 +185,14 @@ class PreferenceWindowController: NSWindowController {
     tableView.dataSource = self
     completionTableView.delegate = self
     completionTableView.dataSource = self
+    
+    // It seems that on Tahoe RC, the sytstem will force to draw titlebar background if there's a scrollview
+    // that overlaps with the titlebar area. We just add an ugly workaround for now and wait for the new settings window.
+    if #available(macOS 26, *) {
+      scrollViewTopConstraint.constant = 32
+      searchFieldTopConstraint.constant = 40
+      searchFieldBottomConstraint.constant = 8
+    }
 
     detailViewBottomConstraint = prefDetailContentView.bottomAnchor.constraint(equalTo: prefDetailContentView.superview!.bottomAnchor)
 
@@ -277,13 +288,14 @@ class PreferenceWindowController: NSWindowController {
 
   // MARK: - Tabs
 
-  private func loadTab(at index: Int, thenFindLabelTitled title: String? = nil) {
+  @discardableResult
+  private func loadTab(at index: Int, thenFindLabelTitled title: String? = nil) -> PreferenceWindowEmbeddable? {
     // load view
     if index != tableView.selectedRow {
       tableView.selectRowIndexes(IndexSet(integer: index), byExtendingSelection: false)
     }
     prefSectionsStackView.subviews.forEach { $0.removeFromSuperview() }
-    guard let vc = viewControllers[at: index] else { return }
+    guard let vc = viewControllers[at: index] else { return nil }
     prefSectionsStackView.addSubview(vc.view)
     Utility.quickConstraints(["H:|-0-[v]-0-|", "V:|-0-[v]-0-|"], ["v": vc.view])
 
@@ -298,6 +310,12 @@ class PreferenceWindowController: NSWindowController {
         collapseView.setCollapsed(false, animated: false)
       }
     }
+
+    // As per Apple's Human Interface Guidelines update the window’s title to reflect the currently
+    // visible tab. Although the window's title is hidden it still can be seen in the Window menu
+    // and in the dock menu.
+    vc.view.window?.title = vc.preferenceTabTitle
+    return vc
   }
 
   private func getLabelDict(inNibNamed name: String) -> [String: [String]] {
@@ -384,14 +402,17 @@ class PreferenceWindowController: NSWindowController {
     return nil
   }
 
+  @discardableResult
+  func openPreferenceView(withNibName name: NSNib.Name) -> PreferenceWindowEmbeddable? {
+    showWindow(self)
+    guard let idx = viewControllers.firstIndex(where: { $0.nibName == name } ) else { return nil }
+    return loadTab(at: idx)
+  }
+
   func performAction(_ action: Action) {
     switch action {
     case .installPlugin(url: let url):
-      guard let idx = viewControllers.firstIndex(where: { $0 is PrefPluginViewController }) else {
-        return
-      }
-      loadTab(at: idx)
-      let vc = viewControllers[idx] as! PrefPluginViewController
+      let vc = openPreferenceView(withNibName: "PrefPluginViewController") as! PrefPluginViewController
       vc.installPluginAction(localPackageURL: url)
       // vc.perform(#selector(vc.installPluginAction(localPackageURL:)), with: url, afterDelay: 0.25)
     }
@@ -491,11 +512,7 @@ class PrefSearchResultMaskView: NSView {
     framePath.append(maskPath)
     framePath.windingRule = .evenOdd
     framePath.setClip()
-    if #available(macOS 10.14, *) {
-      NSColor.windowBackgroundColor.withSystemEffect(.pressed).setFill()
-    } else {
-      NSColor(calibratedWhite: 0.5, alpha: 0.5).setFill()
-    }
+    NSColor.windowBackgroundColor.withSystemEffect(.pressed).setFill()
     dirtyRect.fill()
     NSGraphicsContext.restoreGraphicsState()
   }
@@ -524,7 +541,7 @@ class PrefSearchResultMaskView: NSView {
 class PrefTabTitleLabelCell: NSTextFieldCell {
   override var backgroundStyle: NSView.BackgroundStyle {
     didSet {
-      if backgroundStyle == .dark {
+      if backgroundStyle == .emphasized {
         self.textColor = NSColor.white
       } else {
         self.textColor = NSColor.controlTextColor

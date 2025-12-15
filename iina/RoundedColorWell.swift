@@ -8,12 +8,12 @@
 
 import Cocoa
 
+/// For 10.12 or below only
 class RoundedColorWell: NSColorWell {
 
   var isMouseDown: Bool = false
 
   override func awakeFromNib() {
-    // disable default activation of color panel
     self.isBordered = false
   }
 
@@ -37,15 +37,13 @@ class RoundedColorWell: NSColorWell {
 
   override func mouseDown(with event: NSEvent) {
     isMouseDown = true
-    self.setNeedsDisplay()
+    self.needsDisplay = true
   }
 
   override func mouseUp(with event: NSEvent) {
     isMouseDown = false
     self.activate(true)
-    self.setNeedsDisplay()
+    self.needsDisplay = true
   }
-
-
 
 }

@@ -453,7 +453,7 @@ class WebSocketManager: WebSocketDelegate {
   }
   
   private func isfileLoaded() -> Bool {
-    return self.player.mpv.fileLoaded
+    return self.player.info.state == .loaded
   }
   
   private func handleSeek(_ message: String) {

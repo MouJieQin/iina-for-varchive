@@ -39,6 +39,10 @@ class JavascriptPlugin: NSObject {
     case cannotLoadPlugin
   }
 
+  static var hasYTDL: Bool {
+    return plugins.contains { $0.enabled && $0.identifier == "io.iina.ytdl" }
+  }
+
   static var plugins = loadPlugins() {
     didSet {
       NotificationCenter.default.post(Notification(name: .iinaPluginChanged))
@@ -68,6 +72,7 @@ class JavascriptPlugin: NSObject {
   var identifier: String
   let version: String
   let desc: String?
+  /// The plugin is a symlink of an external folder, mainly by the CLI
   var isExternal: Bool = false
 
   var root: URL
@@ -97,7 +102,11 @@ class JavascriptPlugin: NSObject {
   lazy var preferences: [String: Any] = {
     NSDictionary(contentsOfFile: preferencesFileURL.path) as? [String: Any] ?? [:]
   }()
-  let defaultPrefernces: [String: Any]
+  let defaultPreferences: [String: Any]
+
+  static func recreateAllPlugins() {
+    plugins = loadPlugins()
+  }
 
   static private func loadPlugins() -> [JavascriptPlugin] {
     guard IINA_ENABLE_PLUGIN_SYSTEM else { return [] }
@@ -199,7 +208,7 @@ class JavascriptPlugin: NSObject {
       "unzip '\(tempZipFile)' -d '\(tempDecompressDir)'",
       "mv '\(tempDecompressDir)'/* '\(tempFolder)'/"
     ].joined(separator: " && ")
-    let (process, stdout, stderr) = Process.run(["/bin/bash", "-c", cmd], at: pluginsRoot)
+    let (process, stdout, stderr) = Process.run(["/bin/sh", "-c", cmd], at: pluginsRoot)
 
     guard process.terminationStatus == 0 else {
       let outText = String(data: stdout.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? "None"
@@ -282,7 +291,7 @@ class JavascriptPlugin: NSObject {
       "unzip '\(tempZipFile)' -d '\(tempDecompressDir)'",
       "mv '\(tempDecompressDir)'/*/* '\(tempFolder)'/"
     ].joined(separator: " && ")
-    let (process, stdout, stderr) = Process.run(["/bin/bash", "-c", cmd], at: pluginsRoot)
+    let (process, stdout, stderr) = Process.run(["/bin/sh", "-c", cmd], at: pluginsRoot)
 
     guard process.terminationStatus == 0 else {
       let outText = String(data: stdout.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? "None"
@@ -296,10 +305,8 @@ class JavascriptPlugin: NSObject {
       throw PluginError.cannotLoadPlugin
     }
 
-    guard plugin.githubVersion != nil, url.absoluteString == plugin.githubURLString else {
-      Logger.log("The plugin \(plugin.name) doesn't contain a ghVersion field or its ghRepo doesn't match the current requested URL \(url.absoluteString).")
-      removeTempPluginFolder()
-      throw PluginError.cannotLoadPlugin
+    if plugin.githubVersion == nil || plugin.githubURLString == nil {
+      Logger.log("The plugin \(plugin.name) doesn't contain a ghVersion field or its ghRepo doesn't match the current requested URL \(url.absoluteString).", level: .warning)
     }
     return plugin
   }
@@ -409,11 +416,11 @@ class JavascriptPlugin: NSObject {
     self.preferencesPageURL = resolvePath(preferencesPage, root: root)
     self.helpPageURL = resolvePath(helpPage, root: root, allowNetwork: true)
 
-    if let defaultPrefernces = jsonDict["preferenceDefaults"] as? [String: Any] {
-      self.defaultPrefernces = defaultPrefernces
+    if let defaultPreferences = jsonDict["preferenceDefaults"] as? [String: Any] {
+      self.defaultPreferences = defaultPreferences
     } else {
       Logger.log("Unable to read preferenceDefaults", level: .warning)
-      self.defaultPrefernces = [:]
+      self.defaultPreferences = [:]
     }
 
     super.init()
@@ -506,14 +513,10 @@ class JavascriptPlugin: NSObject {
   func syncPreferences() {
     let url = preferencesFileURL
     Utility.createFileIfNotExist(url: url)
-    if #available(macOS 10.13, *) {
-      do {
-        try (preferences as NSDictionary).write(to: url)
-      } catch let e {
-        Logger.log("Unable to write preferences file: \(e.localizedDescription)", level: .error)
-      }
-    } else {
-      (preferences as NSDictionary).write(to: url, atomically: true)
+    do {
+      try (preferences as NSDictionary).write(to: url)
+    } catch let e {
+      Logger.log("Unable to write preferences file: \(e.localizedDescription)", level: .error)
     }
   }
 

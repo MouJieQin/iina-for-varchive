@@ -25,8 +25,11 @@ class PlayerWindowController: NSWindowController, NSWindowDelegate {
   }
   var loaded = false
   
+  let subsystem: Logger.Subsystem
+
   init(playerCore: PlayerCore) {
     self.player = playerCore
+    subsystem = Logger.makeSubsystem("window\(player.playerNumber)")
     super.init(window: nil)
   }
 
@@ -36,15 +39,20 @@ class PlayerWindowController: NSWindowController, NSWindowDelegate {
   
   // Cached user defaults values
   internal lazy var followGlobalSeekTypeWhenAdjustSlider: Bool = Preference.bool(for: .followGlobalSeekTypeWhenAdjustSlider)
-  internal lazy var useExtractSeek: Preference.SeekOption = Preference.enum(for: .useExactSeek)
+  internal lazy var useExactSeek: Preference.SeekOption = Preference.enum(for: .useExactSeek)
   internal lazy var relativeSeekAmount: Int = Preference.integer(for: .relativeSeekAmount)
   internal lazy var volumeScrollAmount: Int = Preference.integer(for: .volumeScrollAmount)
+  internal lazy var playbackSpeedScrollAmount: Int = Preference.integer(for: .playbackSpeedScrollAmount)
   internal lazy var singleClickAction: Preference.MouseClickAction = Preference.enum(for: .singleClickAction)
   internal lazy var doubleClickAction: Preference.MouseClickAction = Preference.enum(for: .doubleClickAction)
   internal lazy var horizontalScrollAction: Preference.ScrollAction = Preference.enum(for: .horizontalScrollAction)
   internal lazy var verticalScrollAction: Preference.ScrollAction = Preference.enum(for: .verticalScrollAction)
   
   internal var observedPrefKeys: [Preference.Key] = [
+    .enableToneMapping,
+    .toneMappingTargetPeak,
+    .loadIccProfile,
+    .toneMappingAlgorithm,
     .themeMaterial,
     .showRemainingTime,
     .alwaysFloatOnTop,
@@ -52,18 +60,25 @@ class PlayerWindowController: NSWindowController, NSWindowDelegate {
     .useExactSeek,
     .relativeSeekAmount,
     .volumeScrollAmount,
+    .playbackSpeedScrollAmount,
     .singleClickAction,
     .doubleClickAction,
     .horizontalScrollAction,
     .verticalScrollAction,
     .playlistShowMetadata,
     .playlistShowMetadataInMusicMode,
+    .autoSwitchToMusicMode,
   ]
   
   override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
     guard let keyPath = keyPath, let change = change else { return }
     
     switch keyPath {
+    case PK.enableToneMapping.rawValue,
+      PK.toneMappingTargetPeak.rawValue,
+      PK.loadIccProfile.rawValue,
+      PK.toneMappingAlgorithm.rawValue:
+      videoView.refreshEdrMode()
     case PK.themeMaterial.rawValue:
       if let newValue = change[.newKey] as? Int {
         setMaterial(Preference.Theme(rawValue: newValue))
@@ -74,7 +89,7 @@ class PlayerWindowController: NSWindowController, NSWindowDelegate {
       }
     case PK.alwaysFloatOnTop.rawValue:
       if let newValue = change[.newKey] as? Bool {
-        if player.info.isPlaying {
+        if player.info.state == .playing {
           setWindowFloatingOnTop(newValue)
         }
       }
@@ -87,7 +102,7 @@ class PlayerWindowController: NSWindowController, NSWindowDelegate {
       }
     case PK.useExactSeek.rawValue:
       if let newValue = change[.newKey] as? Int {
-        useExtractSeek = Preference.SeekOption(rawValue: newValue)!
+        useExactSeek = Preference.SeekOption(rawValue: newValue)!
       }
     case PK.relativeSeekAmount.rawValue:
       if let newValue = change[.newKey] as? Int {
@@ -96,6 +111,10 @@ class PlayerWindowController: NSWindowController, NSWindowDelegate {
     case PK.volumeScrollAmount.rawValue:
       if let newValue = change[.newKey] as? Int {
         volumeScrollAmount = newValue.clamped(to: 1...4)
+      }
+    case PK.playbackSpeedScrollAmount.rawValue:
+      if let newValue = change[.newKey] as? Int {
+        playbackSpeedScrollAmount = newValue.clamped(to: 1...4)
       }
     case PK.singleClickAction.rawValue:
       if let newValue = change[.newKey] as? Int {
@@ -109,6 +128,8 @@ class PlayerWindowController: NSWindowController, NSWindowDelegate {
       if player.isPlaylistVisible {
         player.mainWindow.playlistView.playlistTableView.reloadData()
       }
+    case PK.autoSwitchToMusicMode.rawValue:
+      player.overrideAutoSwitchToMusicMode = false
     default:
       return
     }
@@ -149,12 +170,21 @@ class PlayerWindowController: NSWindowController, NSWindowDelegate {
 
   internal var mouseActionDisabledViews: [NSView?] {[]}
 
-  // MARK: - Initiaization
+  /** This variable is true when the window ready to show but waiting for size from mpv.
+   In the `notifyWindowVideoSizeChanged()` call, this variable will be checked and the
+   window will be shown if this variable is true.
+   */
+  internal var pendingShow = false
+
+  // MARK: - Initialization
 
   override func windowDidLoad() {
     super.windowDidLoad()
     loaded = true
-    
+    // Issue #5319 seemed to be triggered by the window not loading. Need to know when the window
+    // has loaded to be able to debug such issues.
+    log("Player window has been loaded")
+
     guard let window = window else { return }
     
     // Insert `menuActionHandler` into the responder chain
@@ -191,10 +221,8 @@ class PlayerWindowController: NSWindowController, NSWindowDelegate {
       }
     }
 
-    if #available(macOS 10.15, *) {
-      addObserver(to: .default, forName: NSScreen.colorSpaceDidChangeNotification, object: nil) { [unowned self] noti in
-        player.refreshEdrMode()
-      }
+    addObserver(to: .default, forName: NSScreen.colorSpaceDidChangeNotification, object: nil) { [unowned self] noti in
+      player.refreshEdrMode()
     }
   }
 
@@ -213,10 +241,7 @@ class PlayerWindowController: NSWindowController, NSWindowDelegate {
   internal func setMaterial(_ theme: Preference.Theme?) {
     guard let window = window, let theme = theme else { return }
 
-    if #available(macOS 10.14, *) {
-      window.appearance = NSAppearance(iinaTheme: theme)
-    }
-    // See overridden functions for 10.14-
+    window.appearance = NSAppearance(iinaTheme: theme)
   }
 
   // MARK: - Mouse / Trackpad events
@@ -230,7 +255,7 @@ class PlayerWindowController: NSWindowController, NSWindowDelegate {
         handleIINACommand(iinaCommand)
         return true
       } else {
-        Logger.log("Unknown iina command \(keyBinding.rawAction)", level: .error)
+        log("Unknown iina command \(keyBinding.rawAction)", level: .error)
         return false
       }
     } else {
@@ -238,17 +263,35 @@ class PlayerWindowController: NSWindowController, NSWindowDelegate {
       let returnValue: Int32
       // execute the command
       switch keyBinding.action.first! {
+
       case MPVCommand.abLoop.rawValue:
         abLoop()
         returnValue = 0
+
+      case MPVCommand.quit.rawValue:
+        // Initiate application termination. AppKit requires this be done from the main thread,
+        // however the main dispatch queue must not be used to avoid blocking the queue as per
+        // instructions from Apple. IINA must support quitting being initiated by mpv as the user
+        // could use mpv's IPC interface to send the quit command directly to mpv. However the
+        // shutdown sequence is cleaner when initiated by IINA, so we do not send the quit command
+        // to mpv and instead trigger the normal app termination sequence.
+        RunLoop.main.perform(inModes: [.common]) {
+          NSApp.terminate(nil)
+        }
+        returnValue = 0
+
+      case MPVCommand.screenshot.rawValue:
+        return player.screenshot(fromKeyBinding: keyBinding)
+        
       default:
         Logger.log("Run Keybinding commands: \(keyBinding.rawAction)", level: .debug)
         returnValue = player.mpv.commandForkeybinding(rawString: keyBinding.rawAction)
       }
+
       if returnValue == 0 {
         return true
       } else {
-        Logger.log("Return value \(returnValue) when executing key command \(keyBinding.rawAction)", level: .error)
+        log("Return value \(returnValue) when executing key command \(keyBinding.rawAction)", level: .error)
         return false
       }
     }
@@ -256,10 +299,10 @@ class PlayerWindowController: NSWindowController, NSWindowDelegate {
 
   func abLoop() {
     player.abLoop()
-    syncAbLoopOnSlider()
+    syncSlider()
   }
 
-  func syncAbLoopOnSlider() {
+  func syncSlider() {
     let a = player.abLoopA
     playSlider.abLoopA.isHidden = a == 0
     playSlider.abLoopA.doubleValue = secondsToPercent(a)
@@ -511,7 +554,7 @@ class PlayerWindowController: NSWindowController, NSWindowDelegate {
 
     if scrollAction == .seek && isTrackpadBegan {
       // record pause status
-      if player.info.isPlaying {
+      if player.info.state == .playing {
         player.pause()
         wasPlayingBeforeSeeking = true
       }
@@ -546,12 +589,17 @@ class PlayerWindowController: NSWindowController, NSWindowDelegate {
     switch scrollAction {
     case .seek:
       let seekAmount = (isMouse ? AppData.seekAmountMapMouse : AppData.seekAmountMap)[relativeSeekAmount] * delta
-      player.seek(relativeSecond: seekAmount, option: useExtractSeek)
+      player.seek(relativeSecond: seekAmount, option: useExactSeek)
     case .volume:
       // don't use precised delta for mouse
       let newVolume = player.info.volume + (isMouse ? delta : AppData.volumeMap[volumeScrollAmount] * delta)
       player.setVolume(newVolume)
       volumeSlider.doubleValue = newVolume
+    case .playbackSpeed:
+      let min = 0.05
+      let max = 4.0
+      let newSpeed = round(1000 * (player.info.playSpeed + (player.info.playSpeed * AppData.playbackSpeedMap[playbackSpeedScrollAmount] * delta)).clamped(to: min...max)) / 1000
+      player.setSpeed(newSpeed)
     default:
       break
     }
@@ -573,27 +621,29 @@ class PlayerWindowController: NSWindowController, NSWindowDelegate {
     performMouseAction(action)
   }
   
-  // MARK: - Window delegate: Open / Close
-  
-  func windowDidOpen() {
-    if Preference.bool(for: .alwaysFloatOnTop) {
-      setWindowFloatingOnTop(true)
-    }
-    videoView.startDisplayLink()
-  }
-  
   // MARK: - Window delegate: Activeness status
 
   func windowDidBecomeMain(_ notification: Notification) {
     PlayerCore.lastActive = player
-    if #available(macOS 10.13, *), RemoteCommandController.useSystemMediaControl {
-      NowPlayingInfoManager.updateInfo(withTitle: true)
-    }
-    (NSApp.delegate as? AppDelegate)?.menuController?.updatePluginMenu()
+    NowPlayingInfoManager.shared.updateInfo(withTitle: true)
+    AppDelegate.shared.menuController?.updatePluginMenu()
 
     NotificationCenter.default.post(name: .iinaMainWindowChanged, object: true)
   }
-  
+
+  /// The window changed its occlusion state.
+  ///
+  /// If the entire window is now occluded then no action is needed. But if the window has become visible then the view may need to
+  /// be drawn.
+  /// - Note: The window [isVisible](https://developer.apple.com/documentation/appkit/nswindow/isvisible)
+  ///     property is intentionally not used. That property is `true` even when the window is fully obscured. Instead the
+  ///     [occlusionState](https://developer.apple.com/documentation/appkit/nswindow/occlusionstate-swift.property)
+  ///     property is used as it will not indicate the window is visible when it is obscured by other windows.
+  func windowDidChangeOcclusionState(_ notification: Notification) {
+    guard let window, window.occlusionState.contains(.visible) else { return }
+    forceDraw("window became visible")
+  }
+
   func windowDidResignMain(_ notification: Notification) {
     NotificationCenter.default.post(name: .iinaMainWindowChanged, object: false)
   }
@@ -603,6 +653,10 @@ class PlayerWindowController: NSWindowController, NSWindowDelegate {
   }
 
   // MARK: - UI
+
+  func setupUI() {
+    player.syncUI([.time, .playButton, .volume])
+  }
 
   @objc
   func updateTitle() {
@@ -621,7 +675,7 @@ class PlayerWindowController: NSWindowController, NSWindowDelegate {
     case 67...1000:
       return NSImage(named: "volume")
     default:
-      Logger.log("Volume level \(player.info.volume) is invalid", level: .error)
+      log("Volume level \(player.info.volume) is invalid", level: .error)
       return nil
     }
   }
@@ -635,33 +689,34 @@ class PlayerWindowController: NSWindowController, NSWindowDelegate {
     // IINA listens for changes to mpv properties such as chapter that can occur during file loading
     // resulting in this function being called before mpv has set its position and duration
     // properties. Confirm the window and file have been loaded.
-    guard loaded, player.mpv.fileLoaded else { return }
+    guard loaded, player.info.state.loaded else { return }
     // The mpv documentation for the duration property indicates mpv is not always able to determine
     // the video duration in which case the property is not available.
     guard let duration = player.info.videoDuration else {
-      Logger.log("Video duration not available")
+      log("Video duration not available", level: .warning)
       return
     }
     guard let pos = player.info.videoPosition else {
-      Logger.log("Video position not available")
+      log("Video position not available", level: .warning)
       return
     }
-    [leftLabel, rightLabel].forEach { $0.updateText(with: duration, given: pos) }
-    if #available(macOS 10.12.2, *) {
-      player.touchBarSupport.touchBarPosLabels.forEach { $0.updateText(with: duration, given: pos) }
+    guard let remaining = player.info.videoRemaining else {
+      log("Video remaining not available", level: .warning)
+      return
     }
+    [leftLabel, rightLabel].forEach { $0.updateText(with: duration, given: pos, and: remaining) }
+    player.touchBarSupport.touchBarPosLabels.forEach { $0.updateText(with: duration, given: pos,
+                                                                     and: remaining) }
     if andProgressBar {
       let percentage = (pos.second / duration.second) * 100
       playSlider.doubleValue = percentage
-      if #available(macOS 10.12.2, *) {
-        player.touchBarSupport.touchBarPlaySlider?.setDoubleValueSafely(percentage)
-      }
+      player.touchBarSupport.touchBarPlaySlider?.setDoubleValueSafely(percentage)
     }
   }
   
-  func updatePlayButtonState(_ state: NSControl.StateValue) {
+  func updatePlayButtonState(paused: Bool) {
     guard loaded else { return }
-    playButton.state = state
+    playButton.image = NSImage(named: paused ? "play" : "pause")
   }
 
   /** This method will not set `isOntop`! */
@@ -671,6 +726,23 @@ class PlayerWindowController: NSWindowController, NSWindowDelegate {
     if (updateOnTopStatus) {
       self.isOntop = onTop
     }
+  }
+
+  func handleVideoSizeChange() {
+    fatalError("Must implement in the subclass")
+  }
+
+  /// Force a draw, if needed.
+  ///
+  /// If a video is actively being played then there is no need to force a draw as the view is actively being drawn. Otherwise the view
+  /// must be drawn. Video tracks can be images or cover art. Even when there isn't a video track drawing sometimes must be forced
+  /// to clear a previous image, such as when an audio only file is played in the main window after it was used to play a video.
+  func forceDraw(_ reason: String) {
+    guard player.info.state.active else { return }
+    let notVideo = player.info.currentTrack(.video)?.isImage ?? true
+    guard player.info.state == .paused || notVideo else { return }
+    log("Forcing drawing, \(reason)")
+    videoView.videoLayer.update(force: true)
   }
 
   // MARK: - IBActions
@@ -684,7 +756,7 @@ class PlayerWindowController: NSWindowController, NSWindowDelegate {
   }
 
   @IBAction func playButtonAction(_ sender: NSButton) {
-    player.info.isPaused ? player.resume() : player.pause()
+    player.info.state == .paused ? player.resume() : player.pause()
   }
 
   @IBAction func muteButtonAction(_ sender: NSButton) {
@@ -692,30 +764,21 @@ class PlayerWindowController: NSWindowController, NSWindowDelegate {
   }
 
   @IBAction func playSliderChanges(_ sender: NSSlider) {
-    guard !player.info.fileLoading else { return }
+    guard player.info.state.active else { return }
     let percentage = 100 * sender.doubleValue / sender.maxValue
     player.seek(percent: percentage, forceExact: !followGlobalSeekTypeWhenAdjustSlider)
   }
 
   internal func handleIINACommand(_ cmd: IINACommand) {
-    let appDelegate = (NSApp.delegate! as! AppDelegate)
     switch cmd {
     case .openFile:
-      appDelegate.openFile(self)
+      AppDelegate.shared.openFile(self)
     case .openURL:
-      appDelegate.openURL(self)
-    case .flip:
-      menuActionHandler.menuToggleFlip(.dummy)
-    case .mirror:
-      menuActionHandler.menuToggleMirror(.dummy)
-    case .saveCurrentPlaylist:
-      menuActionHandler.menuSavePlaylist(.dummy)
+      AppDelegate.shared.openURL(self)
     case .deleteCurrentFile:
       menuActionHandler.menuDeleteCurrentFile(.dummy)
-    case .findOnlineSubs:
-      menuActionHandler.menuFindOnlineSub(.dummy)
-    case .saveDownloadedSub:
-      menuActionHandler.saveDownloadedSub(.dummy)
+    case .deleteCurrentFileHard:
+      menuActionHandler.menuDeleteCurrentFileHard(.dummy)
     default:
       break
     }
@@ -727,6 +790,11 @@ class PlayerWindowController: NSWindowController, NSWindowDelegate {
     })
   }
 
+  // MARK: - Utils
+
+  func log(_ message: @autoclosure () -> String, level: Logger.Level = .debug) {
+    Logger.log(message, level: level, subsystem: subsystem)
+  }
 }
 
 

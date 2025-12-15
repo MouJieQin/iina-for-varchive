@@ -28,8 +28,8 @@
 "cmd.stop" = "Остановить";
 "cmd.quit" = "Выйти";
 "cmd.quit-watch-later" = "Выйти (запомнить место)";
-"cmd.screenshot" = "Скриншот";
-"cmd.screenshot-to-file" = "Скриншот в файл";
+"cmd.screenshot" = "Снимок экрана";
+"cmd.screenshot-to-file" = "Снимок экрана в файл";
 "cmd.loadfile" = "Загрузить файл";
 "cmd.loadlist" = "Загрузить плейлист";
 "cmd.run" = "Запустить";
@@ -52,6 +52,7 @@
 "iina.toggle-flip" = "Отразить по вертикали (вверх ногами)";
 "iina.toggle-mirror" = "Отразить по горизонтали (зеркально)";
 "iina.save-playlist" = "Сохранить текущий плейлист";
+"iina.show-current-file-in-finder" = "Показать текущий файл в Finder";
 "iina.delete-current-file" = "Удалить текущий файл";
 "iina.delete-current-file-hard" = "Немедленно удалить текущий файл, не помещая его в корзину";
 "iina.find-online-subs" = "Найти субтитры онлайн";
@@ -83,7 +84,7 @@
 "opt.window-scale" = "Масштаб окна";
 
 "opt.video" = "видеодорожку";
-"opt.video-aspect" = "соотношение сторон";
+"opt.video-aspect-override" = "соотношение сторон";
 "opt.contrast" = "Контраст";
 "opt.brightness" = "Яркость";
 "opt.gamma" = "Гамма";
@@ -100,6 +101,7 @@
 "opt.sub-pos" = "Позиция субтитров";
 "opt.sub-scale" = "масштаб субтитров";
 "opt.sub-visibility" = "видимость субтитров";
+"opt.secondary-sub-visibility" = "Видимость вторых субтитров";
 "opt.sub-ass-style-override" = "переопределение стиля ASS";
 
 "opt.fullscreen" = "полноэкранный режим";

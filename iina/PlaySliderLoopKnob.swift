@@ -8,14 +8,6 @@
 
 import Cocoa
 
-// These colors are for 10.13- only
-@available(macOS, obsoleted: 10.14)
-fileprivate extension NSColor {
-  // Use different colors to distinguish loop knobs from the primary knob.
-  static let darkKnobColor = NSColor(calibratedRed: 0.59, green: 0.59, blue: 0.59, alpha: 1)
-  static let lightKnobColor = NSColor(calibratedRed: 0.35, green: 0.35, blue: 0.35, alpha: 1)
-}
-
 /// This class adds an additional thumb (knob) to a slider.
 ///
 /// This class is used to add thumbs representing the A and B loop points of the [mpv](https://mpv.io/manual/stable/) A-B
@@ -42,8 +34,6 @@ final class PlaySliderLoopKnob: NSView {
   // MARK:- Private Properties
 
   private var cell: PlaySliderCell!
-
-  private var isDragging: Bool = false
 
   private let knobHeight: CGFloat
   
@@ -133,13 +123,7 @@ final class PlaySliderLoopKnob: NSView {
     if customKnobColor != nil {
       return customKnobColor!
     } else {
-      // Starting with macOS Mojave 10.14 colors can be configured to automatically adjust for the
-      // current appearance.
-      if #available(macOS 10.14, *) {
-        return NSColor(named: .mainSliderLoopKnob)!
-      } else {
-        return slider.window!.effectiveAppearance.isDark ? .darkKnobColor : .lightKnobColor
-      }
+    return NSColor(named: .mainSliderLoopKnob)!
     }
   }
 
@@ -183,7 +167,6 @@ final class PlaySliderLoopKnob: NSView {
   func beginDragging(with event: NSEvent) {
     let clickLocation = slider.convert(event.locationInWindow, from: nil)
     lastDragLocation = constrainX(clickLocation.x)
-    isDragging = true
   }
 
   /// The user has pressed the left mouse button within the frame of this knob.
@@ -222,9 +205,5 @@ final class PlaySliderLoopKnob: NSView {
     x += newDragLocation.x - lastDragLocation
     lastDragLocation = constrainX(newDragLocation.x)
     NotificationCenter.default.post(Notification(name: .iinaPlaySliderLoopKnobChanged, object: self))
-  }
-
-  override func mouseUp(with event: NSEvent) {
-    isDragging = false
   }
 }

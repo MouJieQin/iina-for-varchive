@@ -29,6 +29,7 @@ class LogWindowController: NSWindowController, NSMenuDelegate {
   override func windowDidLoad() {
     super.windowDidLoad()
 
+    logTableView.userInterfaceLayoutDirection = .leftToRight
     logTableView.sizeLastColumnToFit()
     let tableViewMenu = NSMenu()
     tableViewMenu.addItem(withTitle: "Copy", action: #selector(menuCopy), keyEquivalent: "")
@@ -52,12 +53,7 @@ class LogWindowController: NSWindowController, NSMenuDelegate {
       let path = NSBezierPath.init(ovalIn: inset)
       path.lineWidth = kBorderWidth
 
-      let fractionOfBlendedColor: CGFloat
-      if #available(macOS 10.14, *) {
-        fractionOfBlendedColor = (NSApp.appearance?.isDark ?? false) ? 0.15 : 0.3
-      } else {
-        fractionOfBlendedColor = 0.15
-      };
+      let fractionOfBlendedColor = (NSApp.appearance?.isDark ?? false) ? 0.15 : 0.3
       let borderColor = color.blended(withFraction: fractionOfBlendedColor, of: .controlTextColor)
 
       borderColor?.setStroke()
@@ -135,7 +131,11 @@ class LogWindowController: NSWindowController, NSMenuDelegate {
       self.logs.append(contentsOf: logs)
       logs.removeAll()
       if scroll {
-        logTableView.scrollRowToVisible(self.logs.count - 1)
+        // macOS couldn't calculate the frame size correctly when the row height is variable and
+        // is not rendered. After the first scroll, all rows should be rendered, which makes the
+        // second frame size correct. Scroll the second time to correctly scroll to the last row.
+        logTableView.scroll(NSPoint(x: 0, y: logTableView.frame.size.height))
+        logTableView.scroll(NSPoint(x: 0, y: logTableView.frame.size.height))
       }
     }
   }
