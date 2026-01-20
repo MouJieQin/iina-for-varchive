@@ -819,6 +819,25 @@ class MPVController: NSObject {
       player.seek(absoluteSecond: subStart)
       return 0
 
+    case "custom-seek":
+      guard rawStringSplited.count == 2 else {
+        log("The custom-seek must have and only have one parameter.")
+        return -4
+      }
+      if let offset = Double(rawStringSplited[1]) {
+        let pos = getDouble(MPVProperty.timePos)
+        let destPos = pos + offset
+        guard destPos >= 0 else {
+          player.seek(absoluteSecond: 0)
+          return 0
+        }
+        player.seek(absoluteSecond: destPos)
+        return 0
+      } else {
+        log("The second paraeter of custom-seek must be a Double type.")
+        return -4
+      }
+
     case "custom-ab-loop":
       player.mainWindow.pretendMouseMoved()
       guard rawStringSplited.count >= 2 else {
